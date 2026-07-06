@@ -1,0 +1,38 @@
+name: Upstream MISP Docker drift watch
+
+on:
+  schedule:
+    # Daily, intentionally offset from the top of the hour.
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-upstream:
+    name: Check official MISP Docker upstream
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check upstream drift
+        id: upstream
+        run: |
+          python3 scripts/check-upstream-misp-docker.py --write
+
+      - name: Create upstream review PR
+        if: steps.upstream.outputs.drift == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: automation/upstream-misp-docker-review
+          delete-branch: true
+          commit-message: "Review upstream MISP Docker changes"
+          title: "Review upstream MISP Docker changes"
+          body-path: .upstream/reports/misp-docker-upstream-review.md
+          add-paths: |
+            .upstream/misp-docker.lock.json
+            .upstream/reports/misp-docker-upstream-review.md

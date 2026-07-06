@@ -139,5 +139,6 @@ See `docs/versioning.md` for the release workflow and beginner-friendly SemVer g
 - `docs/upgrade-path.md`
 - `docs/troubleshooting.md`
 - `docs/versioning.md`
+- `.upstream/README.md`
 - `docs/release/release-process.md`
 - `CHANGELOG.md`
