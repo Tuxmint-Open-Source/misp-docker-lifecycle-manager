@@ -93,6 +93,80 @@ compose_cmd() {
   (cd "$install_dir" && env "${env_args[@]}" docker compose --env-file .env "${file_args[@]}" "$@")
 }
 
+sync_misp_image_tags() {
+  # Official misp-docker does not use Git repository tags as the runtime image
+  # version. Its template.env declares component versions (CORE_TAG,
+  # MODULES_TAG, GUARD_TAG), and the published container images are tagged with
+  # those values. For production we make the running image tags explicit instead
+  # of relying on docker-compose.yml's default `latest` fallback.
+  local install_dir="$1" image_track="${2:-version-tags}"
+  [[ -f "$install_dir/template.env" ]] || fatal "Official upstream template.env missing in $install_dir"
+  [[ -f "$install_dir/.env" ]] || fatal "$install_dir/.env missing"
+  [[ "$image_track" =~ ^(version-tags|latest|keep)$ ]] || fatal "image track must be version-tags, latest, or keep"
+  python3 - "$install_dir/template.env" "$install_dir/.env" "$image_track" <<'PY'
+from pathlib import Path
+import sys
+
+template_path = Path(sys.argv[1])
+env_path = Path(sys.argv[2])
+image_track = sys.argv[3]
+
+def parse_active(path):
+    values = {}
+    for line in path.read_text(errors='ignore').splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith('#') or '=' not in stripped:
+            continue
+        key, value = stripped.split('=', 1)
+        values[key.strip()] = value.strip()
+    return values
+
+template = parse_active(template_path)
+required = ['CORE_TAG', 'MODULES_TAG', 'GUARD_TAG']
+missing = [key for key in required if not template.get(key)]
+if missing:
+    raise SystemExit('Missing upstream template values: ' + ', '.join(missing))
+
+updates = {
+    'CORE_TAG': template['CORE_TAG'],
+    'MODULES_TAG': template['MODULES_TAG'],
+    'GUARD_TAG': template['GUARD_TAG'],
+}
+if image_track == 'version-tags':
+    updates.update({
+        'CORE_RUNNING_TAG': template['CORE_TAG'],
+        'MODULES_RUNNING_TAG': template['MODULES_TAG'],
+        'GUARD_RUNNING_TAG': template['GUARD_TAG'],
+    })
+elif image_track == 'latest':
+    updates.update({
+        'CORE_RUNNING_TAG': 'latest',
+        'MODULES_RUNNING_TAG': 'latest',
+        'GUARD_RUNNING_TAG': 'latest',
+    })
+else:
+    # keep: refresh component version metadata, but do not change image pins.
+    pass
+
+seen = set()
+out = []
+for line in env_path.read_text(errors='ignore').splitlines():
+    if line and not line.startswith('#') and '=' in line:
+        key = line.split('=', 1)[0]
+        if key in updates:
+            line = f'{key}={updates[key]}'
+            seen.add(key)
+    out.append(line)
+for key, value in updates.items():
+    if key not in seen:
+        out.append(f'{key}={value}')
+env_path.write_text('\n'.join(out) + '\n')
+for key in ['CORE_TAG', 'MODULES_TAG', 'GUARD_TAG', 'CORE_RUNNING_TAG', 'MODULES_RUNNING_TAG', 'GUARD_RUNNING_TAG']:
+    if key in updates:
+        print(f'{key}={updates[key]}')
+PY
+}
+
 wait_for_misp_core() {
   # MISP's public BASE_URL can point through DNS/reverse proxies. Readiness here
   # intentionally uses container-local HTTPS so DNS and proxy outages do not
@@ -109,11 +183,21 @@ wait_for_misp_core() {
 }
 
 run_misp_db_updates() {
-  # The heartbeat may become healthy before all MISP DB migrations are applied.
-  # Run the official Cake command as the web user before declaring success.
-  local install_dir="$1"
+  # The heartbeat may become healthy before all MISP DB migrations are applied,
+  # and older images can briefly report heartbeat readiness before CakePHP can
+  # open every DB connection. Retry the official update command before failing.
+  local install_dir="$1" attempts="${2:-12}" delay="${3:-10}" attempt
   log "Running MISP database updates"
-  compose_cmd "$install_dir" exec -T -u www-data misp-core sh -lc 'cd /var/www/MISP/app && ./Console/cake Admin runUpdates'
+  for ((attempt=1; attempt<=attempts; attempt++)); do
+    if compose_cmd "$install_dir" exec -T -u www-data misp-core sh -lc 'cd /var/www/MISP/app && ./Console/cake Admin runUpdates'; then
+      return 0
+    fi
+    if (( attempt == attempts )); then
+      fatal "MISP database updates failed after ${attempts} attempts"
+    fi
+    warn "MISP database update attempt ${attempt}/${attempts} failed; retrying in ${delay}s"
+    sleep "$delay"
+  done
 }
 
 check_misp_schema_ready() {
