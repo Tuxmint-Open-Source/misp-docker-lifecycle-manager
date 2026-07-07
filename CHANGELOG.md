@@ -23,6 +23,11 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Reject loopback `BASE_URL` values for direct-QA installs so browser redirects do not point users to their own localhost.
 - Generate MySQL passwords with hex characters only to match upstream MISP Docker's alphanumeric password requirement and avoid corrupting generated database configuration.
 
+### Changed
+
+- Reduce noisy bootstrap TLS and DNS-check output so installer/doctor logs focus on actionable status.
+- Retry Rocky/Docker package-manager operations during host preparation to tolerate transient repository or GPG-key download failures.
+
 ## [0.2.0] - 2026-07-06
 
 ### Added

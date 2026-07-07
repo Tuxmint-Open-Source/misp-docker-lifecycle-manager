@@ -11,6 +11,21 @@ warn() { printf '\033[1;33m[WARN]\033[0m %s\n' "$*" >&2; }
 fatal() { printf '\033[1;31m[ERROR]\033[0m %s\n' "$*" >&2; exit 1; }
 require_cmd() { command -v "$1" >/dev/null 2>&1 || fatal "Required command not found: $1"; }
 
+retry_cmd() {
+  local attempts="$1" delay="$2"; shift 2
+  local attempt
+  for ((attempt=1; attempt<=attempts; attempt++)); do
+    if "$@"; then
+      return 0
+    fi
+    if (( attempt == attempts )); then
+      fatal "Command failed after ${attempts} attempts: $*"
+    fi
+    warn "Command failed (attempt ${attempt}/${attempts}); retrying in ${delay}s: $*"
+    sleep "$delay"
+  done
+}
+
 installer_version() {
   if [[ -f "$VERSION_FILE" ]]; then
     tr -d '\n' < "$VERSION_FILE"
