@@ -18,7 +18,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Reduce noisy bootstrap TLS and DNS-check output so installer/doctor logs focus on actionable status.
 - Retry Rocky/Docker package-manager operations during host preparation to tolerate transient repository or GPG-key download failures.
 - Document and implement deterministic MISP component image tracking for updates. The default update path now pins runtime image tags to the official component tags from upstream `template.env` instead of relying on implicit `latest`.
-- Retry MISP database updates during install/update because older images can briefly report heartbeat readiness before CakePHP can open every database connection.
+- Wait longer for MISP database updates during install/update and report first-start database initialization clearly instead of flooding logs with repeated CakePHP stack traces.
 
 ## [0.2.0] - 2026-07-06
 

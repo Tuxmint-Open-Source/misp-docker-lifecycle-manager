@@ -38,6 +38,26 @@ If the credentials are correct but login still fails:
 Do not paste real passwords into public issues or Pull Requests. If you need to
 share troubleshooting output, redact the password and use generic hostnames.
 
+## Installer fails at `Running MISP database updates`, but login works later
+
+On a fresh start, the container-local heartbeat can respond before the upstream
+MISP entrypoint has finished database and application initialization. During that
+window `Admin runUpdates` may fail with a CakePHP database connection error, and
+the database logs may show temporary access-denied messages for the MISP user.
+
+This is a MISP startup/initialization timing issue, not a Docker image-tag or
+package-install failure. Re-run the installer from a clean reset with the current
+scripts, or run:
+
+```bash
+./installer/doctor.sh --install-dir /opt/misp-docker
+./installer/login-check.sh --install-dir /opt/misp-docker
+```
+
+If the stack becomes usable after several minutes, the first start was simply
+slow. If it never becomes usable, inspect the MISP and database logs with generic
+redaction before sharing them publicly.
+
 ## Shell says `--core-tag: command not found`
 
 This means the multiline install command was split incorrectly by the shell. Every

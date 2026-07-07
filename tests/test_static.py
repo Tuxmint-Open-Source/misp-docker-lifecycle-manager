@@ -56,6 +56,8 @@ class StaticRepoTests(unittest.TestCase):
         lib = (ROOT / 'installer' / 'lib.sh').read_text()
         self.assertIn('./Console/cake Admin runUpdates', lib)
         self.assertIn('MISP database update attempt', lib)
+        self.assertIn('attempts="${2:-90}"', lib)
+        self.assertIn('first-start initialization may still be running', lib)
         self.assertIn("SHOW TABLES LIKE", lib)
 
     def test_compose_wrapper_suppresses_optional_variable_noise(self):

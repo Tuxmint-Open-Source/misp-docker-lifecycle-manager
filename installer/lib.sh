@@ -231,19 +231,27 @@ wait_for_misp_core() {
 }
 
 run_misp_db_updates() {
-  # The heartbeat may become healthy before all MISP DB migrations are applied,
-  # and older images can briefly report heartbeat readiness before CakePHP can
-  # open every DB connection. Retry the official update command before failing.
-  local install_dir="$1" attempts="${2:-12}" delay="${3:-10}" attempt
+  # The heartbeat can become healthy before the upstream entrypoint has finished
+  # first-start database/user setup. In that window CakePHP may report missing DB
+  # connections even though the stack later becomes usable. Keep waiting long
+  # enough for slow first starts, but avoid printing the same stack trace on every
+  # retry.
+  local install_dir="$1" attempts="${2:-90}" delay="${3:-10}" attempt output
   log "Running MISP database updates"
   for ((attempt=1; attempt<=attempts; attempt++)); do
-    if compose_cmd "$install_dir" exec -T -u www-data misp-core sh -lc 'cd /var/www/MISP/app && ./Console/cake Admin runUpdates'; then
+    if output="$(compose_cmd "$install_dir" exec -T -u www-data misp-core sh -lc 'cd /var/www/MISP/app && ./Console/cake Admin runUpdates' 2>&1)"; then
+      [[ -n "$output" ]] && printf '%s\n' "$output"
       return 0
     fi
     if (( attempt == attempts )); then
+      [[ -n "$output" ]] && printf '%s\n' "$output" >&2
       fatal "MISP database updates failed after ${attempts} attempts"
     fi
-    warn "MISP database update attempt ${attempt}/${attempts} failed; retrying in ${delay}s"
+    if [[ "$output" == *'MysqlObserverExtended'* || "$output" == *'could not be created'* ]]; then
+      warn "MISP database connection is not ready yet; first-start initialization may still be running (attempt ${attempt}/${attempts}); retrying in ${delay}s"
+    else
+      warn "MISP database update attempt ${attempt}/${attempts} failed; retrying in ${delay}s"
+    fi
     sleep "$delay"
   done
 }
