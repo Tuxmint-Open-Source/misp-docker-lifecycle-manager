@@ -53,6 +53,13 @@ Installer changes should preserve these expectations:
 - `reset-installation.sh` dry-runs by default and never removes Docker Engine.
 - `login-check.sh` never prints the password and attempts logout after successful login.
 
+## Upstream monitoring
+
+- `.upstream/misp-docker.lock.json` stores the last reviewed public upstream state.
+- `scripts/check-upstream-misp-docker.py` checks selected official `MISP/misp-docker` inputs.
+- `.github/workflows/upstream-misp-docker-watch.yml` runs the monitor on a schedule and opens a PR when relevant drift is detected.
+- Treat upstream-monitor PRs as review prompts: decide whether installer code or docs need follow-up changes before merging.
+
 ## Release workflow
 
 1. Feature/fix PRs update code, docs, tests, and `[Unreleased]` changelog entries.

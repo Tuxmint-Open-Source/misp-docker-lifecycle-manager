@@ -136,6 +136,18 @@ Must:
 - report login status markers
 - attempt logout after successful login
 
+## Upstream drift acceptance criteria
+
+The upstream monitor should keep these assumptions reviewable:
+
+- official `MISP/misp-docker` upstream commit
+- watched file hashes for `template.env`, `docker-compose.yml`, and `README.md`
+- component tags for core, modules, and guard
+- runtime image tag defaults
+- Compose service names and MISP image expressions
+
+When the scheduled workflow opens an upstream review PR, a maintainer should decide whether code or documentation changes are needed before merging the baseline update.
+
 ## Release acceptance criteria
 
 A release is ready when:

@@ -104,5 +104,16 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Refusing unsafe --install-dir', text)
         self.assertIn('Docker Engine itself is not removed', text)
 
+    def test_upstream_monitoring_artifacts_exist(self):
+        self.assertTrue((ROOT / 'scripts' / 'check-upstream-misp-docker.py').exists())
+        self.assertTrue((ROOT / '.github' / 'workflows' / 'upstream-misp-docker-watch.yml').exists())
+        self.assertTrue((ROOT / '.upstream' / 'misp-docker.lock.json').exists())
+        monitor = (ROOT / 'scripts' / 'check-upstream-misp-docker.py').read_text()
+        self.assertIn('template.env', monitor)
+        self.assertIn('docker-compose.yml', monitor)
+        self.assertIn('CORE_TAG', monitor)
+        self.assertIn('MODULES_TAG', monitor)
+        self.assertIn('GUARD_TAG', monitor)
+
 if __name__ == '__main__':
     unittest.main()
