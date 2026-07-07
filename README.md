@@ -1,5 +1,14 @@
 # MISP Production Installer
 
+> [!CAUTION]
+> **NOT PRODUCTION READY**
+>
+> This repository is under active development. APIs, configuration, behavior, and data structures may change without notice.
+> Do not use this project in production environments yet.
+
+> [!NOTE]
+> Contributions are welcome. Feel free to open an issue or submit a pull request.
+
 A clean installer/overlay repository for production-oriented MISP Docker deployments.
 
 Current installer version: `0.2.0`
