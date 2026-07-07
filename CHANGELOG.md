@@ -8,6 +8,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 - Add `AGENTS.md` with public-safe coding-agent guidance for repository workflow, validation, and release conventions.
 - Add `QA.md` with repository quality gates, acceptance criteria, and definition of done.
+- Add scheduled upstream drift monitoring for public `MISP/misp-docker` inputs that affect installer assumptions.
 
 ## [0.2.0] - 2026-07-06
 

@@ -1,0 +1,47 @@
+{
+  "checked_at_utc": "2026-07-06T20:45:23Z",
+  "component_tags": {
+    "CORE_TAG": "v2.5.42",
+    "GUARD_TAG": "v1.2",
+    "MODULES_TAG": "v3.0.8"
+  },
+  "compose": {
+    "misp_images": {
+      "misp-core": "${REGISTRY_MIRROR_URL:-}ghcr.io/misp/misp-docker/misp-core:${CORE_RUNNING_TAG:-latest}",
+      "misp-guard": "${REGISTRY_MIRROR_URL:-}ghcr.io/misp/misp-docker/misp-guard:${GUARD_RUNNING_TAG:-latest}",
+      "misp-modules": "${REGISTRY_MIRROR_URL:-}ghcr.io/misp/misp-docker/misp-modules:${MODULES_RUNNING_TAG:-latest}"
+    },
+    "services": [
+      "db",
+      "mail",
+      "misp-core",
+      "misp-guard",
+      "misp-modules",
+      "redis"
+    ]
+  },
+  "readme_versioning_section_sha256": "4fa585559dee7cd6027169ef7eea8e1094e6d9123ddc414474d45f0a13b8fcc9",
+  "ref": "master",
+  "repo": "https://github.com/MISP/misp-docker.git",
+  "running_tag_defaults_in_template_env": {
+    "CORE_RUNNING_TAG": "(commented or unset)",
+    "GUARD_RUNNING_TAG": "(commented or unset)",
+    "MODULES_RUNNING_TAG": "(commented or unset)"
+  },
+  "schema": 1,
+  "upstream_commit": "6d915d5921183cded7758dad19c8584edbcde642",
+  "watched_files": {
+    "README.md": {
+      "exists": true,
+      "sha256": "55f239c55a6547febd20772ecacc4b078a2ed8138b0f39a4a6bb0ff665da929f"
+    },
+    "docker-compose.yml": {
+      "exists": true,
+      "sha256": "2fd5cfa7778bd16aecbe18bc93e5db1583930f126887df57091c4670b520dcc8"
+    },
+    "template.env": {
+      "exists": true,
+      "sha256": "9f040883f96ee5fd7c5c7c3abc1531f166d4b35f9c831e362c000c5229638c9a"
+    }
+  }
+}
