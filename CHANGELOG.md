@@ -4,6 +4,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-07-07
+
 ### Changed
 
 - Reorganize `README.md` so new users see the supported install/update workflows, version model, post-install checks, non-invasive/no-lock-in project focus, and key `v0.3.0` validation findings before the architecture details.
@@ -58,7 +60,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - MISP schema readiness handling via `Admin runUpdates` and `bookmarks` table check.
 - Public documentation for architecture, upgrade path, troubleshooting, shell scripts, and versioning.
 
-[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Tuxmint-Open-Source/misp-production-installer/releases/tag/v0.1.0
