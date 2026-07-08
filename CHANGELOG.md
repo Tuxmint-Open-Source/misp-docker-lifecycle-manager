@@ -11,6 +11,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 ### Changed
 
 - Pin scheduled upstream-monitor GitHub Actions to commit SHAs and align versioning guidance with the release-PR workflow.
+- Make Docker group membership during Rocky host preparation explicit opt-in because Docker group access is root-equivalent.
 
 ### Fixed
 
