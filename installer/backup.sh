@@ -42,17 +42,26 @@ done
 
 [[ -f "$INSTALL_DIR/.env" ]] || fatal "$INSTALL_DIR/.env missing"
 BACKUP_ROOT="${BACKUP_ROOT:-$INSTALL_DIR/backups}"
+umask 077
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 out="$BACKUP_ROOT/misp-backup-$stamp"
 mkdir -p "$out"
+chmod 700 "$out"
 
 # Database backup: single-transaction keeps the dump consistent without a long
 # global lock for typical InnoDB tables.
-compose_cmd "$INSTALL_DIR" exec -T db sh -c 'exec mariadb-dump --single-transaction --quick -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"' > "$out/misp.sql"
+compose_cmd "$INSTALL_DIR" exec -T db sh -lc '
+  umask 077
+  cfg="$(mktemp)"
+  trap '\''rm -f "$cfg"'\'' EXIT
+  printf "[client]\nuser=%s\npassword=%s\n" "$MYSQL_USER" "$MYSQL_PASSWORD" > "$cfg"
+  mariadb-dump --defaults-extra-file="$cfg" --single-transaction --quick "$MYSQL_DATABASE"
+' > "$out/misp.sql"
 
 # Host-data backup: these directories contain MISP files, generated configs,
 # logs, TLS material, GnuPG state, and optional customizations.
 (cd "$INSTALL_DIR" && { sudo tar --xattrs --selinux -czf "$out/misp-host-data.tar.gz" configs logs files ssl gnupg custom guard 2>/dev/null || sudo tar -czf "$out/misp-host-data.tar.gz" configs logs files ssl gnupg custom guard; })
 sudo chown "$(id -u):$(id -g)" "$out/misp-host-data.tar.gz"
 sha256sum "$out"/* > "$out/SHA256SUMS"
+chmod 600 "$out/misp.sql" "$out/misp-host-data.tar.gz" "$out/SHA256SUMS"
 log "Backup written to $out"

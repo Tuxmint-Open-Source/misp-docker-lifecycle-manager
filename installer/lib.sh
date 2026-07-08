@@ -50,15 +50,23 @@ validate_public_base_url() {
   local base_url="$1" exposure="$2"
   python3 - "$base_url" "$exposure" <<'PY'
 import ipaddress
+import re
 import sys
 from urllib.parse import urlparse
 
 base_url, exposure = sys.argv[1:]
+if any(ord(ch) < 32 for ch in base_url):
+    raise SystemExit('BASE_URL must not contain control characters')
 parsed = urlparse(base_url)
 if parsed.scheme not in {'http', 'https'} or not parsed.hostname:
     raise SystemExit('BASE_URL must be an http(s) URL with a hostname')
 
 host = parsed.hostname.lower().rstrip('.')
+# Keep the shell/Python boundary simple and safe: only DNS labels and IP
+# literals are supported. This rejects quotes, whitespace, userinfo, and other
+# surprising characters before any helper consumes the URL.
+if not re.fullmatch(r'[a-z0-9.-]+|[0-9a-f:.]+', host):
+    raise SystemExit('BASE_URL hostname contains unsupported characters')
 if exposure == 'direct-qa':
     if host in {'localhost', 'localhost.localdomain'}:
         raise SystemExit('direct-qa BASE_URL must be reachable by users; localhost would redirect browsers back to their own machine')
@@ -68,6 +76,17 @@ if exposure == 'direct-qa':
         ip = None
     if ip and ip.is_loopback:
         raise SystemExit('direct-qa BASE_URL must not use a loopback IP address')
+PY
+}
+
+url_hostname() {
+  local base_url="$1" fallback="${2:-}"
+  python3 - "$base_url" "$fallback" <<'PY'
+import sys
+from urllib.parse import urlparse
+
+base_url, fallback = sys.argv[1:]
+print(urlparse(base_url).hostname or fallback)
 PY
 }
 
@@ -261,7 +280,13 @@ check_misp_schema_ready() {
   # catches the observed first-login /users/routeafterlogin MissingTableException.
   local install_dir="$1"
   log "Checking MISP schema readiness"
-  compose_cmd "$install_dir" exec -T db sh -lc 'mariadb -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -NBe "SHOW TABLES LIKE '\''bookmarks'\'';" | grep -qx bookmarks'
+  compose_cmd "$install_dir" exec -T db sh -lc '
+    umask 077
+    cfg="$(mktemp)"
+    trap '\''rm -f "$cfg"'\'' EXIT
+    printf "[client]\nuser=%s\npassword=%s\n" "$MYSQL_USER" "$MYSQL_PASSWORD" > "$cfg"
+    mariadb --defaults-extra-file="$cfg" "$MYSQL_DATABASE" -NBe "SHOW TABLES LIKE '\''bookmarks'\'';" | grep -qx bookmarks
+  '
 }
 
 write_state() {

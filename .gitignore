@@ -5,6 +5,10 @@ runtime/
 upstream/
 work/
 backups/
+*.sql
+*.sql.gz
+SHA256SUMS
+misp-backup-*/
 *.tar
 *.tar.gz
 ssl/key.pem

@@ -79,6 +79,23 @@ case "$INSTALL_DIR" in
 esac
 [[ "$INSTALL_DIR" == */* ]] || fatal "Refusing unsafe --install-dir: $INSTALL_DIR"
 
+is_known_installer_dir() {
+  local dir="$1"
+  [[ -d "$dir" ]] || return 1
+  if [[ -f "$dir/.installer-state.json" ]] && grep -q '"installer": "misp-production-installer"' "$dir/.installer-state.json"; then
+    return 0
+  fi
+  # Allow cleanup of installs that were interrupted before state was written, but
+  # only when they still look like this installer produced an official
+  # misp-docker checkout plus generated runtime config.
+  [[ -f "$dir/docker-compose.yml" && -f "$dir/template.env" && -f "$dir/.env" ]] && return 0
+  return 1
+}
+
+if [[ "$YES" == true && -e "$INSTALL_DIR" ]] && ! is_known_installer_dir "$INSTALL_DIR"; then
+  fatal "Refusing destructive reset: $INSTALL_DIR does not contain expected MISP installer markers (.installer-state.json or docker-compose.yml + template.env + .env)."
+fi
+
 run_or_print() {
   if [[ "$YES" == true ]]; then
     "$@"

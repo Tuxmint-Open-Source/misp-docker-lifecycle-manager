@@ -93,11 +93,7 @@ validate_public_base_url "$BASE_URL" "$EXPOSURE"
 "$SCRIPT_DIR/render-compose.sh" --install-dir "$INSTALL_DIR" --exposure "$EXPOSURE"
 
 if [[ "$BOOTSTRAP_TLS" == true ]]; then
-  fqdn="$(python3 - <<PY
-from urllib.parse import urlparse
-print(urlparse('$BASE_URL').hostname or 'misp.example.com')
-PY
-)"
+  fqdn="$(url_hostname "$BASE_URL" "misp.example.com")"
   "$SCRIPT_DIR/bootstrap-tls.sh" --install-dir "$INSTALL_DIR" --fqdn "$fqdn"
 fi
 

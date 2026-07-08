@@ -5,6 +5,18 @@ source "$SCRIPT_DIR/lib.sh"
 INSTALL_DIR="/opt/misp-docker"; FQDN="misp.example.com"
 while [[ $# -gt 0 ]]; do case "$1" in --install-dir) INSTALL_DIR="$2"; shift 2;; --fqdn) FQDN="$2"; shift 2;; *) fatal "Unknown argument: $1";; esac; done
 require_cmd openssl; mkdir -p "$INSTALL_DIR/ssl"
+python3 - "$FQDN" <<'PY'
+import re
+import sys
+
+fqdn = sys.argv[1]
+if not fqdn or len(fqdn) > 253:
+    raise SystemExit('FQDN must be non-empty and no longer than 253 characters')
+if not re.fullmatch(r'[A-Za-z0-9.-]+', fqdn):
+    raise SystemExit('FQDN contains unsupported characters')
+if any(not label or len(label) > 63 or label.startswith('-') or label.endswith('-') for label in fqdn.rstrip('.').split('.')):
+    raise SystemExit('FQDN contains an invalid DNS label')
+PY
 [[ -e "$INSTALL_DIR/ssl/key.pem" || -e "$INSTALL_DIR/ssl/cert.pem" ]] && fatal "TLS files already exist in $INSTALL_DIR/ssl. Replace manually if desired."
 OPENSSL_LOG="$(mktemp)"
 if ! openssl req -x509 -newkey rsa:4096 -sha256 -days 30 -nodes \
