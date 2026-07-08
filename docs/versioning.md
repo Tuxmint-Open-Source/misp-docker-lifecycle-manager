@@ -58,24 +58,16 @@ That means:
 
 ## Recommended release workflow
 
-1. Make code and documentation changes.
-2. Run tests and shell syntax checks:
+Use the release-PR workflow in [`docs/release/release-process.md`](release/release-process.md) as the source of truth.
 
-   ```bash
-   python3 -m unittest discover -s tests
-   for f in installer/*.sh; do bash -n "$f"; done
-   ```
+Short version:
 
-3. Update `VERSION` and `CHANGELOG.md`.
-4. Commit the change.
-5. Create a Git tag matching the version:
+1. Feature and fix PRs update code, docs, tests, and the `[Unreleased]` changelog section.
+2. A dedicated release PR updates `VERSION`, finalizes `CHANGELOG.md`, and prepares release notes.
+3. After the release PR is reviewed and merged into `main`, create the annotated tag from the updated `main` commit.
+4. Create and verify the GitHub Release from that tag.
 
-   ```bash
-   git tag -a v0.1.0 -m "Release v0.1.0"
-   git push origin main v0.1.0
-   ```
-
-6. Create a GitHub release from the tag.
+Do not push release commits directly to `main`; use a release PR so the version bump, changelog, release notes, and public-safety checks are reviewed before tagging.
 
 ## When to bump which number?
 
