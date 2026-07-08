@@ -96,7 +96,6 @@ This is the default path. It uses the latest official component versions declare
 git clone https://github.com/Tuxmint-Open-Source/misp-production-installer.git
 cd misp-production-installer
 sudo ./installer/prepare-host-rocky.sh
-newgrp docker
 sudo ./installer/install.sh \
   --install-dir /opt/misp-docker \
   --upstream-ref master \
@@ -106,6 +105,8 @@ sudo ./installer/install.sh \
   --timezone Europe/Zurich \
   --exposure reverse-proxy
 ```
+
+By default, `prepare-host-rocky.sh` does **not** add your user to the Docker group because Docker group membership is effectively root-equivalent on the host. Use `sudo` for Docker lifecycle commands, or rerun host preparation with `--add-current-user-to-docker-group` only if you accept that trade-off on a trusted single-operator system.
 
 Reverse proxy target for default `reverse-proxy` mode:
 

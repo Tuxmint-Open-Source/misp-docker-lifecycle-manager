@@ -40,7 +40,7 @@ Use `--prepare-host` if you also want the script to install Docker on Rocky Linu
 
 | Script | Purpose |
 | --- | --- |
-| `prepare-host-rocky.sh` | Install Docker Engine and Compose plugin on Rocky Linux. |
+| `prepare-host-rocky.sh` | Install Docker Engine and Compose plugin on Rocky Linux. Does not add users to the Docker group unless `--add-current-user-to-docker-group` is passed. |
 | `validate.sh` | Validate `.env` and Docker Compose config. |
 | `doctor.sh` | Run health/readiness checks after install or update. |
 | `status.sh` | Show Compose service status and heartbeat. |

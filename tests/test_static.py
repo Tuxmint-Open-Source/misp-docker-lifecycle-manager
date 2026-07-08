@@ -112,6 +112,14 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('download.docker.com', text)
         self.assertIn('docker-ce', text)
 
+    def test_prepare_host_docker_group_is_explicit_opt_in(self):
+        text = (ROOT / 'installer' / 'prepare-host-rocky.sh').read_text()
+        self.assertIn('ADD_CURRENT_USER_TO_DOCKER_GROUP="false"', text)
+        self.assertIn('--add-current-user-to-docker-group', text)
+        self.assertIn('Docker group membership is root-equivalent', text)
+        self.assertIn('safer by default', text)
+        self.assertIn('usermod -aG docker', text)
+
     def test_admin_credentials_helper_is_safe_by_default(self):
         text = (ROOT / 'installer' / 'admin-credentials.sh').read_text()
         self.assertIn('--show-password', text)
