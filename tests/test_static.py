@@ -1,5 +1,6 @@
 from pathlib import Path
 import subprocess
+import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -49,8 +50,13 @@ class StaticRepoTests(unittest.TestCase):
 
     def test_no_private_lab_markers(self):
         markers = [
+            '10' + '.0.',
+            '10' + '.1.',
+            '172' + '.16.',
+            '172' + '.31.',
             '192' + '.168.',
             '.loc' + '.internal',
+            '/home/' + 'hermes',
             'TOKEN_' + 'SECRET',
             'PRIVATE_' + 'KEY',
             'BEGIN ' + 'OPENSSH ' + 'PRIVATE KEY',
@@ -128,7 +134,77 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Type DELETE to continue', text)
         self.assertIn('down --volumes --remove-orphans', text)
         self.assertIn('Refusing unsafe --install-dir', text)
+        self.assertIn('does not contain expected MISP installer markers', text)
+        self.assertIn('misp-production-installer', text)
         self.assertIn('Docker Engine itself is not removed', text)
+
+    def test_reset_refuses_unmarked_directory_even_with_force(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp) / 'not-a-misp-install'
+            target.mkdir()
+            result = subprocess.run(
+                [str(ROOT / 'installer' / 'reset-installation.sh'), '--install-dir', str(target), '--yes', '--force'],
+                cwd=ROOT,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertTrue(target.exists())
+            self.assertIn('expected MISP installer markers', result.stderr)
+
+    def test_base_url_is_not_embedded_in_python_source(self):
+        install = (ROOT / 'installer' / 'install.sh').read_text()
+        doctor = (ROOT / 'installer' / 'doctor.sh').read_text()
+        lib = (ROOT / 'installer' / 'lib.sh').read_text()
+        self.assertNotIn("urlparse('$BASE_URL')", install)
+        self.assertNotIn("urlparse('$BASE_URL')", doctor)
+        self.assertIn('url_hostname "$BASE_URL"', install)
+        self.assertIn('url_hostname "$BASE_URL"', doctor)
+        self.assertIn('python3 - "$base_url" "$fallback" <<\'PY\'', lib)
+
+    def test_malicious_base_url_is_rejected(self):
+        payload = "https://example.com').hostname);print('INJECTED');#"
+        result = subprocess.run(
+            ['bash', '-lc', f'source installer/lib.sh; validate_public_base_url {payload!r} reverse-proxy'],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertNotIn('INJECTED', result.stdout)
+
+    def test_doctor_does_not_use_predictable_tmp_heartbeat_file(self):
+        text = (ROOT / 'installer' / 'doctor.sh').read_text()
+        self.assertNotIn('/tmp/misp-heartbeat.json', text)
+        self.assertIn('heartbeat_body=', text)
+
+    def test_backup_and_schema_checks_avoid_password_argv(self):
+        backup = (ROOT / 'installer' / 'backup.sh').read_text()
+        lib = (ROOT / 'installer' / 'lib.sh').read_text()
+        for text in [backup, lib]:
+            self.assertIn('--defaults-extra-file="$cfg"', text)
+            self.assertNotIn('-p"$MYSQL_PASSWORD"', text)
+            self.assertNotIn('-p$MYSQL_PASSWORD', text)
+
+    def test_backup_uses_restrictive_permissions(self):
+        text = (ROOT / 'installer' / 'backup.sh').read_text()
+        self.assertIn('umask 077', text)
+        self.assertIn('chmod 700 "$out"', text)
+        self.assertIn('chmod 600 "$out/misp.sql"', text)
+
+    def test_temp_checkout_cleanup_trap_expands_tmpdir(self):
+        text = (ROOT / 'installer' / 'get-current-misp-versions.sh').read_text()
+        self.assertIn("trap 'rm -rf \"$TMPDIR\"' EXIT", text)
+        self.assertNotIn("trap 'rm -rf \\\"$TMPDIR\\\"' EXIT", text)
+
+    def test_gitignore_covers_sensitive_backup_artifacts(self):
+        text = (ROOT / '.gitignore').read_text()
+        for pattern in ['*.sql', '*.sql.gz', 'SHA256SUMS', 'misp-backup-*/']:
+            self.assertIn(pattern, text)
 
     def test_upstream_monitoring_artifacts_exist(self):
         self.assertTrue((ROOT / 'scripts' / 'check-upstream-misp-docker.py').exists())

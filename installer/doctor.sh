@@ -44,11 +44,7 @@ for line in Path(sys.argv[1]).read_text().splitlines():
         print(line.split('=',1)[1])
 PY
 )"
-HOST="$(python3 - <<PY
-from urllib.parse import urlparse
-print(urlparse('$BASE_URL').hostname or '')
-PY
-)"
+HOST="$(url_hostname "$BASE_URL")"
 log "BASE_URL=$BASE_URL"
 if [[ -n "$HOST" ]] && getent hosts "$HOST" >/dev/null; then
   log "DNS lookup OK for $HOST"
@@ -59,6 +55,6 @@ fi
 wait_for_misp_core "$INSTALL_DIR" 600
 check_misp_schema_ready "$INSTALL_DIR"
 compose_cmd "$INSTALL_DIR" ps
-compose_cmd "$INSTALL_DIR" exec -T misp-core curl -ks https://localhost/users/heartbeat >/tmp/misp-heartbeat.json
-log "Heartbeat OK: $(tr '\n' ' ' </tmp/misp-heartbeat.json)"
+heartbeat_body="$(compose_cmd "$INSTALL_DIR" exec -T misp-core curl -ks https://localhost/users/heartbeat)"
+log "Heartbeat OK: $(tr '\n' ' ' <<<"$heartbeat_body")"
 log "Doctor checks completed."
