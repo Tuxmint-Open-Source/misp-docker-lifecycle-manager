@@ -217,5 +217,12 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('MODULES_TAG', monitor)
         self.assertIn('GUARD_TAG', monitor)
 
+    def test_github_actions_are_sha_pinned(self):
+        workflow = (ROOT / '.github' / 'workflows' / 'upstream-misp-docker-watch.yml').read_text()
+        self.assertIn('actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0', workflow)
+        self.assertIn('peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1', workflow)
+        self.assertNotIn('uses: actions/checkout@v', workflow)
+        self.assertNotIn('uses: peter-evans/create-pull-request@v', workflow)
+
 if __name__ == '__main__':
     unittest.main()

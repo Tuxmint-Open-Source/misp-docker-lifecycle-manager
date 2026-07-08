@@ -8,6 +8,10 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 - Add public-safe real-world `v0.3.1` validation documentation and a validation matrix covering fresh VM host preparation, older/specific component install, update-to-latest, database migrations, external redirect checks, CLI login checks, and Playwright browser login.
 
+### Changed
+
+- Pin scheduled upstream-monitor GitHub Actions to commit SHAs and align versioning guidance with the release-PR workflow.
+
 ### Fixed
 
 - Harden installer safety checks around URL parsing, reset target validation, backup artifact permissions, database credential handling, and temporary diagnostic output.
