@@ -48,6 +48,7 @@ The PR should:
 - move `[Unreleased]` changelog entries into `## [X.Y.Z] - YYYY-MM-DD`
 - update changelog compare links
 - include validation evidence using public-safe generic wording
+- keep compatibility tables honest: a release candidate or untagged branch may be marked pending, but it must not be marked **validated compatible** until the immutable tag exists and validation has passed
 
 ## GitHub Release notes
 
@@ -97,3 +98,21 @@ Verify the release afterwards:
 ```bash
 gh release view vX.Y.Z --json tagName,name,url,isDraft,isPrerelease,targetCommitish
 ```
+
+## Compatibility validation after tagging
+
+If the release is meant to be shown as compatible with official MISP Docker components, validate the immutable release tag before making that claim publicly.
+
+The post-tag compatibility flow is:
+
+1. Create and verify the Git tag and GitHub Release.
+2. Run the compatibility validation harness against the exact tag, not `main` or the release branch.
+3. Record raw/private evidence according to the private validation-reporting policy.
+4. If validation passes, open a small public docs PR that updates:
+   - `README.md`
+   - `docs/compatibility.md`
+   - `docs/validation/matrix.md`
+   - the relevant detailed compatibility report
+5. Mark the release/component pair **validated compatible** only after the exact tag passes the documented scenarios.
+
+If validation fails, keep the public status as **validation failed** or **pending validation** and prepare a fix release instead of editing the result to look successful.

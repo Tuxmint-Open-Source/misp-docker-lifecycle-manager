@@ -1,6 +1,6 @@
 # Compatibility validation: installer v0.3.3 line with MISP core v2.5.43
 
-This document records public-safe compatibility validation for the `misp-production-installer` line being prepared as `v0.3.3`, with the official MISP Docker component set reviewed in PR [#22](https://github.com/Tuxmint-Open-Source/misp-production-installer/pull/22).
+This document records public-safe compatibility validation for the `misp-production-installer` `v0.3.3` release tag, with the official MISP Docker component set reviewed in PR [#22](https://github.com/Tuxmint-Open-Source/misp-production-installer/pull/22).
 
 The purpose is to show which installer release/ref was tested with which official MISP component versions, what passed, what failed, and what is not claimed.
 
@@ -151,7 +151,7 @@ This means `v0.3.2` should not be described as validated compatible with MISP co
 
 ## What this validates
 
-The completed `main` validation gives confidence that the installer line after the readiness fix works with the official MISP Docker component set reviewed in PR #22:
+The completed `v0.3.3` release-tag validation gives confidence that the released installer works with the official MISP Docker component set reviewed in PR #22:
 
 - fresh direct-QA installation
 - fresh reverse-proxy installation
@@ -162,9 +162,7 @@ The completed `main` validation gives confidence that the installer line after t
 - login-check behavior
 - basic negative-path guardrails
 
-## Required follow-up
-
-Publish a patch release from the validated `main` line, then validate that release tag against the same official MISP Docker component set. Only then should the public compatibility table show a release-tag entry as **validated compatible**.
+This is a compatibility result for the listed release/component pair. It is not a blanket guarantee for every environment.
 
 ## What this does not claim
 
