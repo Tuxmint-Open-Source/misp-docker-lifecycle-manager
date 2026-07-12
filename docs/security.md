@@ -1,0 +1,132 @@
+# Security model
+
+This document describes the security posture intended for the first production-ready major release of `misp-production-installer`.
+
+It focuses on the installer and lifecycle wrapper. MISP application security and official Docker image contents remain upstream responsibilities of the official MISP projects.
+
+## Scope
+
+This project manages:
+
+- host preparation helper scripts
+- official `MISP/misp-docker` checkout creation/update
+- generated `.env` values
+- generated Docker Compose override
+- backup/update/reset/doctor/login-check helper scripts
+- public-safe validation and compatibility documentation
+
+This project does not:
+
+- fork or patch MISP application source code
+- replace upstream MISP Docker images
+- provide a complete host hardening baseline
+- operate a monitoring/SIEM stack
+- manage DNS or public certificate issuance for every environment
+- provide high-availability clustering
+
+## Secret handling
+
+The installer generates secrets into the deployment `.env` file. Operators must treat that file as sensitive.
+
+Rules:
+
+- Do not commit `.env` or `.installer-state.json`.
+- Do not paste generated passwords into public issues or logs.
+- Use `admin-credentials.sh` for controlled credential inspection.
+- Password-revealing helper options should be used only on trusted terminals.
+- Backups must be treated as sensitive because they can include database data and generated secrets.
+
+## File permissions
+
+The project aims to use restrictive permissions for generated sensitive artifacts.
+
+Expected behavior:
+
+- backups are created with restrictive permissions
+- generated secrets are not printed by default
+- login checks do not print passwords
+- helper scripts avoid passing database passwords on the process command line where possible
+
+## Docker privilege model
+
+Docker control is root-equivalent on a normal Linux host.
+
+For that reason, host preparation does not add the current user to the Docker group by default. Operators should use `sudo` for Docker lifecycle commands unless they intentionally accept the Docker group trust boundary.
+
+## Destructive operation safeguards
+
+Destructive workflows should fail closed.
+
+Expected safeguards include:
+
+- reset is dry-run by default
+- destructive reset requires explicit confirmation
+- reset refuses unsafe install directories
+- reset targets only deployment-scoped Compose resources
+- Docker Engine itself is not removed by reset
+- generated deployment state is not written after rejected validation inputs
+
+## Backup sensitivity
+
+Backup outputs can contain:
+
+- MISP event data
+- user/account data
+- database contents
+- host-data archives
+- generated secrets or operational metadata
+
+Operators should:
+
+- store backups outside the public web root
+- restrict filesystem permissions
+- encrypt backups when copied off-host
+- test restore procedures before relying on backups
+- define retention and deletion policy
+
+## Upstream inheritance
+
+This installer depends on official `MISP/misp-docker` for the application stack and images.
+
+Security fixes in upstream MISP components are tracked through official component tags and upstream drift monitoring. A new upstream component set is not automatically considered compatible with this installer until the documented validation scenarios pass.
+
+## Public validation safety
+
+Public validation artifacts should include enough evidence for customers to understand what passed, but must not disclose private infrastructure or secrets.
+
+Public artifacts may include:
+
+- release/ref
+- official component versions
+- scenario names
+- pass/fail results
+- limitations
+
+Public artifacts must not include:
+
+- private hostnames or domains
+- private IP addresses
+- VM identifiers
+- raw logs
+- credentials or generated secrets
+- internal topology or access paths
+- private repository URLs
+
+## Vulnerability reporting
+
+Before `v1.0.0`, vulnerability reporting should be finalized in the public repository.
+
+Recommended next step:
+
+- add a `SECURITY.md` file or dedicated section that explains how to privately report security issues for this project.
+
+## v1.0.0 security gate
+
+Before removing the production warning, the project should have:
+
+- this security model reviewed and linked from the README
+- documented restore and rollback expectations
+- public support matrix
+- exact release-tag validation
+- no known high-severity installer security findings
+- public validation artifacts sanitized according to this policy
