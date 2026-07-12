@@ -244,9 +244,15 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1', text)
         self.assertNotIn('uses: actions/checkout@v', text)
         self.assertNotIn('uses: peter-evans/create-pull-request@v', text)
-        self.assertIn('continue-on-error: true', text)
-        self.assertIn('Report manual PR fallback', text)
-        self.assertIn('pull/new/automation/upstream-misp-docker-review', text)
+
+    def test_upstream_watch_handles_blocked_pr_creation_and_prompts_compatibility_validation(self):
+        workflow = (ROOT / '.github' / 'workflows' / 'upstream-misp-docker-watch.yml').read_text()
+        self.assertIn('continue-on-error: true', workflow)
+        self.assertIn('Report manual PR fallback', workflow)
+        self.assertIn('pull/new/automation/upstream-misp-docker-review', workflow)
+        script = (ROOT / 'scripts' / 'check-upstream-misp-docker.py').read_text()
+        self.assertIn('Run compatibility validation for the affected installer release/ref', script)
+        self.assertIn('validated compatible', script)
 
 if __name__ == '__main__':
     unittest.main()

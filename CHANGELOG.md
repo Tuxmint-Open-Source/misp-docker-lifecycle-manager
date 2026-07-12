@@ -4,6 +4,10 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+### Added
+
+- Add public compatibility tracking for installer release/ref and official MISP Docker component sets, including README summary and detailed compatibility reports.
+
 ### Changed
 
 - Make `login-check.sh` human-readable by default and add `--machine-readable` for stable key/value diagnostics.
