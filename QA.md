@@ -159,6 +159,8 @@ A release is ready when:
 - all validation commands pass
 - release text is public-safe
 - tag is created from merged `main`, not from an unmerged branch
+- compatibility claims are based on the immutable release tag, not only `main` or a release branch
+- release/component pairs are marked **validated compatible** only after the documented compatibility scenarios pass
 
 ## Definition of done
 

@@ -254,5 +254,23 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Run compatibility validation for the affected installer release/ref', script)
         self.assertIn('validated compatible', script)
 
+    def test_release_docs_require_exact_tag_compatibility_validation(self):
+        release = (ROOT / 'docs' / 'release' / 'release-process.md').read_text()
+        versioning = (ROOT / 'docs' / 'versioning.md').read_text()
+        qa = (ROOT / 'QA.md').read_text()
+        readiness = (ROOT / 'docs' / 'production-readiness.md').read_text()
+        compat_report = (ROOT / 'docs' / 'validation' / 'compatibility-v0.3.3-misp-core-v2.5.43.md').read_text()
+
+        self.assertIn('Run the compatibility validation harness against the exact tag', release)
+        self.assertIn('Mark the release/component pair **validated compatible** only after the exact tag passes', release)
+        self.assertIn('validate the immutable Git tag, not just `main` or a release branch', versioning)
+        self.assertIn('compatibility claims are based on the immutable release tag', qa)
+        self.assertIn('release/component pairs are marked **validated compatible** only after the documented compatibility scenarios pass', qa)
+        self.assertIn('What must be true before `v1.0.0`', readiness)
+        self.assertIn('Real restore validation', readiness)
+        self.assertIn('Current-release browser login validation', readiness)
+        self.assertNotIn('being prepared as `v0.3.3`', compat_report)
+        self.assertNotIn('Publish a patch release from the validated `main` line', compat_report)
+
 if __name__ == '__main__':
     unittest.main()

@@ -79,6 +79,8 @@ This installer is useful only when it works with the official MISP Docker compon
 
 For the full compatibility matrix, status definitions, and detailed reports, see [`docs/compatibility.md`](docs/compatibility.md).
 
+For the path toward the first production-ready major release, see [`docs/production-readiness.md`](docs/production-readiness.md).
+
 ## Real-world validation
 
 The `v0.3.1` release was validated on a freshly recreated Rocky Linux VM using the published GitHub release artifact.

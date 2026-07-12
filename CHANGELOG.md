@@ -4,6 +4,15 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+### Added
+
+- Add a public production-readiness roadmap describing the remaining documentation and validation gates before `v1.0.0`.
+
+### Changed
+
+- Document the post-tag compatibility validation flow for releases and clarify that release/component pairs are marked **validated compatible** only after exact-tag validation passes.
+- Clean up the `v0.3.3` compatibility report wording now that the release tag has passed validation.
+
 ## [0.3.3] - 2026-07-12
 
 ### Added

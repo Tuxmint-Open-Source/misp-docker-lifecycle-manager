@@ -56,6 +56,18 @@ That means:
 - Installer version controls this repository's scripts and documentation.
 - `--upstream-ref` controls which official MISP Docker code you deploy.
 
+## 3. Compatibility status
+
+Compatibility is tracked as a pair:
+
+```text
+misp-production-installer release/ref × official MISP Docker component set = validation status
+```
+
+A release should be called **validated compatible** only after the documented scenarios pass for the exact installer release/ref and component set. For release claims, validate the immutable Git tag, not just `main` or a release branch.
+
+See [`docs/compatibility.md`](compatibility.md) and [`docs/validation/matrix.md`](validation/matrix.md).
+
 ## Recommended release workflow
 
 Use the release-PR workflow in [`docs/release/release-process.md`](release/release-process.md) as the source of truth.
