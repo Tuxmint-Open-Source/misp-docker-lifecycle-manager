@@ -67,6 +67,17 @@ Compare a local install against upstream:
 ./installer/get-current-misp-versions.sh --install-dir /opt/misp-docker
 ```
 
+## Compatibility with official MISP Docker components
+
+This installer is useful only when it works with the official MISP Docker component set it installs or updates to. Compatibility is therefore tracked as a pair: installer release/ref plus official MISP component tags.
+
+| Installer release/ref | MISP core | MISP modules | MISP guard | Status |
+| --- | ---: | ---: | ---: | --- |
+| current `main` at PR #22 validation time | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
+| `v0.3.2` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ❌ Validation failed; patch release needed |
+
+For the full compatibility matrix, status definitions, and detailed reports, see [`docs/compatibility.md`](docs/compatibility.md).
+
 ## Real-world validation
 
 The `v0.3.1` release was validated on a freshly recreated Rocky Linux VM using the published GitHub release artifact.
