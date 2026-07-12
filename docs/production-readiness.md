@@ -16,6 +16,13 @@ The current release, `v0.3.3`, is validated compatible with the latest reviewed 
 
 ## What must be true before `v1.0.0`
 
+The following public docs define the intended production contract:
+
+- [`support-matrix.md`](support-matrix.md)
+- [`production-deployment.md`](production-deployment.md)
+- [`security.md`](security.md)
+- [`backup-restore-and-rollback.md`](backup-restore-and-rollback.md)
+
 `v1.0.0` should mean the supported operator workflow is stable, documented, and backed by exact release-tag validation.
 
 Before removing the public production warning, the project should have:
@@ -24,12 +31,12 @@ Before removing the public production warning, the project should have:
 | --- | --- | --- |
 | Exact release-tag compatibility validation | ✅ for `v0.3.3` | Must be repeated for every release and final `v1.0.0`. |
 | Public compatibility matrix | ✅ | Tracks installer release/ref × official MISP Docker component set. |
-| Public support matrix | planned | Must state supported OS, deployment shape, architecture, proxy model, and non-goals. |
-| Production deployment guide | planned | Must cover prerequisites, DNS/TLS, install, verification, operations, and limitations. |
-| Security model and hardening statement | planned | Must explain secret handling, backup sensitivity, Docker group risk, destructive safeguards, and upstream inheritance. |
-| Backup restore documentation | planned | Backup exists, but production readiness requires a documented restore procedure. |
+| Public support matrix | drafted | Defines intended `v1.0.0` support scope and explicit non-goals. |
+| Production deployment guide | drafted | Describes intended single-server Docker deployment workflow and remaining gates. |
+| Security model and hardening statement | drafted | Documents installer security posture, non-goals, and evidence policy. |
+| Backup restore documentation | drafted | Restore procedure still needs exact validated commands before `v1.0.0`. |
 | Real restore validation | planned | Must prove a backup can be restored into a clean deployment and become usable. |
-| Rollback/failure recovery docs | planned | Must explain what operators do after failed install/update scenarios. |
+| Rollback/failure recovery docs | drafted | Rollback remains restore-based until validation proves more. |
 | Current-release browser login validation | planned | `v0.3.3` compatibility used CLI login checks; v1 readiness should include browser-facing validation. |
 | Public production-readiness validation report | planned | Must summarize exact release-tag evidence without private infrastructure details. |
 

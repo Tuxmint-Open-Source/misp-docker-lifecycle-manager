@@ -7,6 +7,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 ### Added
 
 - Add a public production-readiness roadmap describing the remaining documentation and validation gates before `v1.0.0`.
+- Add public `v1.0.0` operator-readiness docs for support scope, production deployment, security model, and backup/restore/rollback expectations.
 
 ### Changed
 

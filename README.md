@@ -79,7 +79,7 @@ This installer is useful only when it works with the official MISP Docker compon
 
 For the full compatibility matrix, status definitions, and detailed reports, see [`docs/compatibility.md`](docs/compatibility.md).
 
-For the path toward the first production-ready major release, see [`docs/production-readiness.md`](docs/production-readiness.md).
+For the path toward the first production-ready major release, see [`docs/production-readiness.md`](docs/production-readiness.md). The intended `v1.0.0` support scope is documented in [`docs/support-matrix.md`](docs/support-matrix.md).
 
 ## Real-world validation
 
