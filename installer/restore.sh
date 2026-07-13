@@ -25,7 +25,7 @@ Options:
   --force              Skip the interactive confirmation prompt. Use only for
                        automation after testing on a disposable host.
   -h, --help           Show this help
-  --version            Show installer version
+  --version            Show manager version
 
 Safety:
   Restore is destructive for the selected install directory and its Compose

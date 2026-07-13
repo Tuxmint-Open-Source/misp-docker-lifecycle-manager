@@ -1,6 +1,6 @@
 # Backup, restore, and rollback
 
-This document describes the backup, restore, and rollback contract for `misp-production-installer`.
+This document describes the backup, restore, and rollback contract for `misp-docker-lifecycle-manager`.
 
 The restore workflow is intentionally restore-based rather than automatic rollback magic: operators keep a verified backup, recover from that backup with `restore.sh`, then verify the restored deployment.
 

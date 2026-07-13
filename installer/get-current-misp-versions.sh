@@ -15,7 +15,7 @@ Options:
   --upstream-ref REF    Upstream branch, commit, or ref to inspect (default: master)
   --install-dir PATH    Optional existing install dir; compare local .env when provided
   -h, --help            Show this help
-  --version             Show installer version
+  --version             Show manager version
 
 This command does not change the installation. Without --install-dir it shows
 upstream component versions only. With --install-dir it also compares local .env

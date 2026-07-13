@@ -8,7 +8,7 @@ The current release candidate, `v1.0.0-rc.1`, has passed exact-tag validation. T
 
 | Area | Status |
 | --- | --- |
-| Latest installer release candidate | `v1.0.0-rc.1` |
+| Latest manager release candidate | `v1.0.0-rc.1` |
 | Latest validated MISP component set | core `v2.5.43`, modules `v3.0.8`, guard `v1.2` |
 | Compatibility status | ✅ `v1.0.0-rc.1` validated compatible; final `v1.0.0` still pending |
 | Public compatibility docs | ✅ available in [`compatibility.md`](compatibility.md) and [`validation/matrix.md`](validation/matrix.md) |
@@ -30,7 +30,7 @@ Before removing the public production warning, the project should have:
 | Requirement | Status | Notes |
 | --- | --- | --- |
 | Exact release-tag compatibility validation | ✅ passed for `v1.0.0-rc.1` | Must be repeated for final `v1.0.0`. |
-| Public compatibility matrix | ✅ | Tracks installer release/ref × official MISP Docker component set. |
+| Public compatibility matrix | ✅ | Tracks manager release/ref × official MISP Docker component set. |
 | Public support matrix | drafted | Defines intended `v1.0.0` support scope and explicit non-goals. |
 | Production deployment guide | drafted | Describes intended single-server Docker deployment workflow and remaining gates. |
 | Security model and hardening statement | drafted | Documents installer security posture, non-goals, and evidence policy. |

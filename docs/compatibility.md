@@ -1,20 +1,20 @@
 # Compatibility with official MISP Docker components
 
-`misp-production-installer` is a lifecycle wrapper around the official [`MISP/misp-docker`](https://github.com/MISP/misp-docker) project.
+`misp-docker-lifecycle-manager` is a lifecycle wrapper around the official [`MISP/misp-docker`](https://github.com/MISP/misp-docker) project.
 
 It does **not** fork, vendor, or replace MISP. The generated deployment remains a normal official MISP Docker checkout with installer-managed configuration and lifecycle helpers.
 
 Because this project and official MISP Docker can change independently, compatibility is tracked as a pair:
 
 ```text
-misp-production-installer release/ref × official MISP Docker component set = validation status
+misp-docker-lifecycle-manager release/ref × official MISP Docker component set = validation status
 ```
 
 A pair is called **validated compatible** only after the documented validation scenarios pass.
 
 ## Latest compatibility status
 
-| Installer release/ref | MISP core | MISP modules | MISP guard | Status | Validated | Report |
+| Manager release/ref | MISP core | MISP modules | MISP guard | Status | Validated | Report |
 | --- | ---: | ---: | ---: | --- | --- | --- |
 | `v1.0.0-rc.1` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | 2026-07-12 | [`compatibility-v1.0.0-rc.1-misp-core-v2.5.43.md`](validation/compatibility-v1.0.0-rc.1-misp-core-v2.5.43.md) |
 | `v0.3.3` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | 2026-07-12 | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](validation/compatibility-v0.3.3-misp-core-v2.5.43.md) |
@@ -31,8 +31,8 @@ A pair is called **validated compatible** only after the documented validation s
 
 | Status | Meaning |
 | --- | --- |
-| ✅ Validated compatible | The listed installer release/ref and official MISP component set passed the documented scenarios. |
-| 🟡 Pending validation | A new installer release or upstream MISP component set exists, but the combination has not completed validation. |
+| ✅ Validated compatible | The listed manager release/ref and official MISP component set passed the documented scenarios. |
+| 🟡 Pending validation | A new manager release or upstream MISP component set exists, but the combination has not completed validation. |
 | ❌ Validation failed | The combination was tested and did not pass the documented scenarios; see linked notes or issues. |
 | ⚪ Superseded | Historical validated evidence that remains useful but is not the newest recommended combination. |
 
@@ -40,7 +40,7 @@ A pair is called **validated compatible** only after the documented validation s
 
 Compatibility validation is required whenever either side changes:
 
-1. This project publishes a new installer release.
+1. This project publishes a new manager release.
 2. Official MISP Docker changes inputs that affect this installer, including:
    - `CORE_TAG`, `MODULES_TAG`, or `GUARD_TAG`
    - `template.env`

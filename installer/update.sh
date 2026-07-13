@@ -28,7 +28,7 @@ Options:
                        default: version-tags
   --backup-root PATH   Backup output directory passed to backup.sh
   -h, --help           Show this help
-  --version            Show installer version
+  --version            Show manager version
 
 Versioning note:
   --upstream-ref controls the official MISP/misp-docker checkout. Runtime images

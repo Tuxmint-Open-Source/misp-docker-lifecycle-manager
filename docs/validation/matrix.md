@@ -6,7 +6,7 @@ It is not a guarantee that every environment or component combination works. It 
 
 ## Compatibility combinations
 
-| Installer release/ref | MISP core | MISP modules | MISP guard | Compatibility status | Fresh install | Reverse proxy | Update path | Lifecycle smoke | Guardrails | Report |
+| Manager release/ref | MISP core | MISP modules | MISP guard | Compatibility status | Fresh install | Reverse proxy | Update path | Lifecycle smoke | Guardrails | Report |
 | --- | ---: | ---: | ---: | --- | --- | --- | --- | --- | --- | --- |
 | `v1.0.0-rc.1` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v1.0.0-rc.1-misp-core-v2.5.43.md`](compatibility-v1.0.0-rc.1-misp-core-v2.5.43.md) |
 | `v0.3.3` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](compatibility-v0.3.3-misp-core-v2.5.43.md) |
@@ -18,8 +18,8 @@ It is not a guarantee that every environment or component combination works. It 
 
 | Status | Meaning |
 | --- | --- |
-| ✅ Validated compatible | The listed installer release/ref and official MISP component set passed the documented scenarios. |
-| 🟡 Pending validation | A new installer release or upstream MISP component set exists, but the combination has not completed validation. |
+| ✅ Validated compatible | The listed manager release/ref and official MISP component set passed the documented scenarios. |
+| 🟡 Pending validation | A new manager release or upstream MISP component set exists, but the combination has not completed validation. |
 | ❌ Validation failed | The combination was tested and did not pass the documented scenarios; see the detailed report. |
 | ⚪ Superseded | Historical validated evidence that remains useful but is not the newest recommended combination. |
 

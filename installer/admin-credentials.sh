@@ -14,7 +14,7 @@ Options:
   --install-dir PATH   Deployment directory (default: /opt/misp-docker)
   --show-password      Print the configured ADMIN_PASSWORD value
   -h, --help           Show this help
-  --version            Show installer version
+  --version            Show manager version
 
 By default the password is not printed. Use --show-password only on a trusted
 terminal, because the value is sensitive.

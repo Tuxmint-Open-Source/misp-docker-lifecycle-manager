@@ -34,8 +34,10 @@ installer_version() {
   fi
 }
 
+PRODUCT_ID="misp-docker-lifecycle-manager"
+
 print_version() {
-  printf 'misp-production-installer %s\n' "$(installer_version)"
+  printf '%s %s\n' "$PRODUCT_ID" "$(installer_version)"
 }
 
 random_b64() { openssl rand -base64 "$1" | tr -d '\n'; }
@@ -321,7 +323,7 @@ data={
     'install_dir': install_dir,
     'exposure': exposure,
     'base_url': base_url,
-    'installer': 'misp-production-installer',
+    'installer': 'misp-docker-lifecycle-manager',
     'installer_version': installer_version,
     'updated_at_utc': datetime.datetime.utcnow().replace(microsecond=0).isoformat()+'Z',
 }

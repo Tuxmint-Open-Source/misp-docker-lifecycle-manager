@@ -1,6 +1,6 @@
 # Production deployment guide
 
-This guide describes the intended production deployment workflow for `misp-production-installer`.
+This guide describes the intended production deployment workflow for `misp-docker-lifecycle-manager`.
 
 The current release is validated compatible with a specific official MISP Docker component set, but the project will remain marked **not production ready** until the remaining `v1.0.0` documentation and validation gates are complete.
 
@@ -70,7 +70,7 @@ sudo ./installer/admin-credentials.sh --install-dir /opt/misp-docker
 
 ## Updates
 
-Use the update helper from a known installer release:
+Use the update helper from a known manager release:
 
 ```bash
 sudo ./installer/update.sh --install-dir /opt/misp-docker

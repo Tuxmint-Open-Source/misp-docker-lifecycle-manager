@@ -20,7 +20,7 @@ Options:
   --install-dir PATH   Deployment directory (default: /opt/misp-docker)
   --backup-root PATH   Backup output directory (default: INSTALL_DIR/backups)
   -h, --help           Show this help
-  --version            Show installer version
+  --version            Show manager version
 
 Note:
   Some upstream bind mounts are owned by root inside containers. The script uses
