@@ -1,6 +1,6 @@
 # Security model
 
-This document describes the security posture intended for the first production-ready major release of `misp-production-installer`.
+This document describes the security posture intended for the first production-ready major release of `misp-docker-lifecycle-manager`.
 
 It focuses on the installer and lifecycle wrapper. MISP application security and official Docker image contents remain upstream responsibilities of the official MISP projects.
 
@@ -86,7 +86,7 @@ Operators should:
 
 ## Upstream inheritance
 
-This installer depends on official `MISP/misp-docker` for the application stack and images.
+This manager depends on official `MISP/misp-docker` for the application stack and images.
 
 Security fixes in upstream MISP components are tracked through official component tags and upstream drift monitoring. A new upstream component set is not automatically considered compatible with this installer until the documented validation scenarios pass.
 

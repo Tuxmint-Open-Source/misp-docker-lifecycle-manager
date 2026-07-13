@@ -1,6 +1,6 @@
 # Real-world validation: v0.3.1
 
-This document records a public-safe validation run for `misp-production-installer` v0.3.1.
+This document records a public-safe validation run for `misp-docker-lifecycle-manager` v0.3.1.
 
 The goal is transparency: show what was actually tested, what passed, what was observed, and what was not claimed.
 
@@ -53,7 +53,7 @@ Steps:
 Evidence:
 
 ```text
-misp-production-installer 0.3.1
+misp-docker-lifecycle-manager 0.3.1
 unit tests passed
 shell syntax checks passed
 Docker version 29.6.1

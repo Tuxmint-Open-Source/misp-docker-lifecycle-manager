@@ -1,4 +1,4 @@
-# MISP Production Installer
+# MISP Docker Lifecycle Manager
 
 > [!CAUTION]
 > **NOT PRODUCTION READY**
@@ -9,29 +9,36 @@
 > [!NOTE]
 > Contributions are welcome. Feel free to open an issue or submit a pull request.
 
-A clean installer/overlay repository for production-oriented MISP Docker deployments.
+A non-invasive lifecycle manager for official MISP Docker deployments.
 
-Current installer version: `1.0.0-rc.1`
+Current manager version: `1.0.0-rc.1`
 
-This repo **does not fork or vendor MISP** and **does not copy `MISP/misp-docker`**. It clones the official upstream at install/update time and adds value through generated `.env`, Compose overrides, validation, backup, update, and operational documentation.
+MISP Docker Lifecycle Manager helps operators install, configure, validate, update, back up, restore, and safely remove single-server MISP Docker deployments while keeping the generated deployment a normal official `MISP/misp-docker` checkout.
+
+This repo **does not fork or vendor MISP** and **does not copy `MISP/misp-docker`**. It clones the official upstream at install/update time and adds lifecycle value through generated `.env`, Compose overrides, health checks, compatibility validation, backup/restore, update, rollback-oriented recovery, reset, and operator documentation.
+
+> [!IMPORTANT]
+> This project was renamed before the final `v1.0.0` release from its original `misp-production-installer` identity to `misp-docker-lifecycle-manager`.
+> Because the project is still pre-`v1.0.0`, new release candidates use the new name as authoritative and do not promise compatibility with every historical pre-1.0 metadata marker. GitHub redirects the old repository URL to the renamed repository.
 
 ## Core idea
 
-This project is a **non-invasive lifecycle wrapper** around the official
+This project is a **non-invasive lifecycle manager** around the official
 `MISP/misp-docker` repository for a single-server Docker deployment.
 
-It keeps upstream clean and focuses on making the operational lifecycle safer and
-more convenient: install, configuration generation, validation, backup, update,
-health checks, login checks, troubleshooting, and reset.
+It keeps upstream clean and focuses on making day-2 operations safer and more
+repeatable: install, configuration generation, validation, backup, restore,
+update, restore-based rollback, health checks, login checks, troubleshooting,
+and reset/removal of a managed deployment.
 
-There is **no lock-in**. If you delete this installer repository after a
+There is **no lock-in**. If you delete this lifecycle-manager repository after a
 successful install, the deployment directory remains a normal official
 `MISP/misp-docker` checkout. You can continue managing it manually with Docker
 Compose exactly as upstream `misp-docker` intends. This project is a helpful
-lifecycle and management add-on, not a required runtime dependency.
+lifecycle add-on, not a required runtime dependency.
 
-It is not a fork, not a transformed upstream snapshot, and not a Kubernetes or
-multi-node orchestration layer.
+It is not a fork, not a transformed upstream snapshot, and not a Kubernetes,
+high-availability, or multi-node orchestration layer.
 
 ## What this gives you
 
@@ -43,17 +50,17 @@ multi-node orchestration layer.
 - Non-invasive generated configuration through `.env` and `docker-compose.override.yml` instead of patching upstream files.
 - No lock-in: the resulting `/opt/misp-docker` deployment can be managed manually without this repository.
 
-## Version model: installer vs MISP components
+## Version model: lifecycle manager vs MISP components
 
 There are three separate version concepts:
 
 | Concept | Controlled by | Purpose |
 | --- | --- | --- |
-| Installer version | this repo's `VERSION`, Git tags, GitHub Releases | Version of these helper scripts and docs |
+| Lifecycle manager version | this repo's `VERSION`, Git tags, GitHub Releases | Version of these helper scripts and docs |
 | Upstream checkout | `--upstream-ref` | Official `MISP/misp-docker` branch/commit used in `/opt/misp-docker` |
 | Runtime component images | `CORE_RUNNING_TAG`, `MODULES_RUNNING_TAG`, `GUARD_RUNNING_TAG` | Actual MISP container image tags used by Docker Compose |
 
-The installer default is `version-tags`: it reads upstream `CORE_TAG`, `MODULES_TAG`, and `GUARD_TAG` from official `template.env`, then pins matching runtime image tags in `.env`.
+The default image-tracking mode is `version-tags`: it reads upstream `CORE_TAG`, `MODULES_TAG`, and `GUARD_TAG` from official `template.env`, then pins matching runtime image tags in `.env`.
 
 Check current upstream component versions:
 
@@ -69,9 +76,9 @@ Compare a local install against upstream:
 
 ## Compatibility with official MISP Docker components
 
-This installer is useful only when it works with the official MISP Docker component set it installs or updates to. Compatibility is therefore tracked as a pair: installer release/ref plus official MISP component tags.
+This lifecycle manager is useful only when it works with the official MISP Docker component set it installs or updates to. Compatibility is therefore tracked as a pair: manager release/ref plus official MISP component tags.
 
-| Installer release/ref | MISP core | MISP modules | MISP guard | Status |
+| Manager release/ref | MISP core | MISP modules | MISP guard | Status |
 | --- | ---: | ---: | ---: | --- |
 | `v1.0.0-rc.1` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
 | `v0.3.3` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
@@ -108,8 +115,8 @@ See:
 This is the default path. It uses the latest official component versions declared by upstream `template.env` on `master`.
 
 ```bash
-git clone https://github.com/Tuxmint-Open-Source/misp-production-installer.git
-cd misp-production-installer
+git clone https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager.git
+cd misp-docker-lifecycle-manager
 sudo ./installer/prepare-host-rocky.sh
 sudo ./installer/install.sh \
   --install-dir /opt/misp-docker \
@@ -321,7 +328,7 @@ flowchart TB
     user[User / Browser]
     dns[DNS name]
     proxy[Reverse Proxy optional]
-    installer[MISP Production Installer repo]
+    installer[MISP Docker Lifecycle Manager repo]
     upstream[Official MISP/misp-docker]
     dir[Deployment directory]
     env[.env generated secrets]

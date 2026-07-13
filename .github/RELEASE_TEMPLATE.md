@@ -60,4 +60,4 @@ Use public-safe generic wording only.
 ## Links
 
 - Changelog: `CHANGELOG.md`
-- Compare: `https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/<previous-tag>...<new-tag>`
+- Compare: `https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/<previous-tag>...<new-tag>`

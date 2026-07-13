@@ -2,7 +2,7 @@
 
 This repository has two different version streams. Keeping them separate avoids confusion.
 
-## 1. Installer version
+## 1. Manager version
 
 The installer itself is versioned with Semantic Versioning:
 
@@ -17,7 +17,7 @@ Examples:
 - `0.2.1` — bugfix release.
 - `1.0.0` — stable production API/CLI contract.
 
-The current installer version lives in:
+The current manager version lives in:
 
 ```text
 VERSION
@@ -29,7 +29,7 @@ Every release should also update:
 CHANGELOG.md
 ```
 
-The operational scripts expose the installer version:
+The operational scripts expose the manager version:
 
 ```bash
 ./installer/install.sh --version
@@ -53,7 +53,7 @@ Choose the upstream branch, tag, or commit with:
 
 That means:
 
-- Installer version controls this repository's scripts and documentation.
+- Manager version controls this repository's scripts and documentation.
 - `--upstream-ref` controls which official MISP Docker code you deploy.
 
 ## 3. Compatibility status
@@ -61,10 +61,10 @@ That means:
 Compatibility is tracked as a pair:
 
 ```text
-misp-production-installer release/ref × official MISP Docker component set = validation status
+misp-docker-lifecycle-manager release/ref × official MISP Docker component set = validation status
 ```
 
-A release should be called **validated compatible** only after the documented scenarios pass for the exact installer release/ref and component set. For release claims, validate the immutable Git tag, not just `main` or a release branch.
+A release should be called **validated compatible** only after the documented scenarios pass for the exact manager release/ref and component set. For release claims, validate the immutable Git tag, not just `main` or a release branch.
 
 See [`docs/compatibility.md`](compatibility.md) and [`docs/validation/matrix.md`](validation/matrix.md).
 

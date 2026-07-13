@@ -36,7 +36,7 @@ Options:
   --bootstrap-tls         Generate a bootstrap self-signed certificate
   --no-start              Generate files only; do not pull/start containers
   -h, --help              Show this help
-  --version               Show installer version
+  --version               Show manager version
 
 Exposure modes:
   reverse-proxy  Binds MISP to localhost ports 8080/8443 for an external proxy.
@@ -120,5 +120,5 @@ Credentials helper: sudo ./installer/admin-credentials.sh --install-dir $INSTALL
 Install dir: $INSTALL_DIR
 Exposure mode: $EXPOSURE
 Interactive login: ready (MISP live marker observed)
-Installer version: $(installer_version)
+Manager version: $(installer_version)
 EOF

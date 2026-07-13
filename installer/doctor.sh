@@ -20,7 +20,7 @@ What this script checks:
 Options:
   --install-dir PATH   Deployment directory (default: /opt/misp-docker)
   -h, --help           Show this help
-  --version            Show installer version
+  --version            Show manager version
 EOF
 }
 

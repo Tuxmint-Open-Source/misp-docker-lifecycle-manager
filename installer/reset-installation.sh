@@ -31,7 +31,7 @@ Options:
   --force                 Skip the interactive confirmation prompt. Use only for
                           automation after testing the dry-run output.
   -h, --help              Show this help
-  --version               Show installer version
+  --version               Show manager version
 
 Examples:
   # Show what would be removed without changing anything:
@@ -82,7 +82,7 @@ esac
 is_known_installer_dir() {
   local dir="$1"
   [[ -d "$dir" ]] || return 1
-  if [[ -f "$dir/.installer-state.json" ]] && grep -q '"installer": "misp-production-installer"' "$dir/.installer-state.json"; then
+  if [[ -f "$dir/.installer-state.json" ]] && grep -Eq '"installer": "misp-docker-lifecycle-manager"' "$dir/.installer-state.json"; then
     return 0
   fi
   # Allow cleanup of installs that were interrupted before state was written, but
@@ -93,7 +93,7 @@ is_known_installer_dir() {
 }
 
 if [[ "$YES" == true && -e "$INSTALL_DIR" ]] && ! is_known_installer_dir "$INSTALL_DIR"; then
-  fatal "Refusing destructive reset: $INSTALL_DIR does not contain expected MISP installer markers (.installer-state.json or docker-compose.yml + template.env + .env)."
+  fatal "Refusing destructive reset: $INSTALL_DIR does not contain expected MISP lifecycle manager markers (.installer-state.json or docker-compose.yml + template.env + .env)."
 fi
 
 run_or_print() {

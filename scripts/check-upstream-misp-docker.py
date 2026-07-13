@@ -246,7 +246,7 @@ The scheduled upstream monitor detected changes in official `MISP/misp-docker` i
 - [ ] Check health/readiness assumptions.
 - [ ] Decide whether installer code changes are needed.
 - [ ] Run repository validation before merge.
-- [ ] Run compatibility validation for the affected installer release/ref and official MISP component set.
+- [ ] Run compatibility validation for the affected manager release/ref and official MISP component set.
 - [ ] Update `docs/compatibility.md` and the matching `docs/validation/compatibility-*.md` report before marking the combination validated compatible.
 
 ## Compatibility note

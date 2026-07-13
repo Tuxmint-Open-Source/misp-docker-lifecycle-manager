@@ -39,7 +39,7 @@ Supported deployment scope and MISP component compatibility are separate questio
 Compatibility is tracked as:
 
 ```text
-misp-production-installer release/ref × official MISP Docker component set = validation status
+misp-docker-lifecycle-manager release/ref × official MISP Docker component set = validation status
 ```
 
 See [`compatibility.md`](compatibility.md) for the current validated combinations.

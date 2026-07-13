@@ -5,7 +5,7 @@ MISP Docker upgrades have three separate version concepts. Do not treat the
 
 ## Version concepts
 
-### 1. Installer version
+### 1. Lifecycle manager version
 
 This repository is versioned separately with `VERSION`, `CHANGELOG.md`, Git tags,
 and GitHub Releases.
@@ -13,7 +13,7 @@ and GitHub Releases.
 Example:
 
 ```text
-misp-production-installer v0.2.0
+misp-docker-lifecycle-manager v0.2.0
 ```
 
 This controls the helper scripts and documentation, not the MISP application
@@ -61,9 +61,9 @@ Upstream publishes images with several tag styles:
 
 Use deterministic component version tags instead of implicit `latest`.
 
-For a normal first install, keep the installer default upstream ref (`master`) unless you intentionally need an older upstream commit. The installer reads the most recent official component tags from upstream `template.env` and writes them as fixed runtime image tags in `.env`.
+For a normal first install, keep the manager's default upstream ref (`master`) unless you intentionally need an older upstream commit. The manager reads the most recent official component tags from upstream `template.env` and writes them as fixed runtime image tags in `.env`.
 
-This installer defaults to:
+The manager defaults to:
 
 ```text
 CORE_RUNNING_TAG=$CORE_TAG

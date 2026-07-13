@@ -67,7 +67,7 @@ If the stack becomes usable after several minutes, the first start was simply
 slow. If it never becomes usable, inspect the MISP and database logs with generic
 redaction before sharing them publicly.
 
-Newer installer versions wait for the upstream log line `MISP is now live. Users
+Newer manager versions wait for the upstream log line `MISP is now live. Users
 can now log in.` before reporting that interactive login is ready. This is a
 better readiness signal than the login form being visible.
 
@@ -83,7 +83,7 @@ commands such as `status.sh`, `doctor.sh`, and `update.sh` much quieter.
 
 ## CSRF error after login
 
-Verify Redis-backed PHP sessions. `REDIS_PASSWORD` must be URL-safe because PHP receives it in a Redis session save path. This installer generates it as 64-character hex.
+Verify Redis-backed PHP sessions. `REDIS_PASSWORD` must be URL-safe because PHP receives it in a Redis session save path. This manager generates it as 64-character hex.
 
 ## Healthcheck fails but public URL works
 
@@ -103,7 +103,7 @@ misleading validation.
 
 Official MISP Docker expects `MYSQL_PASSWORD` to be alphanumeric. Special
 characters can break the generated CakePHP database configuration during first
-start. This installer generates MySQL passwords with hex characters only; if you
+start. This manager generates MySQL passwords with hex characters only; if you
 manually edit `.env`, keep `MYSQL_PASSWORD` and `MYSQL_ROOT_PASSWORD`
 alphanumeric.
 

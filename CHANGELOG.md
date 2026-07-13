@@ -7,6 +7,9 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 ### Changed
 
 - Mark `v1.0.0-rc.1` as validated compatible after exact-tag validation passes.
+- Rebrand the project from MISP Production Installer to MISP Docker Lifecycle Manager after the GitHub repository rename.
+- Update public repository links, README positioning, script version output, generated metadata, and compatibility wording for the new project name.
+- Treat the new product identity as authoritative for new release candidates because the project is still pre-`v1.0.0`; historical pre-1.0 metadata markers are not guaranteed compatibility targets.
 
 ## [1.0.0-rc.1] - 2026-07-12
 
@@ -28,7 +31,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ### Added
 
-- Add public compatibility tracking for installer release/ref and official MISP Docker component sets, including README summary and detailed compatibility reports.
+- Add public compatibility tracking for manager release/ref and official MISP Docker component sets, including README summary and detailed compatibility reports.
 
 ### Changed
 
@@ -100,7 +103,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ### Added
 
-- Initial public MISP production installer/overlay repository.
+- Initial public MISP Docker lifecycle manager repository.
 - Rocky Linux Docker host preparation script.
 - Installer workflow for official `MISP/misp-docker` upstream checkouts.
 - Generated `.env` handling with URL-safe Redis session password generation.
@@ -110,11 +113,11 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - MISP schema readiness handling via `Admin runUpdates` and `bookmarks` table check.
 - Public documentation for architecture, upgrade path, troubleshooting, shell scripts, and versioning.
 
-[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v1.0.0-rc.1...HEAD
-[1.0.0-rc.1]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.3.3...v1.0.0-rc.1
-[0.3.3]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.3.2...v0.3.3
-[0.3.2]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.3.1...v0.3.2
-[0.3.1]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.3.0...v0.3.1
-[0.3.0]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/Tuxmint-Open-Source/misp-production-installer/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.0.0-rc.1...HEAD
+[1.0.0-rc.1]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v0.3.3...v1.0.0-rc.1
+[0.3.3]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/releases/tag/v0.1.0

@@ -1,6 +1,6 @@
 # Compatibility validation: installer v1.0.0-rc.1 with MISP core v2.5.43
 
-This document records public-safe exact-tag validation for the `misp-production-installer` `v1.0.0-rc.1` release candidate with the reviewed official MISP Docker component set.
+This document records public-safe exact-tag validation for the `misp-docker-lifecycle-manager` `v1.0.0-rc.1` release candidate with the reviewed official MISP Docker component set.
 
 Private infrastructure identifiers, raw logs, credentials, and topology are intentionally omitted.
 
@@ -31,7 +31,7 @@ Private infrastructure identifiers, raw logs, credentials, and topology are inte
 
 ## Validation scope
 
-This validation covers the installer release candidate and official MISP Docker component set listed above.
+This validation covers the manager release candidate and official MISP Docker component set listed above.
 
 It does not claim:
 

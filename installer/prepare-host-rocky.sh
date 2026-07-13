@@ -17,7 +17,7 @@ Options:
       Docker group membership is effectively root-equivalent on the host; use
       this only on trusted single-operator systems.
   -h, --help   Show this help
-  --version    Show installer version
+  --version    Show manager version
 EOF
 }
 

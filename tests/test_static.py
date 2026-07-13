@@ -22,12 +22,12 @@ class StaticRepoTests(unittest.TestCase):
             help_text = subprocess.check_output([str(script), '--help'], text=True, cwd=ROOT)
             self.assertIn('Usage:', help_text, name)
             version_text = subprocess.check_output([str(script), '--version'], text=True, cwd=ROOT).strip()
-            self.assertRegex(version_text, r'^misp-production-installer \d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?')
+            self.assertRegex(version_text, r'^misp-docker-lifecycle-manager \d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?')
 
     def test_version_files_are_consistent(self):
         version = (ROOT / 'VERSION').read_text().strip()
         self.assertRegex(version, r'^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$')
-        self.assertIn(f'Current installer version: `{version}`', (ROOT / 'README.md').read_text())
+        self.assertIn(f'Current manager version: `{version}`', (ROOT / 'README.md').read_text())
         self.assertIn(f'## [{version}]', (ROOT / 'CHANGELOG.md').read_text())
 
     def test_redis_password_url_safe_generation(self):
@@ -155,8 +155,8 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Type DELETE to continue', text)
         self.assertIn('down --volumes --remove-orphans', text)
         self.assertIn('Refusing unsafe --install-dir', text)
-        self.assertIn('does not contain expected MISP installer markers', text)
-        self.assertIn('misp-production-installer', text)
+        self.assertIn('does not contain expected MISP lifecycle manager markers', text)
+        self.assertIn('misp-docker-lifecycle-manager', text)
         self.assertIn('Docker Engine itself is not removed', text)
 
     def test_reset_refuses_unmarked_directory_even_with_force(self):
@@ -173,7 +173,7 @@ class StaticRepoTests(unittest.TestCase):
             )
             self.assertNotEqual(result.returncode, 0)
             self.assertTrue(target.exists())
-            self.assertIn('expected MISP installer markers', result.stderr)
+            self.assertIn('expected MISP lifecycle manager markers', result.stderr)
 
     def test_base_url_is_not_embedded_in_python_source(self):
         install = (ROOT / 'installer' / 'install.sh').read_text()
@@ -272,7 +272,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Report manual PR fallback', workflow)
         self.assertIn('pull/new/automation/upstream-misp-docker-review', workflow)
         script = (ROOT / 'scripts' / 'check-upstream-misp-docker.py').read_text()
-        self.assertIn('Run compatibility validation for the affected installer release/ref', script)
+        self.assertIn('Run compatibility validation for the affected manager release/ref', script)
         self.assertIn('validated compatible', script)
 
     def test_release_docs_require_exact_tag_compatibility_validation(self):

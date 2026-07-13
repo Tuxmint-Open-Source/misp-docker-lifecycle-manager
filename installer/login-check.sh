@@ -17,7 +17,7 @@ Options:
   --machine-readable   Print stable key=value diagnostics for automation/tools
   --ai-output          Alias for --machine-readable
   -h, --help           Show this help
-  --version            Show installer version
+  --version            Show manager version
 
 By default the output is written for human operators. Use --machine-readable
 when a script, monitoring job, or AI agent needs stable key=value fields.
@@ -155,7 +155,7 @@ ctx = ssl.create_default_context() if strict_tls else ssl._create_unverified_con
 opener = build_opener(HTTPCookieProcessor(CookieJar()), HTTPSHandler(context=ctx))
 login_url = urljoin(base_url + '/', 'users/login')
 
-get_req = Request(login_url, headers={'User-Agent': 'misp-production-installer-login-check'})
+get_req = Request(login_url, headers={'User-Agent': 'misp-docker-lifecycle-manager-login-check'})
 with opener.open(get_req, timeout=30) as response:
     login_html = response.read().decode('utf-8', errors='replace')
     get_status = response.status
@@ -172,7 +172,7 @@ post_req = Request(
     login_url,
     data=encoded,
     headers={
-        'User-Agent': 'misp-production-installer-login-check',
+        'User-Agent': 'misp-docker-lifecycle-manager-login-check',
         'Content-Type': 'application/x-www-form-urlencoded',
         'Referer': login_url,
     },
@@ -209,7 +209,7 @@ logout_path = 'not-run'
 if success:
     logout_attempted = True
     logout_url = urljoin(base_url + '/', 'users/logout')
-    logout_req = Request(logout_url, headers={'User-Agent': 'misp-production-installer-login-check'})
+    logout_req = Request(logout_url, headers={'User-Agent': 'misp-docker-lifecycle-manager-login-check'})
     try:
         with opener.open(logout_req, timeout=30) as response:
             logout_status = str(response.status)

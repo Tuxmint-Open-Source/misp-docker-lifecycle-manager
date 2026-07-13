@@ -1,8 +1,8 @@
 # Compatibility validation: installer v0.3.3 line with MISP core v2.5.43
 
-This document records public-safe compatibility validation for the `misp-production-installer` `v0.3.3` release tag, with the official MISP Docker component set reviewed in PR [#22](https://github.com/Tuxmint-Open-Source/misp-production-installer/pull/22).
+This document records public-safe compatibility validation for the `misp-docker-lifecycle-manager` `v0.3.3` release tag, with the official MISP Docker component set reviewed in PR [#22](https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/pull/22).
 
-The purpose is to show which installer release/ref was tested with which official MISP component versions, what passed, what failed, and what is not claimed.
+The purpose is to show which manager release/ref was tested with which official MISP component versions, what passed, what failed, and what is not claimed.
 
 ## Compatibility pair
 
@@ -12,7 +12,7 @@ The purpose is to show which installer release/ref was tested with which officia
 | `v0.3.3` release tag | ✅ Validated compatible |
 | current `main` at PR #22 validation time | ✅ Validated compatible |
 | `v0.3.2` release tag | ❌ Validation failed |
-| Upstream-review PR | [#22](https://github.com/Tuxmint-Open-Source/misp-production-installer/pull/22) |
+| Upstream-review PR | [#22](https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/pull/22) |
 
 > [!IMPORTANT]
 > The `v0.3.3` release tag is validated compatible with MISP core `v2.5.43`, modules `v3.0.8`, and guard `v1.2` across the documented compatibility scenarios.
@@ -32,7 +32,7 @@ The purpose is to show which installer release/ref was tested with which officia
 Compatibility is tracked as a pair:
 
 ```text
-misp-production-installer release/ref × official MISP Docker component set
+misp-docker-lifecycle-manager release/ref × official MISP Docker component set
 ```
 
 A pair is called **validated compatible** only after the documented scenarios pass.
@@ -54,7 +54,7 @@ The test machines were reset to a clean Docker-ready state before each scenario.
 
 ## Result summary
 
-| Installer release/ref | Direct fresh install | Caddy reverse proxy | Install/update path | Lifecycle smoke | Failure guardrail | Overall |
+| Manager release/ref | Direct fresh install | Caddy reverse proxy | Install/update path | Lifecycle smoke | Failure guardrail | Overall |
 | --- | --- | --- | --- | --- | --- | --- |
 | `v0.3.3` release tag | ✅ passed | ✅ passed | ✅ passed | ✅ passed | ✅ passed | ✅ validated compatible |
 | current `main` at PR #22 validation time | ✅ passed | ✅ passed | ✅ passed | ✅ passed | ✅ passed | ✅ validated compatible |
@@ -175,6 +175,6 @@ The validation intentionally omits private infrastructure details and raw logs f
 ## Related public artifacts
 
 - Compatibility overview: [`../compatibility.md`](../compatibility.md)
-- Upstream-review PR: [#22](https://github.com/Tuxmint-Open-Source/misp-production-installer/pull/22)
+- Upstream-review PR: [#22](https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/pull/22)
 - Upstream review report: [`../../.upstream/reports/misp-docker-upstream-review.md`](../../.upstream/reports/misp-docker-upstream-review.md)
 - Validation matrix: [`matrix.md`](matrix.md)
