@@ -40,6 +40,19 @@ lifecycle add-on, not a required runtime dependency.
 It is not a fork, not a transformed upstream snapshot, and not a Kubernetes,
 high-availability, or multi-node orchestration layer.
 
+## Start here
+
+| If you want to... | Read this |
+| --- | --- |
+| get oriented | [`docs/README.md`](docs/README.md) |
+| do a first test install | [`docs/getting-started.md`](docs/getting-started.md) |
+| follow the normal operator lifecycle | [`docs/operator-guide.md`](docs/operator-guide.md) |
+| decide whether the project fits your use case | [`docs/support-matrix.md`](docs/support-matrix.md) |
+| plan a real deployment | [`docs/production-deployment.md`](docs/production-deployment.md) |
+| understand backup, restore, and rollback | [`docs/backup-restore-and-rollback.md`](docs/backup-restore-and-rollback.md) |
+| check validated MISP component sets | [`docs/compatibility.md`](docs/compatibility.md) |
+| troubleshoot a failure | [`docs/troubleshooting.md`](docs/troubleshooting.md) |
+
 ## What this gives you
 
 - Fresh install of official `MISP/misp-docker` with generated secrets and production-oriented defaults.
