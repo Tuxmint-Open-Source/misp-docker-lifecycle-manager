@@ -47,6 +47,7 @@ There is no lock-in: after a successful install, `/opt/misp-docker` remains a no
 | check validated MISP component sets | [`docs/compatibility.md`](docs/compatibility.md) |
 | troubleshoot a failure | [`docs/troubleshooting.md`](docs/troubleshooting.md) |
 | inspect every command | [`docs/shell-scripts.md`](docs/shell-scripts.md) |
+| report a security vulnerability | [`SECURITY.md`](SECURITY.md) |
 
 ## Quick test path
 
