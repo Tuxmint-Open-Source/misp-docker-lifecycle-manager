@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > **First stable release line**
 >
-> `v1.0.0` is the first stable release line for the documented single-server Docker lifecycle-manager scope. Final `v1.0.0` compatibility is marked after the exact immutable tag passes validation.
+> `v1.0.0` is the first stable release line for the documented single-server Docker lifecycle-manager scope and has passed exact-tag validation with the documented MISP Docker component set.
 
 A non-invasive lifecycle manager for official `MISP/misp-docker` single-server Docker deployments.
 
