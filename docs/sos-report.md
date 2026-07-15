@@ -192,6 +192,8 @@ When maintainers receive an SOS report, check:
 5. Are the reproduction steps specific enough to test with sanitized values?
 6. Does the issue require a docs fix, code fix, validation follow-up, or security advisory?
 
+Maintainers may use the [`needs-sos-report`](maintainer-workflow.md#sos-report-triage) label when a public bug needs an anonymous SOS report before it can be reproduced or classified.
+
 ## What to read next
 
 - Open a normal bug: use the GitHub bug template.

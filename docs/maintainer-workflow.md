@@ -78,6 +78,65 @@ Recommended area labels:
 | `area: security` | security policy, secret handling, or scanning |
 | `area: release` | versions, changelog, tags, and releases |
 
+Recommended support labels:
+
+| Label | Use for |
+| --- | --- |
+| `needs-sos-report` | bug reports that need a reviewed anonymous SOS report before maintainers can reproduce or classify the issue |
+
+## SOS report triage
+
+Use [anonymous SOS reports](sos-report.md) to reproduce normal public bugs without asking users to paste raw logs or private deployment details.
+
+### First safety pass
+
+Before debugging, inspect the issue for public-safety problems:
+
+- secrets, tokens, passwords, private keys, or API keys;
+- `.env` contents or full `.installer-state.json` contents;
+- real hostnames, IP addresses, internal domains, or topology;
+- raw logs, raw Docker Compose config, screenshots, database dumps, backup contents, generated config archives, or MISP data.
+
+If any of those appear, do not quote them back in public. Ask the reporter to edit/redact the issue. If the content suggests a vulnerability or cannot be discussed safely in public, move the conversation to [`SECURITY.md`](../SECURITY.md) and private vulnerability reporting.
+
+### When to request an SOS report
+
+Apply `needs-sos-report` and ask for an anonymous SOS report when a public bug lacks enough safe detail to reproduce, especially for install, update, backup, restore, rollback, reset, doctor, status, or login-check failures.
+
+Use a short request such as:
+
+```text
+Could you generate and review an anonymous SOS report, then paste only the public-safe content here?
+
+sudo ./installer/sos-report.sh --install-dir /opt/misp-docker --output ./misp-sos-report.md
+less ./misp-sos-report.md
+
+If the report cannot be made public-safe, please use SECURITY.md instead.
+```
+
+### Triage the report
+
+Read the report in this order:
+
+1. **Safety notice and redaction summary** — confirm it is public-safe.
+2. **Manager version/ref and report format** — identify whether the affected manager release/ref is known and whether the report schema is current.
+3. **Affected workflow** — classify as install, update, backup, restore, rollback, reset, doctor/status, login-check, documentation, or other.
+4. **Environment and installation shape** — check support matrix fit and whether expected files exist.
+5. **Component versions** — compare with compatibility and validation evidence.
+6. **Health and command summaries** — use pass/fail/unavailable status, not raw logs, to choose the next reproduction step.
+7. **Reproduction prompt** — ask for missing expected/actual behavior or sanitized command shape when needed.
+
+### Decide the next action
+
+- **Incomplete but public-safe:** keep `needs-sos-report` or ask one focused follow-up question.
+- **Unsupported deployment model:** point to the support matrix and decide whether docs need clarification.
+- **Known compatibility gap:** link compatibility evidence and decide whether validation needs a follow-up run.
+- **Likely docs issue:** label `type: docs` / `area: docs` and fix docs through PR.
+- **Likely code issue:** label the affected `area:*`, reproduce with sanitized values, add regression coverage, and open a focused PR.
+- **Potential security issue:** stop public debugging and direct the reporter to private vulnerability reporting.
+
+Remove `needs-sos-report` once the issue has a reviewed report or enough equivalent public-safe reproduction detail.
+
 ## Automation
 
 The repository uses low-noise automation:

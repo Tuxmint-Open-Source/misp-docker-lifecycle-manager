@@ -16,6 +16,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Add anonymous SOS report documentation and update the bug-report template so users can provide reproducible public-safe diagnostics without leaking deployment details.
 - Add `installer/sos-report.sh` and a redaction helper for generated public-safe SOS bug reports.
 - Add concise redacted health-command and backup-shape summaries to generated SOS reports.
+- Document maintainer triage for anonymous SOS reports, including when to request `needs-sos-report` and when to move reports to private security handling.
 
 ### Changed
 
