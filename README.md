@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > **First stable release line**
 >
-> `v1.0.0` is the first stable release line for the documented single-server Docker lifecycle-manager scope. Final `v1.0.0` compatibility is marked after the exact immutable tag passes validation.
+> `v1.0.0` is the first stable release line for the documented single-server Docker lifecycle-manager scope and has passed exact-tag validation with the documented MISP Docker component set.
 
 A non-invasive lifecycle manager for official `MISP/misp-docker` single-server Docker deployments.
 
@@ -88,7 +88,7 @@ manager release/ref × official MISP Docker component set = status
 
 | Manager release/ref | MISP core | MISP modules | MISP guard | Status |
 | --- | ---: | ---: | ---: | --- |
-| `v1.0.0` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | 🟡 Pending exact-tag validation |
+| `v1.0.0` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
 | `v1.0.0-rc.3` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
 | `v1.0.0-rc.2` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
 | `v1.0.0-rc.1` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
@@ -132,7 +132,7 @@ For update policy and version details, see [`docs/upgrade-path.md`](docs/upgrade
 
 ## Release readiness
 
-`v1.0.0` is the first stable release line. The exact `v1.0.0` tag is pending validation with the documented MISP Docker component set; `v1.0.0-rc.3` remains the latest validated candidate until that final tag passes.
+`v1.0.0` is the first stable release line and is validated compatible with the documented MISP Docker component set.
 
 See [`docs/production-readiness.md`](docs/production-readiness.md).
 
