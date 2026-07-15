@@ -47,7 +47,7 @@ The docs intentionally separate different kinds of information:
 
 ## Current release-candidate status
 
-`v1.0.0` is the first stable release line. The exact `v1.0.0` tag is pending validation with the documented MISP Docker component set; `v1.0.0-rc.3` remains the latest validated candidate until final validation passes.
+`v1.0.0` is the first stable release line and is validated compatible with the documented MISP Docker component set.
 
 See [production readiness](production-readiness.md) for the current release-readiness state.
 

@@ -144,7 +144,7 @@ If backup, restore, update, or rollback fails:
 
 ## v1.0.0 gate
 
-`v1.0.0-rc.3` includes exact-tag restore and rollback validation. The final `v1.0.0` tag must repeat restore and rollback validation before final `v1.0.0` is marked validated compatible.
+`v1.0.0` includes exact-tag restore and rollback validation for the documented component set. Future upstream component sets should repeat restore and rollback validation before compatibility is claimed.
 
 ## What to read next
 

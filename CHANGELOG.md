@@ -10,7 +10,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 - Prepare the first stable release line from the validated `v1.0.0-rc.3` baseline.
 - Replace the README production warning with first-stable-release wording.
-- Mark final `v1.0.0` compatibility as pending exact-tag validation until the immutable final tag passes.
+- Mark final `v1.0.0` as validated compatible after exact-tag validation passes.
 
 ## [1.0.0-rc.3] - 2026-07-15
 
