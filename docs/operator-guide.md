@@ -95,9 +95,9 @@ sudo ./installer/status.sh --install-dir /opt/misp-docker
 ./installer/get-current-misp-versions.sh --install-dir /opt/misp-docker
 ```
 
-The status and version checks help you understand what is running locally and what official upstream currently declares.
+The status and version checks help you understand what is running locally and what official upstream currently declares. For integration with Zabbix, Checkmk, Nagios/Icinga, Prometheus-style text output, or automation, use the monitoring contract.
 
-Read more: [Upgrade path](upgrade-path.md), [Compatibility](compatibility.md).
+Read more: [Monitoring](monitoring.md), [Upgrade path](upgrade-path.md), [Compatibility](compatibility.md).
 
 ## 7. Update safely
 

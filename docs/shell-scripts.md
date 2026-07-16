@@ -20,6 +20,7 @@ These operator-facing scripts support both `--help` and `--version`:
 | `admin-credentials.sh` | Show the configured initial admin account; hide password unless explicitly requested. | Safe credential lookup. |
 | `login-check.sh` | Perform a CSRF-aware Web UI login check without printing the password. | Readiness and login validation. |
 | `sos-report.sh` | Generate a public-safe anonymous SOS report for bug reports. | Reproducible support diagnostics without raw logs/secrets. |
+| `healthcheck.sh` | Planned monitoring healthcheck command. | Stable monitoring contract for Zabbix, Checkmk, Nagios/Icinga, Prometheus-style text output, and automation. |
 | `get-current-misp-versions.sh` | Show upstream MISP Docker component versions and optionally compare local `.env`. | Version/compatibility review. |
 | `reset-installation.sh` | Dry-run or remove a managed deployment scope. | Failed install cleanup or deliberate removal. |
 
@@ -175,6 +176,18 @@ Print the initial password only on a trusted terminal:
 
 ```bash
 sudo ./installer/admin-credentials.sh --install-dir /opt/misp-docker --show-password
+```
+
+## Monitoring contract
+
+The monitoring contract is documented before the command is implemented so operators and contributors can review stable output semantics first. See [Monitoring](monitoring.md) for planned `healthcheck.sh` formats, exit codes, JSON schema, and integration examples.
+
+Until `healthcheck.sh` exists, use:
+
+```bash
+sudo ./installer/doctor.sh --install-dir /opt/misp-docker
+sudo ./installer/status.sh --install-dir /opt/misp-docker
+sudo ./installer/login-check.sh --install-dir /opt/misp-docker --machine-readable
 ```
 
 ## Version checks

@@ -111,6 +111,19 @@ alphanumeric.
 
 The backup script uses `sudo tar` because MISP containers can create root-owned files in bind mounts.
 
+## Monitoring alerts
+
+If a monitoring tool reports `WARNING`, `CRITICAL`, or `UNKNOWN`, start with the monitoring contract in [Monitoring](monitoring.md), then run:
+
+```bash
+sudo ./installer/doctor.sh --install-dir /opt/misp-docker
+sudo ./installer/status.sh --install-dir /opt/misp-docker
+sudo ./installer/login-check.sh --install-dir /opt/misp-docker --machine-readable
+```
+
+Do not paste raw logs, `.env`, generated config, backups, or private deployment details into public issues. Use [anonymous SOS reports](sos-report.md) for public-safe diagnostics.
+
+
 ## What to read next
 
 - Return to the [documentation map](README.md).
