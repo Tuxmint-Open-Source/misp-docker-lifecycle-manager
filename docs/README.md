@@ -12,8 +12,9 @@ This documentation is organized around the operator journey: understand the mode
 4. [Production deployment guide](production-deployment.md) — plan reverse proxy, host, secrets, and operational choices.
 5. [Backup, restore, and rollback](backup-restore-and-rollback.md) — understand recovery before you need it.
 6. [Upgrade path](upgrade-path.md) — update the manager and MISP components safely.
-7. [Compatibility](compatibility.md) and [validation matrix](validation/matrix.md) — see which manager/component pairs are validated.
-8. [Troubleshooting](troubleshooting.md) — diagnose failed installs, login issues, and update problems.
+7. [Monitoring](monitoring.md) — plan healthcheck output for Zabbix, Checkmk, Nagios/Icinga, Prometheus-style text, and automation.
+8. [Compatibility](compatibility.md) and [validation matrix](validation/matrix.md) — see which manager/component pairs are validated.
+9. [Troubleshooting](troubleshooting.md) — diagnose failed installs, login issues, and update problems.
 
 ## Common tasks
 
@@ -26,6 +27,7 @@ This documentation is organized around the operator journey: understand the mode
 | check which MISP versions are validated | [Compatibility](compatibility.md) |
 | update MISP components | [Upgrade path](upgrade-path.md) |
 | back up or restore MISP | [Backup, restore, and rollback](backup-restore-and-rollback.md) |
+| plan monitoring integration | [Monitoring](monitoring.md) |
 | recover from a failed update | [Backup, restore, and rollback](backup-restore-and-rollback.md#restore-based-rollback-after-failed-update) |
 | understand secrets and privileges | [Security](security.md) |
 | inspect every script and option | [Shell scripts reference](shell-scripts.md) |
@@ -39,9 +41,9 @@ The docs intentionally separate different kinds of information:
 
 - **First path:** [Getting started](getting-started.md).
 - **Operator journey:** [Operator guide](operator-guide.md).
-- **How-to guides:** [Production deployment](production-deployment.md), [upgrade path](upgrade-path.md), [backup/restore/rollback](backup-restore-and-rollback.md), [troubleshooting](troubleshooting.md).
+- **How-to guides:** [Production deployment](production-deployment.md), [upgrade path](upgrade-path.md), [backup/restore/rollback](backup-restore-and-rollback.md), [monitoring](monitoring.md), [troubleshooting](troubleshooting.md).
 - **Explanation:** [Architecture](architecture.md), [security](security.md), [support matrix](support-matrix.md), [versioning](versioning.md).
-- **Reference:** [Shell scripts](shell-scripts.md), [compatibility](compatibility.md), [validation matrix](validation/matrix.md).
+- **Reference:** [Shell scripts](shell-scripts.md), [monitoring contract](monitoring.md), [compatibility](compatibility.md), [validation matrix](validation/matrix.md).
 - **Support and reporting:** [Troubleshooting](troubleshooting.md), [anonymous SOS reports](sos-report.md), [security](security.md).
 - **Maintainer workflow:** [Maintainer workflow](maintainer-workflow.md), [release process](release/release-process.md).
 

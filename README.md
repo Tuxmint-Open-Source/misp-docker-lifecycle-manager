@@ -20,7 +20,7 @@ It adds:
 - install and host-preparation helpers;
 - generated `.env` values and Compose overrides;
 - deterministic component tag handling;
-- health, status, login, and credential checks;
+- health, status, login, monitoring-contract, and credential checks;
 - backup, restore, update, and restore-based rollback workflows;
 - reset/removal helpers with safety checks;
 - compatibility and validation documentation.
@@ -44,6 +44,7 @@ There is no lock-in: after a successful install, `/opt/misp-docker` remains a no
 | plan a real deployment | [`docs/production-deployment.md`](docs/production-deployment.md) |
 | understand backup, restore, and rollback | [`docs/backup-restore-and-rollback.md`](docs/backup-restore-and-rollback.md) |
 | check validated MISP component sets | [`docs/compatibility.md`](docs/compatibility.md) |
+| plan monitoring integration | [`docs/monitoring.md`](docs/monitoring.md) |
 | troubleshoot a failure | [`docs/troubleshooting.md`](docs/troubleshooting.md) |
 | report a reproducible bug safely | [`docs/sos-report.md`](docs/sos-report.md) |
 | inspect every command | [`docs/shell-scripts.md`](docs/shell-scripts.md) |

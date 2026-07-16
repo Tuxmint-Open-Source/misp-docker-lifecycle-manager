@@ -358,6 +358,7 @@ class StaticRepoTests(unittest.TestCase):
             'architecture.md',
             'backup-restore-and-rollback.md',
             'compatibility.md',
+            'monitoring.md',
             'production-deployment.md',
             'production-readiness.md',
             'security.md',
@@ -367,10 +368,10 @@ class StaticRepoTests(unittest.TestCase):
             'upgrade-path.md',
             'versioning.md',
         ]
-        for name in major_docs:
-            text = (ROOT / 'docs' / name).read_text()
-            self.assertIn('## What to read next', text, name)
-            self.assertIn('README.md', text, name)
+        for rel in major_docs:
+            text = (ROOT / 'docs' / rel).read_text()
+            self.assertIn('README.md', text, rel)
+            self.assertRegex(text, r'## What to read next\n', rel)
 
         matrix = (ROOT / 'docs' / 'validation' / 'matrix.md').read_text()
         self.assertIn('## What to read next', matrix)
@@ -378,6 +379,32 @@ class StaticRepoTests(unittest.TestCase):
         release = (ROOT / 'docs' / 'release' / 'release-process.md').read_text()
         self.assertIn('## What to read next', release)
         self.assertIn('../README.md', release)
+
+    def test_monitoring_contract_is_documented_before_healthcheck_command(self):
+        monitoring = (ROOT / 'docs' / 'monitoring.md').read_text()
+        readme = (ROOT / 'README.md').read_text()
+        docs_index = (ROOT / 'docs' / 'README.md').read_text()
+        operator = (ROOT / 'docs' / 'operator-guide.md').read_text()
+        shell_docs = (ROOT / 'docs' / 'shell-scripts.md').read_text()
+        readiness = (ROOT / 'docs' / 'production-readiness.md').read_text()
+        changelog = (ROOT / 'CHANGELOG.md').read_text()
+
+        self.assertIn('installer/healthcheck.sh', monitoring)
+        self.assertIn('--format text|json|nagios|checkmk|prometheus', monitoring)
+        for code, status in [('0', 'OK'), ('1', 'WARNING'), ('2', 'CRITICAL'), ('3', 'UNKNOWN')]:
+            self.assertIn(f'`{code}` | {status}', monitoring)
+        self.assertIn('misp-docker-lifecycle-manager-health-v1', monitoring)
+        self.assertIn('Zabbix', monitoring)
+        self.assertIn('Checkmk', monitoring)
+        self.assertIn('Nagios/Icinga', monitoring)
+        self.assertIn('Prometheus text format', monitoring)
+        self.assertIn('Do not expose hostnames, email addresses, install paths, backup names, URLs, or organisation names as metric labels.', monitoring)
+        self.assertIn('docs/monitoring.md', readme)
+        self.assertIn('monitoring.md', docs_index)
+        self.assertIn('[Monitoring](monitoring.md)', operator)
+        self.assertIn('[Monitoring](monitoring.md)', shell_docs)
+        self.assertIn('Monitoring contract', readiness)
+        self.assertIn('monitoring healthcheck contract', changelog)
 
     def test_shell_scripts_reference_matches_current_command_surface(self):
         shell_docs = (ROOT / 'docs' / 'shell-scripts.md').read_text()
