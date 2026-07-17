@@ -142,6 +142,8 @@ See [`docs/production-readiness.md`](docs/production-readiness.md).
 
 Contributions are welcome. Start with [`CONTRIBUTING.md`](CONTRIBUTING.md) for the public-safety rules, PR workflow, validation commands, and compatibility-claim expectations.
 
+The monitoring healthcheck has automated contract tests but has not yet been tested end to end with every named monitoring system. Operators with Zabbix, Checkmk, Nagios/Icinga, or Prometheus experience are especially welcome to review and test the integrations described in [`docs/monitoring.md`](docs/monitoring.md).
+
 Please keep public examples sanitized and avoid committing generated secrets, runtime `.env` files, raw logs, private infrastructure details, or deployment-specific credentials.
 
 Useful project docs:

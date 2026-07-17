@@ -74,9 +74,24 @@ Also review the diff for public-sensitive markers before posting it.
 
 ## Runtime changes
 
-Runtime changes are higher risk than documentation-only changes. If a PR changes install, update, backup, restore, reset, login, exposure mode, or generated configuration behavior, include clear validation evidence.
+Runtime changes are higher risk than documentation-only changes. If a PR changes install, update, backup, restore, reset, login, monitoring healthcheck, exposure mode, or generated configuration behavior, include clear validation evidence.
 
 For changes that affect user/browser-facing behavior, validate the real external path, not only container-local health checks.
+
+## Monitoring integration contributions
+
+The healthcheck command has automated contract/parser tests, but the project does not currently operate dedicated Zabbix, Checkmk, Nagios/Icinga, or Prometheus server infrastructure. Real integration reports and focused adapter contributions are welcome.
+
+For a monitoring integration report or PR, include only public-safe information:
+
+- monitoring product and version;
+- manager release/ref and healthcheck command shape;
+- output format tested;
+- whether ingestion, status mapping, metrics, and recovery worked;
+- sanitized expected/observed results;
+- any adapter configuration that is generic and contains no infrastructure details.
+
+Do not claim vendor certification. See [`docs/monitoring.md`](docs/monitoring.md) for the current evidence matrix and validation helper.
 
 ## Documentation changes
 
