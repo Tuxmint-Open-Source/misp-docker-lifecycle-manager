@@ -17,6 +17,60 @@ It is not intended to replace:
 - MISP application-level business monitoring;
 - external reverse-proxy, TLS, DNS, mail-delivery, or SIEM monitoring.
 
+## Integration validation status
+
+The command and its output contracts are implemented, but the project does not currently have dedicated Zabbix, Checkmk, Nagios/Icinga, or Prometheus server infrastructure. Do not interpret the examples on this page as vendor certification or proof of end-to-end integration with those products.
+
+Current evidence:
+
+| Evidence | Status |
+| --- | --- |
+| Exit-code and JSON schema tests | Automated |
+| JSON, Nagios, Checkmk, and Prometheus output parser validation | Automated by `scripts/validate-healthcheck-output.py` |
+| Missing-deployment/UNKNOWN behavior | Automated |
+| Public-safety checks against sensitive deployment values | Automated by the validator |
+| Healthy, UNKNOWN, controlled-CRITICAL, and recovery behavior on a real managed MISP deployment | Passed on disposable validation infrastructure; see [monitoring healthcheck validation](validation/monitoring-healthcheck-pr61.md) |
+| End-to-end ingestion by Zabbix, Checkmk, Nagios/Icinga, or Prometheus | Not yet tested by this project |
+
+Until real monitoring-system tests exist, describe these formats as **designed for** or **suitable for integration with** the named systems, not certified or vendor-validated.
+
+### Community testing wanted
+
+Operators who already run one of these monitoring systems can provide the most useful next evidence. Contributions are welcome for:
+
+- testing an output format with a real monitoring server or agent;
+- correcting adapter examples or parser assumptions;
+- adding minimal, maintainable integration fixtures;
+- reporting monitoring-tool and version details with sanitized results;
+- proposing additional checks that remain bounded, non-mutating, and public-safe.
+
+Please follow [`CONTRIBUTING.md`](../CONTRIBUTING.md) and do not post monitoring output until you have reviewed it for deployment-sensitive information. A successful community test should identify the monitoring product/version, command shape, expected and observed state, and whether ingestion, status mapping, and metrics worked. It must not include credentials, private hosts/IPs, raw logs, or MISP business data.
+
+## Validation without a monitoring server
+
+The repository provides a consumer-side validator for the stable output contracts:
+
+```bash
+python3 scripts/validate-healthcheck-output.py \
+  --healthcheck installer/healthcheck.sh \
+  --install-dir /tmp/not-a-misp-install \
+  --expect-status unknown
+```
+
+Against a real healthy deployment:
+
+```bash
+sudo python3 scripts/validate-healthcheck-output.py \
+  --healthcheck installer/healthcheck.sh \
+  --install-dir /opt/misp-docker \
+  --expect-status ok \
+  --include-login
+```
+
+The validator checks exit-code consistency, the JSON schema, Nagios and Checkmk line shapes, Prometheus metric syntax, and whether output contains sensitive deployment values. If `promtool` is installed, it also runs `promtool check metrics`; otherwise it reports that only the built-in Prometheus parser ran.
+
+This validation proves contract conformance. It does not prove that a real monitoring server accepted, stored, displayed, or alerted on the output.
+
 ## Command
 
 The monitoring command is:

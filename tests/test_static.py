@@ -410,6 +410,40 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('misp-docker-lifecycle-manager-health-v1', healthcheck)
         self.assertIn('backup-freshness', healthcheck)
         self.assertIn('version-drift', healthcheck)
+        self.assertIn('does not currently have dedicated Zabbix, Checkmk, Nagios/Icinga, or Prometheus server infrastructure', monitoring)
+        self.assertIn('Not yet tested by this project', monitoring)
+        self.assertIn('Community testing wanted', monitoring)
+        self.assertIn('scripts/validate-healthcheck-output.py', monitoring)
+        self.assertIn('monitoring-healthcheck-pr61.md', monitoring)
+        self.assertIn('especially welcome to review and test', readme)
+        self.assertIn('Monitoring integration contributions', (ROOT / 'CONTRIBUTING.md').read_text())
+        validation_report = (ROOT / 'docs' / 'validation' / 'monitoring-healthcheck-pr61.md').read_text()
+        self.assertIn('Stop only the `misp-core` service', validation_report)
+        self.assertIn('did **not** use running Zabbix, Checkmk, Nagios/Icinga, or Prometheus servers', validation_report)
+        self.assertIn('post-`v1.0.0` development commit', validation_report)
+        self.assertIn('`promtool` was not installed', validation_report)
+
+    def test_healthcheck_output_validator_accepts_unknown_contract(self):
+        validator = ROOT / 'scripts' / 'validate-healthcheck-output.py'
+        self.assertTrue(validator.exists())
+        with tempfile.TemporaryDirectory() as tmp:
+            result = subprocess.run(
+                [
+                    'python3', str(validator),
+                    '--healthcheck', str(ROOT / 'installer' / 'healthcheck.sh'),
+                    '--install-dir', tmp,
+                    '--expect-status', 'unknown',
+                    '--timeout', '1',
+                ],
+                text=True,
+                cwd=ROOT,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn('healthcheck output validation passed', result.stdout)
+            self.assertIn('formats=json,nagios,checkmk,prometheus', result.stdout)
+            self.assertNotIn(str(Path(tmp).resolve()), result.stdout + result.stderr)
 
     def test_healthcheck_outputs_stable_machine_formats_without_deployment(self):
         script = ROOT / 'installer' / 'healthcheck.sh'
