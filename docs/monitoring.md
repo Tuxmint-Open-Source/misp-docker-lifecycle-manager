@@ -29,7 +29,7 @@ Current evidence:
 | JSON, Nagios, Checkmk, and Prometheus output parser validation | Automated by `scripts/validate-healthcheck-output.py` |
 | Missing-deployment/UNKNOWN behavior | Automated |
 | Public-safety checks against sensitive deployment values | Automated by the validator |
-| Healthy and controlled-failure behavior on a real managed MISP deployment | Planned validation lane |
+| Healthy, UNKNOWN, controlled-CRITICAL, and recovery behavior on a real managed MISP deployment | Passed on disposable validation infrastructure; see [monitoring healthcheck validation](validation/monitoring-healthcheck-pr61.md) |
 | End-to-end ingestion by Zabbix, Checkmk, Nagios/Icinga, or Prometheus | Not yet tested by this project |
 
 Until real monitoring-system tests exist, describe these formats as **designed for** or **suitable for integration with** the named systems, not certified or vendor-validated.

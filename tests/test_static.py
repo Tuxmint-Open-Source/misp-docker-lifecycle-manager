@@ -414,8 +414,14 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Not yet tested by this project', monitoring)
         self.assertIn('Community testing wanted', monitoring)
         self.assertIn('scripts/validate-healthcheck-output.py', monitoring)
+        self.assertIn('monitoring-healthcheck-pr61.md', monitoring)
         self.assertIn('especially welcome to review and test', readme)
         self.assertIn('Monitoring integration contributions', (ROOT / 'CONTRIBUTING.md').read_text())
+        validation_report = (ROOT / 'docs' / 'validation' / 'monitoring-healthcheck-pr61.md').read_text()
+        self.assertIn('Stop only the `misp-core` service', validation_report)
+        self.assertIn('did **not** use running Zabbix, Checkmk, Nagios/Icinga, or Prometheus servers', validation_report)
+        self.assertIn('post-`v1.0.0` development commit', validation_report)
+        self.assertIn('`promtool` was not installed', validation_report)
 
     def test_healthcheck_output_validator_accepts_unknown_contract(self):
         validator = ROOT / 'scripts' / 'validate-healthcheck-output.py'
