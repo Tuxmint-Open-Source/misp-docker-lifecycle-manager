@@ -16,6 +16,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 import tempfile
 import urllib.error
 import urllib.request
@@ -62,7 +63,9 @@ OFFICIAL_COMPONENT_RELEASES = {
         "api_url": "https://api.github.com/repos/MISP/misp-guard/releases/latest",
     },
 }
-RELEASE_TAG_PATTERN = re.compile(r"^v[0-9]+(?:\.[0-9]+){1,3}(?:[-+][0-9A-Za-z.-]+)?$")
+RELEASE_TAG_PATTERN = re.compile(r"^v[0-9]+(?:\.[0-9]+){1,3}$")
+MAX_RELEASE_RESPONSE_BYTES = 1_048_576
+COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 RUNNING_KEYS = ["CORE_RUNNING_TAG", "MODULES_RUNNING_TAG", "GUARD_RUNNING_TAG"]
 README_SECTIONS = [
     "Getting Started",
@@ -101,39 +104,41 @@ def fetch_json(url: str) -> object:
         "User-Agent": "misp-docker-lifecycle-manager-upstream-watch",
         "X-GitHub-Api-Version": "2022-11-28",
     }
-    token = os.environ.get("GITHUB_TOKEN", "").strip()
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
     request = urllib.request.Request(url, headers=headers)
     try:
         with urllib.request.urlopen(request, timeout=30) as response:
-            return json.load(response)
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+            payload = response.read(MAX_RELEASE_RESPONSE_BYTES + 1)
+            if len(payload) > MAX_RELEASE_RESPONSE_BYTES:
+                raise RuntimeError("official component release metadata exceeded the size limit")
+            return json.loads(payload)
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, UnicodeDecodeError) as exc:
         raise RuntimeError(f"failed to read official component release metadata from {url}") from exc
 
 
-def parse_release_metadata(component: str, config: dict[str, str], payload: object) -> dict[str, str]:
+def parse_release_metadata(component: str, config: dict[str, str], payload: object) -> dict[str, object]:
     if not isinstance(payload, dict):
         raise RuntimeError(f"invalid official release metadata for {component}")
     tag = payload.get("tag_name")
     published_at = payload.get("published_at")
-    html_url = payload.get("html_url")
-    expected_prefix = f"https://github.com/{config['repo']}/releases/tag/"
+    release_id = payload.get("id")
+    if payload.get("draft") is not False or payload.get("prerelease") is not False:
+        raise RuntimeError(f"invalid official release state for {component}")
     if not isinstance(tag, str) or not RELEASE_TAG_PATTERN.fullmatch(tag):
         raise RuntimeError(f"invalid official release tag for {component}")
     if not isinstance(published_at, str) or not re.fullmatch(r"[0-9TZ:+.-]+", published_at):
         raise RuntimeError(f"invalid official release timestamp for {component}")
-    if not isinstance(html_url, str) or not html_url.startswith(expected_prefix):
-        raise RuntimeError(f"invalid official release URL for {component}")
+    if not isinstance(release_id, int) or isinstance(release_id, bool) or release_id <= 0:
+        raise RuntimeError(f"invalid official release identity for {component}")
     return {
         "repo": config["repo"],
         "tag": tag,
+        "release_id": release_id,
         "published_at": published_at,
-        "url": html_url,
+        "url": f"https://github.com/{config['repo']}/releases/tag/{tag}",
     }
 
 
-def collect_official_component_releases() -> dict[str, dict[str, str]]:
+def collect_official_component_releases() -> dict[str, dict[str, object]]:
     return {
         component: parse_release_metadata(component, config, fetch_json(config["api_url"]))
         for component, config in OFFICIAL_COMPONENT_RELEASES.items()
@@ -353,6 +358,11 @@ def diff_state(old: dict[str, object] | None, new: dict[str, object]) -> list[di
     new_release_tags = {key: as_mapping(value).get("tag") for key, value in new_releases.items()}
     if old_release_tags and old_release_tags != new_release_tags:
         changes.append({"class": "A", "detail": "Official component release tags changed."})
+    elif old_release_tags and old_releases != new_releases:
+        old_ids = {key: as_mapping(value).get("release_id") for key, value in old_releases.items()}
+        new_ids = {key: as_mapping(value).get("release_id") for key, value in new_releases.items()}
+        if old_ids != new_ids:
+            changes.append({"class": "A", "detail": "Official component release identity changed for an existing tag; manual supply-chain review required."})
     if old.get("running_tag_defaults_in_template_env") != new.get("running_tag_defaults_in_template_env"):
         changes.append({"class": "A", "detail": "Runtime image tag defaults changed."})
 
@@ -369,7 +379,7 @@ def diff_state(old: dict[str, object] | None, new: dict[str, object]) -> list[di
         new_tree = as_mapping(new_trees.get(rel))
         changed_children = changed_mapping_keys(old_tree, new_tree)
         if changed_children:
-            children = ", ".join(f"`{rel}/{child}`" for child in changed_children)
+            children = ", ".join(f"`{markdown_code(rel)}/{markdown_code(child)}`" for child in changed_children)
             changes.append({"class": change_class, "detail": f"Watched configuration tree changed: {children}"})
 
     old_compose = as_mapping(old.get("compose"))
@@ -445,17 +455,21 @@ def compare_url(old: dict[str, object] | None, new: dict[str, object]) -> str:
     repo = str(new["repo"])
     if repo.endswith(".git"):
         repo = repo[:-4]
-    if repo.startswith("https://github.com/") and old and old.get("upstream_commit"):
-        return f"{repo}/compare/{old['upstream_commit']}...{new['upstream_commit']}"
+    new_commit = str(new.get("upstream_commit", ""))
+    old_commit = str(old.get("upstream_commit", "")) if old else ""
+    if not repo.startswith("https://github.com/") or not COMMIT_PATTERN.fullmatch(new_commit):
+        return ""
+    if old and COMMIT_PATTERN.fullmatch(old_commit):
+        return f"{repo}/compare/{old_commit}...{new_commit}"
     if repo.startswith("https://github.com/"):
-        return f"{repo}/commit/{new['upstream_commit']}"
+        return f"{repo}/commit/{new_commit}"
     return ""
 
 
 def render_delta(label: str, old: object, new: object) -> str:
     added, removed = list_delta(old, new)
-    added_text = ", ".join(f"`{item}`" for item in added) or "none"
-    removed_text = ", ".join(f"`{item}`" for item in removed) or "none"
+    added_text = ", ".join(f"`{markdown_code(item)}`" for item in added) or "none"
+    removed_text = ", ".join(f"`{markdown_code(item)}`" for item in removed) or "none"
     return f"- {label} added: {added_text}\n- {label} removed: {removed_text}"
 
 
@@ -544,9 +558,23 @@ python3 scripts/check-upstream-misp-docker.py --check
 """
 
 
-def write_json(path: Path, data: dict[str, object]) -> None:
+def write_text_atomic(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    fd, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(content)
+            fh.flush()
+            os.fsync(fh.fileno())
+        temporary.replace(path)
+    except BaseException:
+        temporary.unlink(missing_ok=True)
+        raise
+
+
+def write_json(path: Path, data: dict[str, object]) -> None:
+    write_text_atomic(path, json.dumps(data, indent=2, sort_keys=True) + "\n")
 
 
 def set_github_output(name: str, value: str) -> None:
@@ -575,8 +603,12 @@ def main() -> int:
             pass
         else:
             parser.error("refusing to write a non-official repository into a public in-repo report path")
-    old = load_lock(lock_path)
-    new = collect_state(args.repo, args.ref)
+    try:
+        old = load_lock(lock_path)
+        new = collect_state(args.repo, args.ref)
+    except (RuntimeError, OSError, subprocess.CalledProcessError, json.JSONDecodeError) as exc:
+        print(f"upstream collection failed: {type(exc).__name__}", file=sys.stderr)
+        return 2
     changes = diff_state(old, new)
     drift = bool(changes)
 
@@ -593,8 +625,7 @@ def main() -> int:
     if args.write:
         write_json(lock_path, new)
         if drift:
-            report_path.parent.mkdir(parents=True, exist_ok=True)
-            report_path.write_text(render_report(old, new, changes), encoding="utf-8")
+            write_text_atomic(report_path, render_report(old, new, changes))
         elif report_path.exists():
             report_path.unlink()
 

@@ -36,9 +36,9 @@ class UpstreamWatcherTests(unittest.TestCase):
                 "GUARD_TAG": "v3",
             },
             "official_component_releases": {
-                "CORE_TAG": {"repo": "MISP/MISP", "tag": "v1", "published_at": "2026-01-01T00:00:00Z", "url": "https://github.com/MISP/MISP/releases/tag/v1"},
-                "MODULES_TAG": {"repo": "MISP/misp-modules", "tag": "v2", "published_at": "2026-01-01T00:00:00Z", "url": "https://github.com/MISP/misp-modules/releases/tag/v2"},
-                "GUARD_TAG": {"repo": "MISP/misp-guard", "tag": "v3", "published_at": "2026-01-01T00:00:00Z", "url": "https://github.com/MISP/misp-guard/releases/tag/v3"},
+                "CORE_TAG": {"repo": "MISP/MISP", "tag": "v1", "release_id": 1, "published_at": "2026-01-01T00:00:00Z", "url": "https://github.com/MISP/MISP/releases/tag/v1"},
+                "MODULES_TAG": {"repo": "MISP/misp-modules", "tag": "v2", "release_id": 2, "published_at": "2026-01-01T00:00:00Z", "url": "https://github.com/MISP/misp-modules/releases/tag/v2"},
+                "GUARD_TAG": {"repo": "MISP/misp-guard", "tag": "v3", "release_id": 3, "published_at": "2026-01-01T00:00:00Z", "url": "https://github.com/MISP/misp-guard/releases/tag/v3"},
             },
             "running_tag_defaults_in_template_env": {
                 "CORE_RUNNING_TAG": "(commented or unset)",
@@ -98,15 +98,20 @@ class UpstreamWatcherTests(unittest.TestCase):
     def test_release_metadata_validation_rejects_unofficial_or_malformed_values(self):
         config = WATCH.OFFICIAL_COMPONENT_RELEASES["CORE_TAG"]
         valid = {
+            "id": 12345,
             "tag_name": "v2.5.44",
             "published_at": "2026-07-13T14:19:48Z",
             "html_url": "https://github.com/MISP/MISP/releases/tag/v2.5.44",
+            "draft": False,
+            "prerelease": False,
         }
         self.assertEqual(WATCH.parse_release_metadata("CORE_TAG", config, valid)["tag"], "v2.5.44")
         for invalid in (
             {**valid, "tag_name": "main"},
-            {**valid, "html_url": "https://example.com/releases/tag/v2.5.44"},
+            {**valid, "tag_name": "v2.5.45-rc1", "prerelease": True},
             {**valid, "published_at": "not a timestamp"},
+            {**valid, "id": True},
+            {**valid, "draft": True},
             [],
         ):
             with self.assertRaises(RuntimeError):
@@ -118,10 +123,36 @@ class UpstreamWatcherTests(unittest.TestCase):
         new["official_component_releases"]["CORE_TAG"]["published_at"] = "2026-01-02T00:00:00Z"
         self.assertEqual(WATCH.diff_state(old, new), [])
 
+    def test_same_tag_release_identity_change_requires_supply_chain_review(self):
+        old = self.make_state()
+        new = copy.deepcopy(old)
+        new["official_component_releases"]["CORE_TAG"]["release_id"] = 999
+        changes = WATCH.diff_state(old, new)
+        self.assertTrue(any(
+            change["class"] == "A" and "supply-chain" in change["detail"]
+            for change in changes
+        ))
+
     def test_release_api_failure_is_explicit(self):
         with mock.patch.object(WATCH.urllib.request, "urlopen", side_effect=urllib.error.URLError("offline")):
             with self.assertRaisesRegex(RuntimeError, "failed to read official component release metadata"):
                 WATCH.fetch_json("https://api.github.com/repos/MISP/MISP/releases/latest")
+
+    def test_release_api_response_size_is_bounded(self):
+        response = mock.MagicMock()
+        response.__enter__.return_value.read.return_value = b"x" * (WATCH.MAX_RELEASE_RESPONSE_BYTES + 1)
+        with mock.patch.object(WATCH.urllib.request, "urlopen", return_value=response):
+            with self.assertRaisesRegex(RuntimeError, "size limit"):
+                WATCH.fetch_json("https://api.github.com/repos/MISP/MISP/releases/latest")
+
+    def test_release_api_request_never_uses_workflow_token(self):
+        response = mock.MagicMock()
+        response.__enter__.return_value.read.return_value = b"{}"
+        with mock.patch.dict("os.environ", {"GITHUB_TOKEN": "must-not-be-used"}):
+            with mock.patch.object(WATCH.urllib.request, "urlopen", return_value=response) as opened:
+                WATCH.fetch_json("https://api.github.com/repos/MISP/MISP/releases/latest")
+        request = opened.call_args.args[0]
+        self.assertNotIn("Authorization", request.headers)
 
     def test_compose_service_change_is_class_b(self):
         old = self.make_state()
