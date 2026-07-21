@@ -979,8 +979,9 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Manager commit | `a0172cc1708803ce80f8542ec467515b1c44f5fb`', v1_1_report)
         self.assertIn('Overall result | ✅ Validated compatible', v1_1_report)
         self.assertIn('validation-harness or validation-infrastructure defects', v1_1_report)
-        for private_mechanic in ('shared-slot', 'snapshot-revert', 'in addition to SSH'):
-            self.assertNotIn(private_mechanic, v1_1_report)
+        self.assertIn('The first full run established five passing scenarios', v1_1_report)
+        self.assertIn('transient pre-install network-readiness failures', v1_1_report)
+        self.assertIn('restore passed in the final rerun after the validation readiness check was corrected', v1_1_report)
         self.assertEqual(channels['schema_version'], 1)
         self.assertEqual(channels['latest_published'], 'v1.1.0')
         self.assertEqual(channels['latest_validated'], 'v1.1.0')
