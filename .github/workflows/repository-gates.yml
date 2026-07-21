@@ -64,30 +64,9 @@ jobs:
               yaml.safe_load(path.read_text())
           PY
 
-      - name: Check changed lines for whitespace errors
+      - name: Check repository tree for whitespace errors
         env:
-          EVENT_NAME: ${{ github.event_name }}
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
-          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || '' }}
-          PUSH_BEFORE_SHA: ${{ github.event.before || '' }}
           CURRENT_SHA: ${{ github.sha }}
         run: |
-          case "$EVENT_NAME" in
-            pull_request)
-              git diff --check "$PR_BASE_SHA...$PR_HEAD_SHA"
-              ;;
-            push)
-              if [[ -n "$PUSH_BEFORE_SHA" && ! "$PUSH_BEFORE_SHA" =~ ^0+$ ]]; then
-                git diff --check "$PUSH_BEFORE_SHA..$CURRENT_SHA"
-              else
-                git diff-tree --root --check --no-commit-id -r "$CURRENT_SHA"
-              fi
-              ;;
-            workflow_dispatch)
-              git diff --check "$CURRENT_SHA^..$CURRENT_SHA"
-              ;;
-            *)
-              echo "Unsupported event for repository diff gate: $EVENT_NAME" >&2
-              exit 1
-              ;;
-          esac
+          empty_tree=$(git hash-object -t tree /dev/null)
+          git diff --check "$empty_tree" "$CURRENT_SHA"

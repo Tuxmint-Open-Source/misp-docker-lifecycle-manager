@@ -6,7 +6,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ### Added
 
-- Add an always-running, read-only repository gate for unit/static tests, Bash syntax, Python compilation, workflow YAML parsing, and changed-line whitespace checks on every pull request and push to `main`.
+- Add an always-running, read-only repository gate for unit/static tests, Bash syntax, Python compilation, tracked-YAML parsing, and complete-tree whitespace checks on every pull request and push to `main`.
 
 ## [1.1.0] - 2026-07-21
 
