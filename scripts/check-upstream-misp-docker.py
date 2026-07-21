@@ -16,7 +16,10 @@ import json
 import os
 import re
 import subprocess
+import sys
 import tempfile
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -46,6 +49,23 @@ WATCHED_TREE_CLASSES = {
 }
 WATCHED_FILES = list(WATCHED_FILE_CLASSES)
 COMPONENT_KEYS = ["CORE_TAG", "MODULES_TAG", "GUARD_TAG"]
+OFFICIAL_COMPONENT_RELEASES = {
+    "CORE_TAG": {
+        "repo": "MISP/MISP",
+        "api_url": "https://api.github.com/repos/MISP/MISP/releases/latest",
+    },
+    "MODULES_TAG": {
+        "repo": "MISP/misp-modules",
+        "api_url": "https://api.github.com/repos/MISP/misp-modules/releases/latest",
+    },
+    "GUARD_TAG": {
+        "repo": "MISP/misp-guard",
+        "api_url": "https://api.github.com/repos/MISP/misp-guard/releases/latest",
+    },
+}
+RELEASE_TAG_PATTERN = re.compile(r"^v[0-9]+(?:\.[0-9]+){1,3}$")
+MAX_RELEASE_RESPONSE_BYTES = 1_048_576
+COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 RUNNING_KEYS = ["CORE_RUNNING_TAG", "MODULES_RUNNING_TAG", "GUARD_RUNNING_TAG"]
 README_SECTIONS = [
     "Getting Started",
@@ -76,6 +96,53 @@ def normalized_sha(text: str) -> str:
 
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
+
+
+def fetch_json(url: str) -> object:
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "misp-docker-lifecycle-manager-upstream-watch",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    request = urllib.request.Request(url, headers=headers)
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            payload = response.read(MAX_RELEASE_RESPONSE_BYTES + 1)
+            if len(payload) > MAX_RELEASE_RESPONSE_BYTES:
+                raise RuntimeError("official component release metadata exceeded the size limit")
+            return json.loads(payload)
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise RuntimeError(f"failed to read official component release metadata from {url}") from exc
+
+
+def parse_release_metadata(component: str, config: dict[str, str], payload: object) -> dict[str, object]:
+    if not isinstance(payload, dict):
+        raise RuntimeError(f"invalid official release metadata for {component}")
+    tag = payload.get("tag_name")
+    published_at = payload.get("published_at")
+    release_id = payload.get("id")
+    if payload.get("draft") is not False or payload.get("prerelease") is not False:
+        raise RuntimeError(f"invalid official release state for {component}")
+    if not isinstance(tag, str) or not RELEASE_TAG_PATTERN.fullmatch(tag):
+        raise RuntimeError(f"invalid official release tag for {component}")
+    if not isinstance(published_at, str) or not re.fullmatch(r"[0-9TZ:+.-]+", published_at):
+        raise RuntimeError(f"invalid official release timestamp for {component}")
+    if not isinstance(release_id, int) or isinstance(release_id, bool) or release_id <= 0:
+        raise RuntimeError(f"invalid official release identity for {component}")
+    return {
+        "repo": config["repo"],
+        "tag": tag,
+        "release_id": release_id,
+        "published_at": published_at,
+        "url": f"https://github.com/{config['repo']}/releases/tag/{tag}",
+    }
+
+
+def collect_official_component_releases() -> dict[str, dict[str, object]]:
+    return {
+        component: parse_release_metadata(component, config, fetch_json(config["api_url"]))
+        for component, config in OFFICIAL_COMPONENT_RELEASES.items()
+    }
 
 
 def parse_active_env(text: str) -> dict[str, str]:
@@ -237,7 +304,7 @@ def collect_state(repo: str, ref: str) -> dict[str, object]:
         }
 
         return {
-            "schema": 2,
+            "schema": 3,
             "repo": repo,
             "ref": ref,
             "upstream_commit": commit,
@@ -245,6 +312,7 @@ def collect_state(repo: str, ref: str) -> dict[str, object]:
             "watched_files": file_hashes,
             "watched_trees": watched_trees,
             "component_tags": {key: template_values.get(key, "") for key in COMPONENT_KEYS},
+            "official_component_releases": collect_official_component_releases(),
             "running_tag_defaults_in_template_env": {
                 key: template_values.get(key, "(commented or unset)") for key in RUNNING_KEYS
             },
@@ -284,6 +352,17 @@ def diff_state(old: dict[str, object] | None, new: dict[str, object]) -> list[di
 
     if old.get("component_tags") != new.get("component_tags"):
         changes.append({"class": "A", "detail": "Official component tag defaults changed."})
+    old_releases = as_mapping(old.get("official_component_releases"))
+    new_releases = as_mapping(new.get("official_component_releases"))
+    old_release_tags = {key: as_mapping(value).get("tag") for key, value in old_releases.items()}
+    new_release_tags = {key: as_mapping(value).get("tag") for key, value in new_releases.items()}
+    if old_release_tags and old_release_tags != new_release_tags:
+        changes.append({"class": "A", "detail": "Official component release tags changed."})
+    elif old_release_tags and old_releases != new_releases:
+        old_ids = {key: as_mapping(value).get("release_id") for key, value in old_releases.items()}
+        new_ids = {key: as_mapping(value).get("release_id") for key, value in new_releases.items()}
+        if old_ids != new_ids:
+            changes.append({"class": "A", "detail": "Official component release identity changed for an existing tag; manual supply-chain review required."})
     if old.get("running_tag_defaults_in_template_env") != new.get("running_tag_defaults_in_template_env"):
         changes.append({"class": "A", "detail": "Runtime image tag defaults changed."})
 
@@ -300,7 +379,7 @@ def diff_state(old: dict[str, object] | None, new: dict[str, object]) -> list[di
         new_tree = as_mapping(new_trees.get(rel))
         changed_children = changed_mapping_keys(old_tree, new_tree)
         if changed_children:
-            children = ", ".join(f"`{rel}/{child}`" for child in changed_children)
+            children = ", ".join(f"`{markdown_code(rel)}/{markdown_code(child)}`" for child in changed_children)
             changes.append({"class": change_class, "detail": f"Watched configuration tree changed: {children}"})
 
     old_compose = as_mapping(old.get("compose"))
@@ -353,21 +432,44 @@ def component_table(old: dict[str, object] | None, new: dict[str, object]) -> st
     return "\n".join(rows)
 
 
+def component_release_table(new: dict[str, object]) -> str:
+    docker_tags = as_mapping(new.get("component_tags"))
+    releases = as_mapping(new.get("official_component_releases"))
+    rows = [
+        "| Component | Official Docker default | Latest official release | Adopted by Docker default? |",
+        "|---|---:|---:|---|",
+    ]
+    for key in COMPONENT_KEYS:
+        release = as_mapping(releases.get(key))
+        docker_tag = str(docker_tags.get(key, ""))
+        release_tag = str(release.get("tag", ""))
+        adopted = "yes" if docker_tag and docker_tag == release_tag else "no — review before validation"
+        rows.append(
+            f"| `{markdown_code(key)}` | `{markdown_code(docker_tag)}` | "
+            f"`{markdown_code(release_tag)}` | {adopted} |"
+        )
+    return "\n".join(rows)
+
+
 def compare_url(old: dict[str, object] | None, new: dict[str, object]) -> str:
     repo = str(new["repo"])
     if repo.endswith(".git"):
         repo = repo[:-4]
-    if repo.startswith("https://github.com/") and old and old.get("upstream_commit"):
-        return f"{repo}/compare/{old['upstream_commit']}...{new['upstream_commit']}"
+    new_commit = str(new.get("upstream_commit", ""))
+    old_commit = str(old.get("upstream_commit", "")) if old else ""
+    if not repo.startswith("https://github.com/") or not COMMIT_PATTERN.fullmatch(new_commit):
+        return ""
+    if old and COMMIT_PATTERN.fullmatch(old_commit):
+        return f"{repo}/compare/{old_commit}...{new_commit}"
     if repo.startswith("https://github.com/"):
-        return f"{repo}/commit/{new['upstream_commit']}"
+        return f"{repo}/commit/{new_commit}"
     return ""
 
 
 def render_delta(label: str, old: object, new: object) -> str:
     added, removed = list_delta(old, new)
-    added_text = ", ".join(f"`{item}`" for item in added) or "none"
-    removed_text = ", ".join(f"`{item}`" for item in removed) or "none"
+    added_text = ", ".join(f"`{markdown_code(item)}`" for item in added) or "none"
+    removed_text = ", ".join(f"`{markdown_code(item)}`" for item in removed) or "none"
     return f"- {label} added: {added_text}\n- {label} removed: {removed_text}"
 
 
@@ -384,7 +486,7 @@ def render_report(old: dict[str, object] | None, new: dict[str, object], changes
 
 ## Summary
 
-The scheduled upstream monitor detected lifecycle-sensitive changes in official `MISP/misp-docker` inputs. Upstream commit movement without a watched-file or extracted-fact change does not create a review.
+The scheduled upstream monitor detected lifecycle-sensitive changes in official `MISP/misp-docker` inputs or a new official MISP component release. Upstream commit movement without a watched-file, extracted-fact, or component-release change does not create a review.
 
 Detected classes: **{'+'.join(classes) if classes else 'none'}**
 
@@ -411,6 +513,12 @@ Validation status: **review required / not validated**
 
 {component_table(old, new)}
 
+## Latest official component releases
+
+{component_release_table(new)}
+
+A component release that is not yet adopted by official MISP Docker is a review signal, not an instruction to validate or support a speculative combination.
+
 ## Structured deltas
 
 {render_delta('Compose services', old_compose.get('services'), new_compose.get('services'))}
@@ -420,7 +528,7 @@ Validation status: **review required / not validated**
 
 ## Classification
 
-- **A:** component or runtime image tag defaults changed.
+- **A:** an official component release or component/runtime image tag default changed.
 - **B:** Compose structure or runtime/configuration behavior changed, including service blocks, ports, volumes, dependencies, profiles, healthchecks, entrypoint/configuration scripts, or critical/minimum environment definitions.
 - **C:** template environment inventory or selected operator guidance changed.
 
@@ -428,6 +536,7 @@ Validation status: **review required / not validated**
 
 - [ ] Inspect the upstream compare link; hashes and extracted facts summarize drift but do not replace review.
 - [ ] Check upstream component tag changes and release notes.
+- [ ] Check whether each new component release is adopted by official MISP Docker before choosing a validation combination.
 - [ ] Check Compose service names, image expressions, ports, volumes, dependencies, profiles, healthchecks, and interpolation variables.
 - [ ] Check new, removed, or changed required/default variables in `template.env` and the critical/minimum environment definitions.
 - [ ] Check entrypoint, configuration, migration, startup, and readiness behavior.
@@ -449,9 +558,23 @@ python3 scripts/check-upstream-misp-docker.py --check
 """
 
 
-def write_json(path: Path, data: dict[str, object]) -> None:
+def write_text_atomic(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    fd, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(content)
+            fh.flush()
+            os.fsync(fh.fileno())
+        temporary.replace(path)
+    except BaseException:
+        temporary.unlink(missing_ok=True)
+        raise
+
+
+def write_json(path: Path, data: dict[str, object]) -> None:
+    write_text_atomic(path, json.dumps(data, indent=2, sort_keys=True) + "\n")
 
 
 def set_github_output(name: str, value: str) -> None:
@@ -480,8 +603,12 @@ def main() -> int:
             pass
         else:
             parser.error("refusing to write a non-official repository into a public in-repo report path")
-    old = load_lock(lock_path)
-    new = collect_state(args.repo, args.ref)
+    try:
+        old = load_lock(lock_path)
+        new = collect_state(args.repo, args.ref)
+    except (RuntimeError, OSError, subprocess.CalledProcessError, json.JSONDecodeError) as exc:
+        print(f"upstream collection failed: {type(exc).__name__}", file=sys.stderr)
+        return 2
     changes = diff_state(old, new)
     drift = bool(changes)
 
@@ -498,8 +625,7 @@ def main() -> int:
     if args.write:
         write_json(lock_path, new)
         if drift:
-            report_path.parent.mkdir(parents=True, exist_ok=True)
-            report_path.write_text(render_report(old, new, changes), encoding="utf-8")
+            write_text_atomic(report_path, render_report(old, new, changes))
         elif report_path.exists():
             report_path.unlink()
 
