@@ -27,7 +27,7 @@ This documentation is organized around the operator journey: understand the mode
 | check which MISP versions are validated | [Compatibility](compatibility.md) |
 | update MISP components | [Upgrade path](upgrade-path.md) |
 | back up or restore MISP | [Backup, restore, and rollback](backup-restore-and-rollback.md) |
-| plan monitoring integration on `main` | [Monitoring](monitoring.md) and [community testing issue #62](https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/issues/62) |
+| plan monitoring integration | [Monitoring](monitoring.md) and [community testing issue #62](https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/issues/62) |
 | recover from a failed update | [Backup, restore, and rollback](backup-restore-and-rollback.md#restore-based-rollback-after-failed-update) |
 | understand secrets and privileges | [Security](security.md) |
 | inspect every script and option | [Shell scripts reference](shell-scripts.md) |

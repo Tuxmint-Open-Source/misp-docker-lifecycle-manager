@@ -12,7 +12,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Add `installer/healthcheck.sh` with text, JSON, Nagios/Icinga, Checkmk, and Prometheus-style output formats.
 - Add a monitoring-output validator, an explicit integration-evidence matrix, and a community call for real Zabbix, Checkmk, Nagios/Icinga, and Prometheus testing.
 - Record successful real-deployment monitoring validation across healthy, UNKNOWN, controlled-CRITICAL, and recovery states while preserving the untested-platform limitation.
-- Align primary README, readiness, deployment, support, security, and versioning docs with the published stable `v1.0.0` state while keeping post-release monitoring work clearly on `main`.
+- Replace free-form SOS command output and backup metadata with a bounded `generated-sos-v2` allowlist of enums, booleans, counts, validated public tags, restricted versions, and non-login health statuses; write reports atomically and refuse symlink targets.
+- Align primary README, readiness, deployment, support, security, and versioning docs with the `v1.1.0` release while keeping exact-tag compatibility explicitly pending until validation passes.
 - Clarify stable security support, community support expectations, issue examples, contribution discovery, and public evidence navigation after the post-v1 trust review.
 - Expand upstream MISP Docker drift coverage to Compose service blocks and variables, template key inventory, initialization/configuration/readiness/process inputs, and selected operator guidance while suppressing commit-only noise and bounding concurrent workflow runs.
 - Monitor official MISP core, modules, and guard releases directly so maintainers are prompted before or after official MISP Docker adopts a new component tag.
@@ -47,7 +48,6 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Add anonymous SOS report documentation and update the bug-report template so users can provide reproducible public-safe diagnostics without leaking deployment details.
 - Add `installer/sos-report.sh` and a redaction helper for generated public-safe SOS bug reports.
 - Add concise redacted health-command and backup-shape summaries to generated SOS reports.
-- Replace free-form SOS command output and backup metadata with a bounded `generated-sos-v2` allowlist of enums, booleans, counts, validated public tags, restricted versions, and non-login health statuses; write reports atomically and refuse symlink targets.
 - Document maintainer triage for anonymous SOS reports, including when to request `needs-sos-report` and when to move reports to private security handling.
 - Update the pinned CodeQL workflow from CodeQL Action v3 to v4 to avoid GitHub Actions Node.js 20 and CodeQL v3 deprecation warnings.
 - Document the maintainer response workflow for scheduled official MISP Docker upstream drift review PRs.

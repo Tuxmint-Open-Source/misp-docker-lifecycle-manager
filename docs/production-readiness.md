@@ -15,9 +15,9 @@ Production readiness here applies only to the public support matrix and explicit
 | Public support scope | ✅ [`support-matrix.md`](support-matrix.md) |
 | Production deployment guide | ✅ [`production-deployment.md`](production-deployment.md) |
 | Security model | ✅ [`security.md`](security.md) |
-| Backup, restore, and rollback | ✅ documented and release-tag validated |
-| Browser-facing login | ✅ release-tag validated |
-| No-lock-in Compose operation | ✅ release-tag validated |
+| Backup, restore, and rollback | 🟡 `v1.0.0` release-tag evidence exists; changed `v1.1.0` behavior awaits exact-tag validation |
+| Browser-facing login | 🟡 `v1.0.0` release-tag evidence exists; hardened `v1.1.0` behavior awaits exact-tag validation |
+| No-lock-in Compose operation | 🟡 `v1.0.0` release-tag evidence exists; `v1.1.0` awaits exact-tag validation |
 | Monitoring contract in `v1.1.0` | ✅ contract/parser and real-deployment producer validation; native platform ingestion remains unvalidated |
 
 ## `v1.1.0` release-validation state
