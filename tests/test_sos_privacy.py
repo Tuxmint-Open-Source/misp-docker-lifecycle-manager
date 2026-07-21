@@ -227,6 +227,12 @@ class StructuredSosReportTests(unittest.TestCase):
 
         command = observed["command"]
         self.assertEqual(command[command.index("--timeout") + 1], "4")
+        selected_checks = command[command.index("--checks") + 1].split(",")
+        self.assertEqual(
+            selected_checks,
+            ["compose-config", "compose-services", "misp-heartbeat", "schema-ready"],
+        )
+        self.assertNotIn("login", selected_checks)
         self.assertAlmostEqual(observed["timeout"], 4.65)
         self.assertEqual(health["overall"], "ok")
 
