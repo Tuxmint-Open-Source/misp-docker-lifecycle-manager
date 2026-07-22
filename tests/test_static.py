@@ -776,6 +776,10 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('sha256sum --check --strict', runner)
         self.assertLess(runner.index('sha256sum --check --strict'), runner.index('tar --extract'))
         self.assertIn('actual_version=', runner)
+        self.assertIn('if ! find installer', runner)
+        self.assertIn('sort -z >"$scripts_inventory"', runner)
+        self.assertIn('done <"$scripts_inventory"', runner)
+        self.assertNotIn('done < <(find', runner)
         self.assertIn('--severity=error', runner)
 
     def test_always_running_repository_gate_is_read_only_and_complete(self):

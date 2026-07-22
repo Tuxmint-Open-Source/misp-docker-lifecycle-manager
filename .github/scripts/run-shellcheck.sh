@@ -43,10 +43,16 @@ if [[ "$actual_version" != "$SHELLCHECK_VERSION" ]]; then
   exit 1
 fi
 
+scripts_inventory="${workdir}/installer-scripts.nul"
+if ! find installer -type f -name '*.sh' -print0 | sort -z >"$scripts_inventory"; then
+  printf 'Failed to build the complete installer shell-script inventory.\n' >&2
+  exit 1
+fi
+
 declare -a scripts=()
 while IFS= read -r -d '' script; do
   scripts+=("$script")
-done < <(find installer -type f -name '*.sh' -print0 | sort -z)
+done <"$scripts_inventory"
 
 if (( ${#scripts[@]} == 0 )); then
   printf 'No installer shell scripts found.\n' >&2
