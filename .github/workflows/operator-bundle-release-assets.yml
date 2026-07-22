@@ -1,0 +1,167 @@
+name: Operator bundle release assets
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/operator-bundle-release-assets.yml"
+      - "scripts/build-operator-bundle.py"
+      - "operator-bundle-files.txt"
+      - "docs/operator-bundle.md"
+      - "docs/release/release-process.md"
+      - "tests/test_operator_bundle.py"
+      - "tests/test_static.py"
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: "Immutable vX.Y.Z tag to package, or HEAD for dry-run validation"
+        required: false
+        type: string
+        default: HEAD
+      dry_run:
+        description: "Build and verify without uploading release assets"
+        required: true
+        type: boolean
+        default: true
+
+permissions: {}
+
+concurrency:
+  group: operator-bundle-release-assets-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-operator-bundle:
+    name: Build and verify operator bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        # actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Select source ref
+        id: source
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_SOURCE_REF: ${{ inputs.source_ref }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "release" ]]; then
+            source_ref="$RELEASE_TAG"
+            allow_non_tag=false
+          elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            source_ref="${INPUT_SOURCE_REF:-HEAD}"
+            if [[ "$INPUT_DRY_RUN" == "true" && "$source_ref" == "HEAD" ]]; then
+              allow_non_tag=true
+            else
+              allow_non_tag=false
+            fi
+          else
+            source_ref="HEAD"
+            allow_non_tag=true
+          fi
+          printf 'source_ref=%s\n' "$source_ref" >> "$GITHUB_OUTPUT"
+          printf 'allow_non_tag=%s\n' "$allow_non_tag" >> "$GITHUB_OUTPUT"
+
+      - name: Run operator bundle tests
+        run: python3 -m unittest tests.test_operator_bundle
+
+      - name: Build operator bundle assets
+        env:
+          SOURCE_REF: ${{ steps.source.outputs.source_ref }}
+          ALLOW_NON_TAG: ${{ steps.source.outputs.allow_non_tag }}
+        run: |
+          set -euo pipefail
+          args=(--source-ref "$SOURCE_REF" --output-dir dist)
+          if [[ "$ALLOW_NON_TAG" == "true" ]]; then
+            args+=(--allow-non-tag)
+          fi
+          python3 scripts/build-operator-bundle.py "${args[@]}"
+
+      - name: Verify companion checksum
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum --check ./*.sha256
+
+      - name: Upload verified bundle artifact
+        # actions/upload-artifact@v5
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: operator-bundle-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            dist/*.tar.gz
+            dist/*.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 1
+
+  publish-release-assets:
+    name: Publish operator bundle release assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build-operator-bundle
+    if: >-
+      github.repository == 'Tuxmint-Open-Source/misp-docker-lifecycle-manager' &&
+      (github.event_name == 'release' ||
+       (github.event_name == 'workflow_dispatch' && inputs.dry_run == false))
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download verified bundle artifact
+        # actions/download-artifact@v6
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
+        with:
+          name: operator-bundle-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist
+
+      - name: Select release tag
+        id: release
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_SOURCE_REF: ${{ inputs.source_ref }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "release" ]]; then
+            tag="$RELEASE_TAG"
+          else
+            tag="$INPUT_SOURCE_REF"
+          fi
+          if [[ ! "$tag" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)([-+][0-9A-Za-z.-]+)?$ ]]; then
+            echo "release assets require an immutable vX.Y.Z tag" >&2
+            exit 1
+          fi
+          printf 'tag=%s\n' "$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Verify downloaded assets
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          cd dist
+          test -f "misp-docker-lifecycle-manager-${TAG}.tar.gz"
+          test -f "misp-docker-lifecycle-manager-${TAG}.tar.gz.sha256"
+          sha256sum --check "misp-docker-lifecycle-manager-${TAG}.tar.gz.sha256"
+
+      - name: Upload assets to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          gh release upload "$TAG" \
+            "dist/misp-docker-lifecycle-manager-${TAG}.tar.gz" \
+            "dist/misp-docker-lifecycle-manager-${TAG}.tar.gz.sha256" \
+            --clobber
