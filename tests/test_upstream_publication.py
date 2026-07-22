@@ -111,6 +111,19 @@ class UpstreamPublicationTests(unittest.TestCase):
         self.write_bundle(candidate=candidate)
         self.assertTrue(self.validate())
 
+    def test_actual_collector_build_only_service_and_empty_running_tag_are_accepted(self):
+        compose = """services:
+  app:
+    image: example/app:v1
+  builder:
+    build: .
+"""
+        candidate = copy.deepcopy(self.candidate)
+        candidate["compose"] = WATCH.parse_compose_facts(compose)
+        candidate["running_tag_defaults_in_template_env"]["CORE_RUNNING_TAG"] = ""
+        self.write_bundle(candidate=candidate)
+        self.assertTrue(self.validate())
+
     def test_commit_mismatch_is_rejected_without_writes(self):
         self.expected_commit = "f" * 40
         with self.assertRaisesRegex(ValueError, "collector output"):
@@ -173,6 +186,10 @@ class UpstreamPublicationTests(unittest.TestCase):
         mutate("missing component key", lambda value: value["component_tags"].pop("GUARD_TAG"))
         mutate("invalid component tag", lambda value: value["component_tags"].__setitem__("CORE_TAG", "latest"))
         mutate(
+            "prerelease component tag",
+            lambda value: value["component_tags"].__setitem__("CORE_TAG", "v2.5.45-rc.1"),
+        )
+        mutate(
             "boolean release ID",
             lambda value: value["official_component_releases"]["CORE_TAG"].__setitem__("release_id", True),
         )
@@ -187,6 +204,15 @@ class UpstreamPublicationTests(unittest.TestCase):
         mutate("wrong template list type", lambda value: value["template_env_keys"].__setitem__("active_keys", {}))
         mutate("compose services boolean", lambda value: value["compose"]["services"].append(True))
         mutate("unsorted compose services", lambda value: value["compose"]["services"].reverse())
+        mutate(
+            "collector-impossible service name",
+            lambda value: (
+                value["compose"]["services"].append("foo/bar"),
+                value["compose"]["images"].__setitem__("foo/bar", "example:v1"),
+                value["compose"]["service_block_hashes"].__setitem__("foo/bar", "0" * 64),
+                value["compose"]["services"].sort(),
+            ),
+        )
         mutate(
             "newline image",
             lambda value: value["compose"]["images"].__setitem__("db", "valid-image\ninjected"),
@@ -223,6 +249,18 @@ class UpstreamPublicationTests(unittest.TestCase):
         mutate(
             "extra safe watched tree",
             lambda value: value["watched_trees"].__setitem__("safe/tree", {}),
+        )
+        mutate(
+            "true missing-tree sentinel",
+            lambda value: next(iter(value["watched_trees"].values())).__setitem__(
+                ".", {"exists": True, "sha256": "0" * 64}
+            ),
+        )
+        mutate(
+            "mixed missing-tree sentinel",
+            lambda value: next(iter(value["watched_trees"].values())).__setitem__(
+                ".", {"exists": False, "sha256": ""}
+            ),
         )
         mutate(
             "malformed README digest",

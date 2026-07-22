@@ -51,8 +51,8 @@ RUNNING_TAG_KEYS = {"CORE_RUNNING_TAG", "MODULES_RUNNING_TAG", "GUARD_RUNNING_TA
 TEMPLATE_ENV_KEYS = {"active_keys", "commented_keys"}
 FILE_RECORD_KEYS = {"exists", "sha256"}
 SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
-TAG_PATTERN = re.compile(r"v[0-9]+(?:\.[0-9]+)+(?:[-+][0-9A-Za-z.-]+)?")
-NAME_PATTERN = re.compile(r"[A-Za-z0-9_.() /:+-]{1,200}")
+TAG_PATTERN = re.compile(r"v[0-9]+(?:\.[0-9]+){1,3}")
+SERVICE_NAME_PATTERN = re.compile(r"[A-Za-z0-9_.-]+")
 ENV_KEY_PATTERN = re.compile(r"[A-Za-z_][A-Za-z0-9_]{0,127}")
 INTERPOLATION_OPERATORS = {"plain", ":-", "-", ":?", "?", ":+", "+"}
 
@@ -197,7 +197,8 @@ def validate_nested_schema(candidate: dict[str, object], watcher) -> None:
         "running_tag_defaults_in_template_env",
     )
     for key, value in running.items():
-        require_string(value, f"running_tag_defaults_in_template_env.{key}", 200)
+        if value != "":
+            require_string(value, f"running_tag_defaults_in_template_env.{key}", 200)
 
     template_keys = require_exact_keys(candidate["template_env_keys"], TEMPLATE_ENV_KEYS, "template_env_keys")
     active_keys = require_string_list(
@@ -212,10 +213,10 @@ def validate_nested_schema(candidate: dict[str, object], watcher) -> None:
     compose = require_exact_keys(candidate["compose"], COMPOSE_KEYS, "compose")
     images = validate_string_map(compose["images"], "compose.images")
     hashes = validate_string_map(compose["service_block_hashes"], "compose.service_block_hashes", require_sha256)
-    services = require_string_list(compose["services"], "compose.services", NAME_PATTERN)
+    services = require_string_list(compose["services"], "compose.services", SERVICE_NAME_PATTERN)
     if services != sorted(services):
         fail("candidate lock compose services are not sorted")
-    if set(images) != set(services) or set(hashes) != set(services):
+    if not set(images) <= set(services) or set(hashes) != set(services):
         fail("candidate lock compose service inventories do not match")
     interpolation_keys = require_string_list(
         compose["interpolation_keys"], "compose.interpolation_keys", ENV_KEY_PATTERN
@@ -249,6 +250,11 @@ def validate_nested_schema(candidate: dict[str, object], watcher) -> None:
         require_safe_path(root, "watched_trees root")
         if not isinstance(records, dict):
             fail(f"candidate lock watched tree is not an object: {root}")
+        if "." in records:
+            if set(records) != {"."}:
+                fail(f"candidate lock missing-tree sentinel is not exclusive: {root}")
+            if records["."] != {"exists": False, "sha256": ""}:
+                fail(f"candidate lock missing-tree sentinel is invalid: {root}")
         for relative, record in records.items():
             require_safe_path(relative, f"watched_trees.{root} path", allow_dot=True)
             validate_file_record(record, f"watched_trees.{root}.{relative}")
