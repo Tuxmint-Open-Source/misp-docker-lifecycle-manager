@@ -82,6 +82,15 @@ class UpstreamPublicationTests(unittest.TestCase):
             {self.destination_lock.name, self.destination_report.name},
         )
 
+    def test_valid_collector_missing_input_records_are_accepted(self):
+        candidate = copy.deepcopy(self.candidate)
+        first_file = next(iter(candidate["watched_files"].values()))
+        first_file.update({"exists": False, "sha256": ""})
+        first_tree = next(iter(candidate["watched_trees"]))
+        candidate["watched_trees"][first_tree] = {".": {"exists": False, "sha256": ""}}
+        self.write_bundle(candidate=candidate)
+        self.assertTrue(self.validate())
+
     def test_commit_mismatch_is_rejected_without_writes(self):
         self.expected_commit = "f" * 40
         with self.assertRaisesRegex(ValueError, "collector output"):

@@ -129,8 +129,10 @@ def require_sha256(value: object, field: str) -> str:
     return digest
 
 
-def require_safe_path(value: object, field: str) -> str:
+def require_safe_path(value: object, field: str, allow_dot: bool = False) -> str:
     path = require_string(value, field, 512)
+    if allow_dot and path == ".":
+        return path
     pure = PurePosixPath(path)
     if (
         pure.is_absolute() or "\\" in path or path.startswith("./") or path.endswith("/")
@@ -146,8 +148,8 @@ def validate_file_record(value: object, field: str) -> None:
         fail(f"candidate lock file existence flag is not boolean: {field}")
     if record["exists"]:
         require_sha256(record["sha256"], f"{field}.sha256")
-    elif record["sha256"] is not None:
-        fail(f"candidate lock missing-file digest is not null: {field}")
+    elif record["sha256"] != "":
+        fail(f"candidate lock missing-file digest is not empty: {field}")
 
 
 def validate_string_map(value: object, field: str, value_validator=require_string) -> dict[str, object]:
@@ -232,7 +234,7 @@ def validate_nested_schema(candidate: dict[str, object]) -> None:
         if not isinstance(records, dict):
             fail(f"candidate lock watched tree is not an object: {root}")
         for relative, record in records.items():
-            require_safe_path(relative, f"watched_trees.{root} path")
+            require_safe_path(relative, f"watched_trees.{root} path", allow_dot=True)
             validate_file_record(record, f"watched_trees.{root}.{relative}")
 
     validate_string_map(
