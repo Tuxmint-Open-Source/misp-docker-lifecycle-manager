@@ -35,10 +35,6 @@ It does **not** fork, vendor, or copy MISP. It does **not** replace upstream `MI
 
 There is no lock-in: after a successful install, `/opt/misp-docker` remains a normal official `MISP/misp-docker` checkout that can be managed manually with Docker Compose.
 
-> [!IMPORTANT]
-> This project was renamed before the final `v1.0.0` release from its original `misp-production-installer` identity to `misp-docker-lifecycle-manager`.
-> The `v1.0.0` release line uses the new name as authoritative; historical pre-1.0 metadata markers are not compatibility targets. GitHub redirects the old repository URL to the renamed repository.
-
 ## Start here
 
 | If you want to... | Read this |
@@ -98,13 +94,8 @@ manager release/ref × official MISP Docker component set = status
 | `v1.1.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible |
 | `v1.0.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible |
 | `v1.0.0` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
-| `v1.0.0-rc.3` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
-| `v1.0.0-rc.2` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
-| `v1.0.0-rc.1` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
-| `v0.3.3` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
-| `v0.3.2` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ❌ Validation failed |
 
-See [`docs/compatibility.md`](docs/compatibility.md) and [`docs/validation/matrix.md`](docs/validation/matrix.md) for status definitions, detailed reports, and limitations.
+See [`docs/compatibility.md`](docs/compatibility.md) and [`docs/validation/matrix.md`](docs/validation/matrix.md) for status definitions, detailed reports, limitations, and retained historical evidence.
 
 ## Version model
 

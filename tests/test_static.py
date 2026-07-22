@@ -1021,5 +1021,15 @@ class StaticRepoTests(unittest.TestCase):
             self.assertRegex(channels[channel], r'^v\d+\.\d+\.\d+$')
             self.assertIn(f'`{channels[channel]}` release tag', compatibility)
 
+    def test_primary_readme_focuses_on_stable_release_evidence(self):
+        readme = (ROOT / 'README.md').read_text()
+        self.assertIn('`v1.1.0` release tag', readme)
+        self.assertIn('`v1.0.0` release tag', readme)
+        self.assertIn('retained historical evidence', readme)
+        self.assertNotIn('release candidate tag', readme)
+        self.assertNotIn('`v0.', readme)
+        self.assertNotIn('historical pre-1.0 metadata markers', readme)
+
+
 if __name__ == '__main__':
     unittest.main()
