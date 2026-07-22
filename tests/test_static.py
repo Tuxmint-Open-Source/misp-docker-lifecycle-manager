@@ -541,12 +541,24 @@ class StaticRepoTests(unittest.TestCase):
         ]:
             self.assertIn(path, readme)
 
-        self.assertIn('Recommended reading path', docs_readme)
-        self.assertIn('Common tasks', docs_readme)
+        self.assertIn('Choose your path', docs_readme)
+        self.assertIn('Users and operators', docs_readme)
+        self.assertIn('Contributors and maintainers', docs_readme)
+        self.assertIn('Common user/operator tasks', docs_readme)
+        self.assertIn('Common contributor/maintainer tasks', docs_readme)
         self.assertIn('getting-started.md', docs_readme)
         self.assertIn('operator-guide.md', docs_readme)
         self.assertIn('support-matrix.md', docs_readme)
+        self.assertIn('maintainer-workflow.md', docs_readme)
+        self.assertIn('release/release-process.md', docs_readme)
         self.assertIn('compatibility.md', docs_readme)
+
+        self.assertIn('| Reader path | Read this |', readme)
+        self.assertIn('New user/operator', readme)
+        self.assertIn('Production operator', readme)
+        self.assertIn('Contributor/maintainer', readme)
+        self.assertNotIn('| If you want to... | Read this |', readme)
+        self.assertIn('Split the documentation entry path', (ROOT / 'CHANGELOG.md').read_text())
 
         self.assertIn('first successful path', getting_started)
         version = (ROOT / 'VERSION').read_text().strip()
