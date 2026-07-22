@@ -4,12 +4,14 @@ on:
   pull_request:
     paths:
       - ".github/workflows/shellcheck.yml"
+      - ".github/scripts/run-shellcheck.sh"
       - "installer/**/*.sh"
   push:
     branches:
       - main
     paths:
       - ".github/workflows/shellcheck.yml"
+      - ".github/scripts/run-shellcheck.sh"
       - "installer/**/*.sh"
   schedule:
     # Weekly, offset from other scheduled checks.

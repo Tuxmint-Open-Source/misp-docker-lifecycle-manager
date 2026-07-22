@@ -762,6 +762,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('name: ShellCheck', shellcheck)
         self.assertIn('permissions:\n  contents: read', shellcheck)
         self.assertIn('persist-credentials: false', shellcheck)
+        self.assertEqual(shellcheck.count('- ".github/scripts/run-shellcheck.sh"'), 2)
         self.assertIn('run: .github/scripts/run-shellcheck.sh', shellcheck)
         self.assertNotIn('ludeeus/action-shellcheck', shellcheck)
 
