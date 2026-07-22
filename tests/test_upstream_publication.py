@@ -5,6 +5,7 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 WATCHER_SCRIPT = ROOT / "scripts" / "check-upstream-misp-docker.py"
@@ -91,6 +92,25 @@ class UpstreamPublicationTests(unittest.TestCase):
         self.write_bundle(candidate=candidate)
         self.assertTrue(self.validate())
 
+    def test_actual_collector_empty_checkout_shape_is_accepted(self):
+        def empty_clone(_repo, _ref, target):
+            target.mkdir()
+            return self.expected_commit
+
+        with (
+            mock.patch.object(WATCH, "clone_upstream", side_effect=empty_clone),
+            mock.patch.object(
+                WATCH,
+                "collect_official_component_releases",
+                return_value=copy.deepcopy(self.baseline["official_component_releases"]),
+            ),
+        ):
+            candidate = WATCH.collect_state(WATCH.DEFAULT_REPO, WATCH.DEFAULT_REF)
+        self.assertEqual(candidate["component_tags"], {key: "" for key in WATCH.COMPONENT_KEYS})
+        self.assertEqual(candidate["template_env_keys"], {"active_keys": [], "commented_keys": []})
+        self.write_bundle(candidate=candidate)
+        self.assertTrue(self.validate())
+
     def test_commit_mismatch_is_rejected_without_writes(self):
         self.expected_commit = "f" * 40
         with self.assertRaisesRegex(ValueError, "collector output"):
@@ -148,6 +168,7 @@ class UpstreamPublicationTests(unittest.TestCase):
             mutations.append((name, candidate))
 
         mutate("timestamp object", lambda value: value.__setitem__("checked_at_utc", {}))
+        mutate("floating schema", lambda value: value.__setitem__("schema", 3.0))
         mutate("invalid timestamp", lambda value: value.__setitem__("checked_at_utc", "2026-02-30T00:00:00Z"))
         mutate("missing component key", lambda value: value["component_tags"].pop("GUARD_TAG"))
         mutate("invalid component tag", lambda value: value["component_tags"].__setitem__("CORE_TAG", "latest"))
@@ -165,6 +186,11 @@ class UpstreamPublicationTests(unittest.TestCase):
         )
         mutate("wrong template list type", lambda value: value["template_env_keys"].__setitem__("active_keys", {}))
         mutate("compose services boolean", lambda value: value["compose"]["services"].append(True))
+        mutate("unsorted compose services", lambda value: value["compose"]["services"].reverse())
+        mutate(
+            "newline image",
+            lambda value: value["compose"]["images"].__setitem__("db", "valid-image\ninjected"),
+        )
         mutate(
             "uppercase service hash",
             lambda value: value["compose"]["service_block_hashes"].__setitem__(
@@ -176,6 +202,12 @@ class UpstreamPublicationTests(unittest.TestCase):
             lambda value: value["compose"]["interpolation_contract"].__setitem__("BASE_URL", ["shell"]),
         )
         mutate("arbitrary watched files", lambda value: value.__setitem__("watched_files", {"../escape": {}}))
+        mutate(
+            "extra safe watched file",
+            lambda value: value["watched_files"].__setitem__(
+                "safe-looking.txt", {"exists": False, "sha256": ""}
+            ),
+        )
         mutate(
             "integer file existence",
             lambda value: next(iter(value["watched_files"].values())).__setitem__("exists", 1),
@@ -189,8 +221,16 @@ class UpstreamPublicationTests(unittest.TestCase):
             lambda value: value["watched_trees"].__setitem__("/absolute", {}),
         )
         mutate(
+            "extra safe watched tree",
+            lambda value: value["watched_trees"].__setitem__("safe/tree", {}),
+        )
+        mutate(
             "malformed README digest",
             lambda value: value["readme_operator_section_sha256"].__setitem__("Production", "not-a-digest"),
+        )
+        mutate(
+            "extra README heading",
+            lambda value: value["readme_operator_section_sha256"].__setitem__("Extra", "0" * 64),
         )
 
         for name, candidate in mutations:

@@ -94,7 +94,10 @@ def require_exact_keys(value: object, keys: set[str], field: str) -> dict[str, o
 
 
 def require_string(value: object, field: str, maximum: int = 4096) -> str:
-    if not isinstance(value, str) or not value or len(value) > maximum or "\x00" in value:
+    if (
+        not isinstance(value, str) or not value or len(value) > maximum
+        or any(ord(character) < 32 or ord(character) == 127 for character in value)
+    ):
         fail(f"candidate lock field is not a bounded string: {field}")
     return value
 
@@ -161,11 +164,13 @@ def validate_string_map(value: object, field: str, value_validator=require_strin
     return value
 
 
-def validate_nested_schema(candidate: dict[str, object]) -> None:
+def validate_nested_schema(candidate: dict[str, object], watcher) -> None:
     require_timestamp(candidate["checked_at_utc"], "checked_at_utc")
 
     component_tags = require_exact_keys(candidate["component_tags"], COMPONENT_KEYS, "component_tags")
     for key, value in component_tags.items():
+        if value == "":
+            continue
         tag = require_string(value, f"component_tags.{key}", 100)
         if not TAG_PATTERN.fullmatch(tag):
             fail(f"candidate lock component tag is invalid: {key}")
@@ -195,20 +200,28 @@ def validate_nested_schema(candidate: dict[str, object]) -> None:
         require_string(value, f"running_tag_defaults_in_template_env.{key}", 200)
 
     template_keys = require_exact_keys(candidate["template_env_keys"], TEMPLATE_ENV_KEYS, "template_env_keys")
-    require_string_list(template_keys["active_keys"], "template_env_keys.active_keys", ENV_KEY_PATTERN)
-    require_string_list(
+    active_keys = require_string_list(
+        template_keys["active_keys"], "template_env_keys.active_keys", ENV_KEY_PATTERN
+    )
+    commented_keys = require_string_list(
         template_keys["commented_keys"], "template_env_keys.commented_keys", ENV_KEY_PATTERN
     )
+    if active_keys != sorted(active_keys) or commented_keys != sorted(commented_keys):
+        fail("candidate lock template environment inventories are not sorted")
 
     compose = require_exact_keys(candidate["compose"], COMPOSE_KEYS, "compose")
     images = validate_string_map(compose["images"], "compose.images")
     hashes = validate_string_map(compose["service_block_hashes"], "compose.service_block_hashes", require_sha256)
     services = require_string_list(compose["services"], "compose.services", NAME_PATTERN)
+    if services != sorted(services):
+        fail("candidate lock compose services are not sorted")
     if set(images) != set(services) or set(hashes) != set(services):
         fail("candidate lock compose service inventories do not match")
     interpolation_keys = require_string_list(
         compose["interpolation_keys"], "compose.interpolation_keys", ENV_KEY_PATTERN
     )
+    if interpolation_keys != sorted(interpolation_keys):
+        fail("candidate lock interpolation keys are not sorted")
     contract = validate_string_map(
         compose["interpolation_contract"], "compose.interpolation_contract",
         lambda value, field: require_string_list(value, field),
@@ -216,19 +229,22 @@ def validate_nested_schema(candidate: dict[str, object]) -> None:
     if set(contract) != set(interpolation_keys):
         fail("candidate lock interpolation inventories do not match")
     for key, operators in contract.items():
-        if not isinstance(operators, list) or not operators or not set(operators) <= INTERPOLATION_OPERATORS:
+        if (
+            not isinstance(operators, list) or not operators or operators != sorted(operators)
+            or not set(operators) <= INTERPOLATION_OPERATORS
+        ):
             fail(f"candidate lock interpolation operator is invalid: {key}")
 
-    watched_files = candidate["watched_files"]
-    if not isinstance(watched_files, dict):
-        fail("candidate lock watched_files is not an object")
+    watched_files = require_exact_keys(
+        candidate["watched_files"], set(watcher.WATCHED_FILES), "watched_files"
+    )
     for path, record in watched_files.items():
         require_safe_path(path, "watched_files path")
         validate_file_record(record, f"watched_files.{path}")
 
-    watched_trees = candidate["watched_trees"]
-    if not isinstance(watched_trees, dict):
-        fail("candidate lock watched_trees is not an object")
+    watched_trees = require_exact_keys(
+        candidate["watched_trees"], set(watcher.WATCHED_TREE_CLASSES), "watched_trees"
+    )
     for root, records in watched_trees.items():
         require_safe_path(root, "watched_trees root")
         if not isinstance(records, dict):
@@ -237,9 +253,12 @@ def validate_nested_schema(candidate: dict[str, object]) -> None:
             require_safe_path(relative, f"watched_trees.{root} path", allow_dot=True)
             validate_file_record(record, f"watched_trees.{root}.{relative}")
 
-    validate_string_map(
-        candidate["readme_operator_section_sha256"], "readme_operator_section_sha256", require_sha256
+    readme_hashes = require_exact_keys(
+        candidate["readme_operator_section_sha256"], set(watcher.README_SECTIONS),
+        "readme_operator_section_sha256",
     )
+    for heading, digest in readme_hashes.items():
+        require_sha256(digest, f"readme_operator_section_sha256.{heading}")
 
 
 def validate_directory(artifact_dir: Path) -> tuple[bytes, bytes]:
@@ -258,7 +277,7 @@ def validate_directory(artifact_dir: Path) -> tuple[bytes, bytes]:
 def validate_candidate(candidate: object, expected_commit: str, watcher) -> dict[str, object]:
     if not isinstance(candidate, dict) or set(candidate) != EXPECTED_KEYS:
         fail("candidate lock has an unexpected schema shape")
-    if candidate.get("schema") != 3:
+    if type(candidate.get("schema")) is not int or candidate.get("schema") != 3:
         fail("candidate lock has an unsupported schema version")
     if candidate.get("repo") != watcher.DEFAULT_REPO or candidate.get("ref") != watcher.DEFAULT_REF:
         fail("candidate lock does not identify the fixed official upstream")
@@ -267,7 +286,7 @@ def validate_candidate(candidate: object, expected_commit: str, watcher) -> dict
         fail("candidate lock has an invalid upstream commit")
     if commit != expected_commit:
         fail("candidate lock commit does not match collector output")
-    validate_nested_schema(candidate)
+    validate_nested_schema(candidate, watcher)
     return candidate
 
 
