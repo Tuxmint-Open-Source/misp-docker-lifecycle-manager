@@ -343,6 +343,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('upstream-publication-${{ github.run_id }}-${{ github.run_attempt }}', workflow)
         self.assertIn('retention-days: 1', workflow)
         self.assertIn('if-no-files-found: error', workflow)
+        self.assertIn('base: main', workflow)
         self.assertLess(workflow.index('Validate publication boundary'), workflow.index('Create upstream review PR'))
         self.assertIn('EXPECTED_KEYS', validator)
         self.assertIn('candidate report does not match recomputed public report', validator)

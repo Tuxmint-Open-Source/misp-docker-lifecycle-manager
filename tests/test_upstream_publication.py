@@ -130,6 +130,67 @@ class UpstreamPublicationTests(unittest.TestCase):
             self.validate()
         self.assert_destinations_unchanged()
 
+    def test_malformed_nested_schema_is_rejected_without_writes(self):
+        mutations = []
+
+        def mutate(name, function):
+            candidate = copy.deepcopy(self.candidate)
+            function(candidate)
+            mutations.append((name, candidate))
+
+        mutate("timestamp object", lambda value: value.__setitem__("checked_at_utc", {}))
+        mutate("invalid timestamp", lambda value: value.__setitem__("checked_at_utc", "2026-02-30T00:00:00Z"))
+        mutate("missing component key", lambda value: value["component_tags"].pop("GUARD_TAG"))
+        mutate("invalid component tag", lambda value: value["component_tags"].__setitem__("CORE_TAG", "latest"))
+        mutate(
+            "boolean release ID",
+            lambda value: value["official_component_releases"]["CORE_TAG"].__setitem__("release_id", True),
+        )
+        mutate(
+            "unofficial release repository",
+            lambda value: value["official_component_releases"]["CORE_TAG"].__setitem__("repo", "Other/MISP"),
+        )
+        mutate(
+            "extra release key",
+            lambda value: value["official_component_releases"]["CORE_TAG"].__setitem__("extra", "x"),
+        )
+        mutate("wrong template list type", lambda value: value["template_env_keys"].__setitem__("active_keys", {}))
+        mutate("compose services boolean", lambda value: value["compose"]["services"].append(True))
+        mutate(
+            "uppercase service hash",
+            lambda value: value["compose"]["service_block_hashes"].__setitem__(
+                "db", value["compose"]["service_block_hashes"]["db"].upper()
+            ),
+        )
+        mutate(
+            "unknown interpolation operator",
+            lambda value: value["compose"]["interpolation_contract"].__setitem__("BASE_URL", ["shell"]),
+        )
+        mutate("arbitrary watched files", lambda value: value.__setitem__("watched_files", {"../escape": {}}))
+        mutate(
+            "integer file existence",
+            lambda value: next(iter(value["watched_files"].values())).__setitem__("exists", 1),
+        )
+        mutate(
+            "missing file with digest",
+            lambda value: next(iter(value["watched_files"].values())).__setitem__("exists", False),
+        )
+        mutate(
+            "unsafe watched tree path",
+            lambda value: value["watched_trees"].__setitem__("/absolute", {}),
+        )
+        mutate(
+            "malformed README digest",
+            lambda value: value["readme_operator_section_sha256"].__setitem__("Production", "not-a-digest"),
+        )
+
+        for name, candidate in mutations:
+            with self.subTest(name=name):
+                self.write_bundle(candidate=candidate)
+                with self.assertRaises(ValueError):
+                    self.validate()
+                self.assert_destinations_unchanged()
+
     def test_missing_extra_and_symlink_entries_are_rejected(self):
         report_path = self.artifact / PUBLISH.CANDIDATE_REPORT
         report_data = report_path.read_text()
