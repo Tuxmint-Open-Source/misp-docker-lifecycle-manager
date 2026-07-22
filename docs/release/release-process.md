@@ -79,6 +79,13 @@ sha256sum --check dist/misp-docker-lifecycle-manager-vX.Y.Z.tar.gz.sha256
 ```
 
 Upload both the archive and its `.sha256` companion to the same GitHub Release.
+The `Operator bundle release assets` workflow performs this packaging step for
+future releases. It builds and verifies assets in a read-only job, transfers only
+the short-lived verified assets, and uses release-write permissions only in the
+publish job for the official repository. Pull requests and workflow dry runs
+build and verify without uploading release assets; dry runs default to `HEAD` so
+the workflow itself can be tested before the next tag exists.
+
 The builder refuses non-SemVer references unless the explicit test-only
 `--allow-non-tag` option is used. Bundle contents come from the reviewed
 `operator-bundle-files.txt` allowlist and are read from the selected Git commit,
