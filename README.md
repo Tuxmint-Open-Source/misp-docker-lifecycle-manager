@@ -38,20 +38,15 @@ There is no lock-in: after a successful install, `/opt/misp-docker` remains a no
 
 ## Start here
 
-| If you want to... | Read this |
+| Reader path | Read this |
 | --- | --- |
-| get oriented | [`docs/README.md`](docs/README.md) |
-| do a first test install | [`docs/getting-started.md`](docs/getting-started.md) |
-| follow the normal operator lifecycle | [`docs/operator-guide.md`](docs/operator-guide.md) |
-| decide whether the project fits your use case | [`docs/support-matrix.md`](docs/support-matrix.md) |
-| plan a real deployment | [`docs/production-deployment.md`](docs/production-deployment.md) |
-| understand backup, restore, and rollback | [`docs/backup-restore-and-rollback.md`](docs/backup-restore-and-rollback.md) |
-| check validated MISP component sets | [`docs/compatibility.md`](docs/compatibility.md) |
-| plan monitoring integration | [`docs/monitoring.md`](docs/monitoring.md) |
-| troubleshoot a failure | [`docs/troubleshooting.md`](docs/troubleshooting.md) |
-| report a reproducible bug safely | [`docs/sos-report.md`](docs/sos-report.md) |
-| inspect every command | [`docs/shell-scripts.md`](docs/shell-scripts.md) |
-| report a security vulnerability | [`SECURITY.md`](SECURITY.md) |
+| New user/operator | [`docs/README.md`](docs/README.md), then [`docs/getting-started.md`](docs/getting-started.md) |
+| Production operator | [`docs/support-matrix.md`](docs/support-matrix.md), then [`docs/production-deployment.md`](docs/production-deployment.md) |
+| Day-2 operations | [`docs/operator-guide.md`](docs/operator-guide.md), [`docs/upgrade-path.md`](docs/upgrade-path.md), and [`docs/backup-restore-and-rollback.md`](docs/backup-restore-and-rollback.md) |
+| Compatibility/release evidence | [`docs/compatibility.md`](docs/compatibility.md) and [`docs/validation/matrix.md`](docs/validation/matrix.md) |
+| Contributor/maintainer | [`docs/README.md`](docs/README.md#contributors-and-maintainers) and [`CONTRIBUTING.md`](CONTRIBUTING.md) |
+| Troubleshooting/support | [`docs/troubleshooting.md`](docs/troubleshooting.md) and [`docs/sos-report.md`](docs/sos-report.md) |
+| Security report | [`SECURITY.md`](SECURITY.md) |
 
 ## Quick test path
 
