@@ -760,10 +760,22 @@ class StaticRepoTests(unittest.TestCase):
         self.assertNotIn('@v3', codeql)
 
         self.assertIn('name: ShellCheck', shellcheck)
-        self.assertIn('scandir: ./installer', shellcheck)
-        self.assertIn('severity: error', shellcheck)
-        self.assertRegex(shellcheck, r'ludeeus/action-shellcheck@[0-9a-f]{40}')
-        self.assertNotIn('@2.0.0', shellcheck)
+        self.assertIn('permissions:\n  contents: read', shellcheck)
+        self.assertIn('persist-credentials: false', shellcheck)
+        self.assertIn('run: .github/scripts/run-shellcheck.sh', shellcheck)
+        self.assertNotIn('ludeeus/action-shellcheck', shellcheck)
+
+        runner = (ROOT / '.github' / 'scripts' / 'run-shellcheck.sh').read_text()
+        self.assertIn('readonly SHELLCHECK_VERSION="0.11.0"', runner)
+        self.assertIn('readonly SHELLCHECK_PLATFORM="linux.x86_64"', runner)
+        self.assertIn('8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198', runner)
+        self.assertIn('https://github.com/koalaman/shellcheck/releases/download/', runner)
+        self.assertIn("--proto '=https'", runner)
+        self.assertIn('--tlsv1.2', runner)
+        self.assertIn('sha256sum --check --strict', runner)
+        self.assertLess(runner.index('sha256sum --check --strict'), runner.index('tar --extract'))
+        self.assertIn('actual_version=', runner)
+        self.assertIn('--severity=error', runner)
 
     def test_always_running_repository_gate_is_read_only_and_complete(self):
         workflow = (ROOT / '.github' / 'workflows' / 'repository-gates.yml').read_text()

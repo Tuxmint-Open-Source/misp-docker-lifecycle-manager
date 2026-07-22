@@ -15,6 +15,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Separate read-only upstream collection/testing from narrowly scoped review-PR publication, with a validated short-lived artifact boundary between the jobs.
 - Keep the primary README focused on current stable release evidence while retaining pre-`v1.0.0` history in the detailed compatibility and changelog records.
 - Reject collector-impossible missing child records inside watched-tree publication data.
+- Replace transitive ShellCheck acquisition with an explicit official release, pinned platform artifact, and verified SHA-256 digest before execution.
 
 ## [1.1.0] - 2026-07-21
 

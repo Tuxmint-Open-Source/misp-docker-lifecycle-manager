@@ -156,6 +156,14 @@ When GitHub Actions annotations report deprecations, treat them as maintenance w
 4. Keep static tests SHA-enforcing so Dependabot can still update pins safely.
 5. Re-run the workflow and confirm annotations no longer include the targeted deprecation warning.
 
+ShellCheck is downloaded directly from the official `koalaman/shellcheck` GitHub Release by `.github/scripts/run-shellcheck.sh`. Its version, platform artifact, and SHA-256 digest are explicit constants in that script. To update it:
+
+1. Select a non-prerelease ShellCheck release and the allowlisted Linux x86-64 archive.
+2. Read the SHA-256 digest published in the GitHub Release asset metadata and independently hash the downloaded archive.
+3. Update the version and digest together; do not add a fallback to `stable`, an unpinned package, or an unchecked download.
+4. Run the script and repository tests locally, then exercise the real ShellCheck workflow on the pull-request branch.
+5. Review the workflow output to confirm checksum verification occurs before extraction and execution.
+
 ### Official MISP Docker upstream drift PRs
 
 The scheduled upstream monitor opens `Review upstream MISP Docker changes` PRs when lifecycle-sensitive official `MISP/misp-docker` inputs change or when an official MISP core, modules, or guard release changes. Treat those PRs as review prompts, not as compatibility proof. A new upstream commit by itself is comparison context and does not open a PR; this keeps unrelated upstream work from creating noise.
