@@ -164,4 +164,5 @@ jobs:
           gh release upload "$TAG" \
             "dist/misp-docker-lifecycle-manager-${TAG}.tar.gz" \
             "dist/misp-docker-lifecycle-manager-${TAG}.tar.gz.sha256" \
+            --repo "$GITHUB_REPOSITORY" \
             --clobber
