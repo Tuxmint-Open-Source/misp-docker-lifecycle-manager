@@ -4,6 +4,10 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+No unreleased changes.
+
+## [1.3.0] - 2026-07-23
+
 ### Changed
 
 - Rename the canonical operator command directory from `installer/` to `lifecycle/`, while retaining `installer/` compatibility wrappers for existing command examples and automation.
@@ -194,7 +198,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - MISP schema readiness handling via `Admin runUpdates` and `bookmarks` table check.
 - Public documentation for architecture, upgrade path, troubleshooting, shell scripts, and versioning.
 
-[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.0.0-rc.3...v1.0.0
