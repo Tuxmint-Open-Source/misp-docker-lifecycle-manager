@@ -295,6 +295,13 @@ class LifecycleSafetyTests(unittest.TestCase):
         extraction = text.index('sudo tar -C "$INSTALL_DIR" -xzf "$BACKUP_DIR/misp-host-data.tar.gz"')
         self.assertLess(cleanup, extraction)
 
+    def test_restore_revalidates_extracted_state_without_falsey_defaults(self):
+        text = (ROOT / "lifecycle" / "restore.sh").read_text()
+        self.assertIn('backup state source/deployment fields must be strings', text)
+        self.assertIn('state_values_file="$tmp/extracted-state-values"', text)
+        self.assertNotIn("data.get('upstream_repo') or ''", text)
+        self.assertNotIn('mapfile -t state_vals < <(python3', text)
+
     def test_action_version_annotations_match_pinned_shas(self):
         workflow = (ROOT / ".github" / "workflows" / "operator-bundle-release-assets.yml").read_text()
         self.assertIn(

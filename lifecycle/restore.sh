@@ -87,17 +87,30 @@ tar --no-same-owner --no-same-permissions -C "$tmp" -xzf "$BACKUP_DIR/misp-confi
 
 state_file="$tmp/.installer-state.json"
 if [[ -f "$state_file" ]]; then
-  mapfile -t state_vals < <(python3 - "$state_file" <<'PY'
-import json, sys
-p=sys.argv[1]
-data=json.load(open(p))
-print(data.get('upstream_repo') or '')
-print(data.get('upstream_ref') or '')
-print(data.get('upstream_commit') or '')
-print(data.get('exposure') or '')
-print(data.get('base_url') or '')
+  state_values_file="$tmp/extracted-state-values"
+  python3 - "$state_file" <<'PY' > "$state_values_file"
+import json
+import sys
+from pathlib import Path
+p = Path(sys.argv[1])
+data = json.loads(p.read_text())
+if not isinstance(data, dict):
+    raise SystemExit('backup state must be a JSON object')
+if data.get('installer') != 'misp-docker-lifecycle-manager':
+    raise SystemExit('backup state has an unexpected installer identity')
+fields = [
+    data.get('upstream_repo', ''),
+    data.get('upstream_ref', ''),
+    data.get('upstream_commit', ''),
+    data.get('exposure', ''),
+    data.get('base_url', ''),
+]
+if not all(isinstance(value, str) for value in fields):
+    raise SystemExit('backup state source/deployment fields must be strings')
+for value in fields:
+    print(value)
 PY
-)
+  mapfile -t state_vals < "$state_values_file"
   archived_repo="${state_vals[0]:-}"
   archived_ref="${state_vals[1]:-}"
   archived_commit="${state_vals[2]:-}"
