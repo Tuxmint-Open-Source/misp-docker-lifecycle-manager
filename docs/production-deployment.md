@@ -64,17 +64,22 @@ sudo ./lifecycle/install.sh \
   --proxy-bind-address 0.0.0.0
 ```
 
-Allow TCP 8080/8443 only from the remote proxy's trusted source address or subnet. For example, with firewalld, replace the documentation-only source below with the real proxy source and confirm the active zone before applying it:
+Allow TCP 8080/8443 only from the remote proxy's trusted source address or subnet. Docker-published ports are forwarded before ordinary host-zone input rules, so a normal `firewall-cmd --add-port` or zone rich rule is not sufficient proof of restriction. Prefer an upstream network firewall/ACL. If filtering on the Docker host, apply the restriction at the `DOCKER-USER` forwarding boundary and make it persistent with the host's managed firewall tooling.
+
+For example, the following runtime rules accept the documentation-only proxy source and reject other sources based on the original published ports. Replace the source and integrate equivalent rules into the host's persistent firewall policy before relying on them:
 
 ```bash
-sudo firewall-cmd --permanent --zone=public \
-  --add-rich-rule='rule family="ipv4" source address="203.0.113.10/32" port port="8080" protocol="tcp" accept'
-sudo firewall-cmd --permanent --zone=public \
-  --add-rich-rule='rule family="ipv4" source address="203.0.113.10/32" port port="8443" protocol="tcp" accept'
-sudo firewall-cmd --reload
+sudo iptables -I DOCKER-USER 1 -p tcp -s 203.0.113.10/32 \
+  -m conntrack --ctorigdstport 8443 -j ACCEPT
+sudo iptables -I DOCKER-USER 2 -p tcp \
+  -m conntrack --ctorigdstport 8443 -j DROP
+sudo iptables -I DOCKER-USER 3 -p tcp -s 203.0.113.10/32 \
+  -m conntrack --ctorigdstport 8080 -j ACCEPT
+sudo iptables -I DOCKER-USER 4 -p tcp \
+  -m conntrack --ctorigdstport 8080 -j DROP
 ```
 
-Do not add unrestricted public port rules for 8080/8443. Keep TLS verification enabled between the proxy and MISP, and validate from the proxy host that other sources cannot connect.
+Do not add unrestricted public port rules for 8080/8443. Confirm the persistent rules after reboot and Docker/firewall restarts. Keep TLS verification enabled between the proxy and MISP, validate that the proxy source can connect, and verify from another source that the published ports are denied.
 
 Direct-QA mode is useful for validation and controlled QA. It is not the recommended long-term public exposure model.
 
