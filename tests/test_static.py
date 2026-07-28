@@ -378,12 +378,13 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('name: Operator bundle release assets', workflow)
         self.assertIn('permissions: {}', workflow)
         self.assertRegex(workflow, r'(?s)build-operator-bundle:.*?permissions:\n      contents: read')
+        self.assertRegex(workflow, r'(?s)validate-operator-bundle-transfer:.*?permissions:\n      contents: read')
         self.assertRegex(workflow, r'(?s)publish-release-assets:.*?permissions:\n      contents: write')
         builder = workflow.split('  publish-release-assets:', 1)[0]
         publisher = workflow.split('  publish-release-assets:', 1)[1]
         self.assertNotIn('gh release upload', builder)
         self.assertNotIn('contents: write', builder)
-        self.assertIn('needs: build-operator-bundle', publisher)
+        self.assertIn('needs: validate-operator-bundle-transfer', publisher)
         self.assertIn("github.repository == 'Tuxmint-Open-Source/misp-docker-lifecycle-manager'", publisher)
         self.assertIn("github.event_name == 'release'", publisher)
         self.assertIn("inputs.dry_run == false", publisher)
@@ -397,6 +398,8 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('if-no-files-found: error', workflow)
         self.assertIn('python3 -m unittest tests.test_operator_bundle', workflow)
         self.assertIn('sha256sum --check ./*.sha256', workflow)
+        self.assertIn('name: Validate operator bundle artifact transfer', workflow)
+        self.assertIn('sha256sum --check ./*.tar.gz.sha256', workflow)
         self.assertIn('sha256sum --check "misp-docker-lifecycle-manager-${TAG}.tar.gz.sha256"', workflow)
         self.assertIn('uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0', workflow)
         self.assertIn('uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a', workflow)
