@@ -9,6 +9,10 @@ updates:
       timezone: "Etc/UTC"
     open-pull-requests-limit: 3
     groups:
+      workflow-bootstrap-actions:
+        patterns:
+          - "actions/checkout"
+          - "actions/setup-python"
       artifact-actions:
         patterns:
           - "actions/upload-artifact"
