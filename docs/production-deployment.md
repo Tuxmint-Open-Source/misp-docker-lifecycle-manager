@@ -70,13 +70,13 @@ For example, the following runtime rules accept the documentation-only proxy sou
 
 ```bash
 sudo iptables -I DOCKER-USER 1 -p tcp -s 203.0.113.10/32 \
-  -m conntrack --ctorigdstport 8443 -j ACCEPT
+  -m conntrack --ctstate NEW --ctorigdstport 8443 -j ACCEPT
 sudo iptables -I DOCKER-USER 2 -p tcp \
-  -m conntrack --ctorigdstport 8443 -j DROP
+  -m conntrack --ctstate NEW --ctorigdstport 8443 -j DROP
 sudo iptables -I DOCKER-USER 3 -p tcp -s 203.0.113.10/32 \
-  -m conntrack --ctorigdstport 8080 -j ACCEPT
+  -m conntrack --ctstate NEW --ctorigdstport 8080 -j ACCEPT
 sudo iptables -I DOCKER-USER 4 -p tcp \
-  -m conntrack --ctorigdstport 8080 -j DROP
+  -m conntrack --ctstate NEW --ctorigdstport 8080 -j DROP
 ```
 
 Do not add unrestricted public port rules for 8080/8443. Confirm the persistent rules after reboot and Docker/firewall restarts. Keep TLS verification enabled between the proxy and MISP, validate that the proxy source can connect, and verify from another source that the published ports are denied.

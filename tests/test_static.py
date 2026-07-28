@@ -163,6 +163,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('--proxy-bind-address 0.0.0.0', deployment)
         self.assertIn('DOCKER-USER', deployment)
         self.assertIn('--ctorigdstport 8443', deployment)
+        self.assertIn('--ctstate NEW', deployment)
         self.assertIn('-s 203.0.113.10/32', deployment)
         self.assertIn('ordinary host-zone input rules', deployment)
         self.assertIn('Do not add unrestricted public port rules', deployment)
