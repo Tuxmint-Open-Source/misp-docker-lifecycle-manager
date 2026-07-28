@@ -102,22 +102,32 @@ def read_public_tags(env_file: Path) -> dict[str, str]:
 
 
 def read_os_release() -> dict[str, str]:
-    helper = getattr(platform, "freedesktop_os_release", None)
-    if callable(helper):
-        try:
-            detected = helper()
-            if isinstance(detected, dict):
-                return {str(key): str(value) for key, value in detected.items()}
-        except OSError:
-            pass
-
+    limit = 64 * 1024
+    flags = os.O_RDONLY | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_CLOEXEC", 0)
     for path in OS_RELEASE_PATHS:
+        fd = -1
         try:
-            if path.stat().st_size > 64 * 1024:
+            fd = os.open(path, flags)
+            metadata = os.fstat(fd)
+            if not stat.S_ISREG(metadata.st_mode) or metadata.st_size > limit:
                 continue
-            lines = path.read_text(errors="replace").splitlines()
-        except OSError:
+            chunks = []
+            remaining = limit + 1
+            while remaining:
+                chunk = os.read(fd, remaining)
+                if not chunk:
+                    break
+                chunks.append(chunk)
+                remaining -= len(chunk)
+            payload = b"".join(chunks)
+            if len(payload) > limit:
+                continue
+            lines = payload.decode("utf-8").splitlines()
+        except (OSError, UnicodeError):
             continue
+        finally:
+            if fd >= 0:
+                os.close(fd)
         release: dict[str, str] = {}
         for line in lines:
             key, separator, raw = line.partition("=")
