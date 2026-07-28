@@ -5,14 +5,14 @@
 >
 > | Channel | Version | Meaning |
 > | --- | --- | --- |
-> | Latest published | `v1.4.0` | Newest normal SemVer release |
+> | Latest published | `v1.3.1` | Newest normal SemVer release |
 > | Latest validated | `v1.3.1` | Newest immutable release tag that passed the full compatibility matrix |
 >
 > Select through these channels, but install and report the immutable SemVer tag. The machine-readable source is [`.release-channels.json`](.release-channels.json); mutable `stable` and `latest` Git tags are intentionally not used.
 
 A non-invasive lifecycle manager for official `MISP/misp-docker` single-server Docker deployments.
 
-Current `VERSION` value on `main`: `1.4.0`. The `v1.4.0` release adds explicit remote reverse-proxy binding while preserving the loopback default, and is pending exact-tag/package-artifact validation. The immutable `v1.3.1` tag and published operator-bundle artifact remain validated compatible with the component set listed below.
+Current `VERSION` value on `main`: `1.4.0`. The `v1.4.0` release is being prepared and remains pending publication, exact-tag validation, and published-artifact validation. `v1.3.1` remains the latest published and latest validated-compatible release.
 
 MISP Docker Lifecycle Manager helps operators install, configure, validate, update, back up, restore, and safely remove MISP Docker deployments while keeping the generated deployment a normal official upstream checkout.
 
@@ -61,7 +61,7 @@ sudo dnf install -y git
 ```bash
 git clone https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager.git
 cd misp-docker-lifecycle-manager
-git checkout v1.4.0
+git checkout v1.3.1
 sudo ./lifecycle/prepare-host-rocky.sh
 sudo ./lifecycle/install.sh \
   --install-dir /opt/misp-docker \
@@ -83,7 +83,7 @@ sudo ./lifecycle/admin-credentials.sh --install-dir /opt/misp-docker
 
 For production planning, reverse-proxy details, recovery, updates, and limitations, use the documentation map instead of treating this quick path as the full guide.
 
-The default reverse-proxy bind is loopback for a proxy on the same host. A proxy on another host requires the explicit bind and source-restricted firewall procedure in the [production deployment guide](docs/production-deployment.md). The lifecycle manager does not modify the host firewall.
+The current published `v1.3.1` path uses the loopback default for a proxy on the same host. The pending `v1.4.0` release adds an explicit bind and source-restricted firewall procedure for a proxy on another host; see the [production deployment guide](docs/production-deployment.md). The lifecycle manager does not modify the host firewall.
 
 ## Compatibility status
 
@@ -140,7 +140,7 @@ For update policy and version details, see [`docs/upgrade-path.md`](docs/upgrade
 
 ## Release readiness
 
-`v1.4.0` is the latest published release and is pending exact-tag/package-artifact validation for the listed component set. `v1.3.1` remains the latest validated-compatible release; its immutable tag and published operator-bundle artifact passed the required lifecycle matrix for the documented scope.
+`v1.4.0` is the next release and remains pending publication and exact-tag/package-artifact validation for the listed component set. `v1.3.1` remains the latest published and latest validated-compatible release; its immutable tag and published operator-bundle artifact passed the required lifecycle matrix for the documented scope.
 
 See [`docs/production-readiness.md`](docs/production-readiness.md).
 

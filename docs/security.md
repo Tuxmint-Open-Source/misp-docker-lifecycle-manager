@@ -137,6 +137,8 @@ The `v1.0.0` line was released with:
 
 `v1.1.0` includes the monitoring and structured SOS surfaces added after `v1.0.0`. They received focused behavioral, privacy, and security review before release, and the immutable tag subsequently passed the complete compatibility matrix for the documented component tuple.
 
+The pending `v1.4.0` release adds an explicit remote reverse-proxy IPv4 bind while retaining loopback by default. The bind is valid only in reverse-proxy mode, exposure state and generated port bindings must agree, and remote source restriction remains operator-owned. Branch and pull-request tests are capability evidence only; publication and exact-tag/package-artifact security and compatibility evidence remain pending.
+
 ## What to read next
 
 - Return to the [documentation map](README.md) and choose the user/operator path.

@@ -1,6 +1,6 @@
 # Production readiness
 
-`v1.4.0` is the latest published release for the documented single-server Docker lifecycle-manager scope and component tuple. Exact-tag/package-artifact validation is pending, so `v1.3.1` remains the latest validated-compatible release.
+`v1.4.0` is being prepared for the documented single-server Docker lifecycle-manager scope and component tuple. Publication and exact-tag/package-artifact validation are pending, so `v1.3.1` remains the latest published and latest validated-compatible release.
 
 Production readiness here applies only to the public support matrix and explicitly validated manager release/component pairs. It is not a claim that every operating system, topology, proxy, customization, or future MISP component set is supported.
 
@@ -8,7 +8,8 @@ Production readiness here applies only to the public support matrix and explicit
 
 | Area | Status |
 | --- | --- |
-| Latest manager release | `v1.4.0` |
+| Latest published manager release | `v1.3.1` |
+| Next manager release | `v1.4.0` (publication and exact-tag validation pending) |
 | Latest validated MISP component set | core `v2.5.44`, modules `v3.0.9`, guard `v1.2` |
 | Compatibility status | 🟡 `v1.4.0` pending exact-tag validation; ✅ `v1.3.1` validated compatible for the listed component tuple |
 | Public compatibility evidence | ✅ [`compatibility.md`](compatibility.md) and [`validation/matrix.md`](validation/matrix.md) |

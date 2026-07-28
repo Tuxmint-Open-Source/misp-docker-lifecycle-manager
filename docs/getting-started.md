@@ -5,7 +5,7 @@ This guide gives you a first successful path through MISP Docker Lifecycle Manag
 It is intentionally shorter than the full [operator guide](operator-guide.md). Use it to understand the flow, then read the production and recovery docs before relying on a deployment.
 
 > [!IMPORTANT]
-> `v1.4.0` is the latest published release for the documented component set and single-server Docker lifecycle-manager scope, but exact-tag/package-artifact validation is pending. `v1.3.1` remains the latest validated-compatible release. Validate your own deployment assumptions and keep backups before relying on a deployment operationally.
+> `v1.4.0` is being prepared on `main` and remains pending publication and exact-tag/package-artifact validation. `v1.3.1` remains the latest published and latest validated-compatible release for the documented component set and single-server Docker lifecycle-manager scope. Validate your own deployment assumptions and keep backups before relying on a deployment operationally.
 
 ## Before you begin
 
@@ -30,7 +30,7 @@ cd misp-docker-lifecycle-manager
 Use the release tag you want to evaluate:
 
 ```bash
-git checkout v1.4.0
+git checkout v1.3.1
 ```
 
 ## 2. Prepare a Rocky Linux host
@@ -69,7 +69,7 @@ http://127.0.0.1:8080
 https://127.0.0.1:8443
 ```
 
-This loopback bind is the secure default for a proxy on the same host. The lifecycle manager does not modify the host firewall. If the reverse proxy runs on another host, follow the explicit bind and source-restricted firewall procedure in the production deployment guide; do not switch to `direct-qa` for production exposure.
+This loopback bind is the secure default for a proxy on the same host and is the supported shape for the current published `v1.3.1` path. The lifecycle manager does not modify the host firewall. The pending `v1.4.0` release adds the explicit bind and source-restricted firewall procedure for a proxy on another host; do not switch to `direct-qa` for production exposure.
 
 For production planning details, read [Production deployment guide](production-deployment.md).
 
