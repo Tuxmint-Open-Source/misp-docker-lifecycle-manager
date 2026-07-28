@@ -190,6 +190,74 @@ if exposure == 'direct-qa':
 PY
 }
 
+validate_proxy_bind_address() {
+  local bind_address="$1"
+  python3 - "$bind_address" <<'PY'
+import ipaddress
+import sys
+
+value = sys.argv[1]
+try:
+    address = ipaddress.ip_address(value)
+except ValueError as exc:
+    raise SystemExit(f'proxy bind address must be an IPv4 literal: {exc}')
+if address.version != 4:
+    raise SystemExit('proxy bind address must be an IPv4 literal')
+if address.is_multicast or value == '255.255.255.255':
+    raise SystemExit('proxy bind address must not be multicast or limited broadcast')
+print(address)
+PY
+}
+
+deployment_bind_from_env() {
+  # Print the validated reverse-proxy bind, or an empty line for direct-QA.
+  # Both published ports must describe the same exposure; implicit Docker
+  # all-interface syntax is never accepted for reverse-proxy deployments.
+  local env_file="$1" exposure="$2"
+  python3 - "$env_file" "$exposure" <<'PY'
+import ipaddress
+import re
+import sys
+from pathlib import Path
+
+env_path, exposure = sys.argv[1:]
+env = {}
+for line in Path(env_path).read_text(errors='strict').splitlines():
+    stripped = line.strip()
+    if stripped and not stripped.startswith('#') and '=' in stripped:
+        key, value = stripped.split('=', 1)
+        env[key.strip()] = value.strip().strip('"').strip("'")
+
+http_port = env.get('CORE_HTTP_PORT', '')
+https_port = env.get('CORE_HTTPS_PORT', '')
+if exposure == 'direct-qa':
+    if http_port != '80' or https_port != '443':
+        raise SystemExit('direct-qa .env must publish CORE_HTTP_PORT=80 and CORE_HTTPS_PORT=443')
+    print('')
+    raise SystemExit(0)
+if exposure != 'reverse-proxy':
+    raise SystemExit('unsupported exposure mode')
+
+def parse(value, expected_port, key):
+    match = re.fullmatch(r'([^:]+):([0-9]+)', value)
+    if not match or int(match.group(2)) != expected_port:
+        raise SystemExit(f'{key} must use an explicit IPv4 bind and port {expected_port}')
+    try:
+        address = ipaddress.ip_address(match.group(1))
+    except ValueError:
+        raise SystemExit(f'{key} contains an invalid bind address')
+    if address.version != 4 or address.is_multicast or address == ipaddress.IPv4Address('255.255.255.255'):
+        raise SystemExit(f'{key} contains an unsupported bind address')
+    return str(address)
+
+http_bind = parse(http_port, 8080, 'CORE_HTTP_PORT')
+https_bind = parse(https_port, 8443, 'CORE_HTTPS_PORT')
+if http_bind != https_bind:
+    raise SystemExit('CORE_HTTP_PORT and CORE_HTTPS_PORT must use the same bind address')
+print(http_bind)
+PY
+}
+
 url_hostname() {
   local base_url="$1" fallback="${2:-}"
   python3 - "$base_url" "$fallback" <<'PY'
@@ -526,11 +594,11 @@ wait_for_misp_live_marker() {
 
 write_state() {
   # Store non-secret deployment metadata for operators and future update runs.
-  local state_file="$1" upstream_repo="$2" upstream_ref="$3" upstream_commit="$4" install_dir="$5" exposure="$6" base_url="$7"
-  python3 - "$state_file" "$upstream_repo" "$upstream_ref" "$upstream_commit" "$install_dir" "$exposure" "$base_url" "$(installer_version)" <<'PY'
+  local state_file="$1" upstream_repo="$2" upstream_ref="$3" upstream_commit="$4" install_dir="$5" exposure="$6" base_url="$7" proxy_bind_address="${8:-}"
+  python3 - "$state_file" "$upstream_repo" "$upstream_ref" "$upstream_commit" "$install_dir" "$exposure" "$base_url" "$proxy_bind_address" "$(installer_version)" <<'PY'
 import datetime, json, os, re, sys, tempfile
 from pathlib import Path
-p, repo, ref, commit, install_dir, exposure, base_url, installer_version = sys.argv[1:]
+p, repo, ref, commit, install_dir, exposure, base_url, proxy_bind_address, installer_version = sys.argv[1:]
 if not re.fullmatch(r'[0-9a-f]{40}', commit):
     raise SystemExit('upstream commit must be a full lowercase Git commit ID')
 data={
@@ -540,6 +608,7 @@ data={
     'install_dir': install_dir,
     'exposure': exposure,
     'base_url': base_url,
+    'proxy_bind_address': proxy_bind_address,
     'installer': 'misp-docker-lifecycle-manager',
     'installer_version': installer_version,
     'updated_at_utc': datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z'),

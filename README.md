@@ -83,6 +83,8 @@ sudo ./lifecycle/admin-credentials.sh --install-dir /opt/misp-docker
 
 For production planning, reverse-proxy details, recovery, updates, and limitations, use the documentation map instead of treating this quick path as the full guide.
 
+The default reverse-proxy bind is loopback for a proxy on the same host. A proxy on another host requires the explicit bind and source-restricted firewall procedure in the [production deployment guide](docs/production-deployment.md). The lifecycle manager does not modify the host firewall.
+
 ## Compatibility status
 
 Compatibility is tracked as an explicit pair:

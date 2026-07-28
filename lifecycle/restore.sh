@@ -104,6 +104,7 @@ fields = [
     data.get('upstream_commit', ''),
     data.get('exposure', ''),
     data.get('base_url', ''),
+    data.get('proxy_bind_address', ''),
 ]
 if not all(isinstance(value, str) for value in fields):
     raise SystemExit('backup state source/deployment fields must be strings')
@@ -116,6 +117,7 @@ PY
   archived_commit="${state_vals[2]:-}"
   archived_exposure="${state_vals[3]:-}"
   archived_base_url="${state_vals[4]:-}"
+  archived_proxy_bind_address="${state_vals[5]:-}"
   if [[ "$UPSTREAM_REPO_EXPLICIT" != true && -n "$archived_repo" ]]; then
     [[ "$archived_repo" == "https://github.com/MISP/misp-docker.git" ]] || fatal "Backup uses a non-default upstream repository; pass the reviewed repository explicitly with --upstream-repo."
     UPSTREAM_REPO="$archived_repo"
@@ -131,6 +133,7 @@ PY
 else
   archived_exposure=""
   archived_base_url=""
+  archived_proxy_bind_address=""
   warn "Backup has no .installer-state.json; lifecycle state will be regenerated from the restored configuration and selected upstream source."
 fi
 validate_upstream_source "$UPSTREAM_REPO" "$UPSTREAM_REF"
@@ -200,7 +203,7 @@ if not base_url:
     base_url = env.get('BASE_URL', '')
 if not exposure:
     https_port = env.get('CORE_HTTPS_PORT', '')
-    exposure = 'reverse-proxy' if https_port.startswith('127.0.0.1:') else 'direct-qa'
+    exposure = 'reverse-proxy' if ':' in https_port else 'direct-qa'
 if exposure not in {'reverse-proxy', 'direct-qa'} or not base_url:
     raise SystemExit('restored configuration lacks valid exposure/base URL metadata')
 if any(ord(ch) < 32 or ord(ch) == 127 for value in (exposure, base_url) for ch in value):
@@ -212,8 +215,18 @@ mapfile -t restored_state_vals < "$tmp/restored-state-values"
 restored_exposure="${restored_state_vals[0]:-}"
 restored_base_url="${restored_state_vals[1]:-}"
 validate_public_base_url "$restored_base_url" "$restored_exposure"
+restored_proxy_bind_address="$(deployment_bind_from_env "$INSTALL_DIR/.env" "$restored_exposure")"
+if [[ "$restored_exposure" == reverse-proxy ]]; then
+  restored_proxy_bind_address="$(validate_proxy_bind_address "$restored_proxy_bind_address")"
+  if [[ -n "$archived_proxy_bind_address" ]]; then
+    archived_proxy_bind_address="$(validate_proxy_bind_address "$archived_proxy_bind_address")"
+    [[ "$archived_proxy_bind_address" == "$restored_proxy_bind_address" ]] || fatal "Backup state proxy bind does not match restored .env."
+  fi
+elif [[ -n "$restored_proxy_bind_address" ]]; then
+  fatal "restored direct-qa configuration must not contain a proxy bind address"
+fi
 resolved_upstream_commit="$(git -C "$INSTALL_DIR" rev-parse HEAD)"
-write_state "$INSTALL_DIR/.installer-state.json" "$UPSTREAM_REPO" "$REQUESTED_UPSTREAM_REF" "$resolved_upstream_commit" "$INSTALL_DIR" "$restored_exposure" "$restored_base_url"
+write_state "$INSTALL_DIR/.installer-state.json" "$UPSTREAM_REPO" "$REQUESTED_UPSTREAM_REF" "$resolved_upstream_commit" "$INSTALL_DIR" "$restored_exposure" "$restored_base_url" "$restored_proxy_bind_address"
 
 log "Clearing managed host-data roots before restore."
 prepare_restore_host_roots "$INSTALL_DIR"

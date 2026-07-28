@@ -2,20 +2,27 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib.sh"
-INSTALL_DIR="/opt/misp-docker"; BASE_URL="https://misp.example.com"; ADMIN_EMAIL="admin@example.com"; ADMIN_ORG="ExampleOrg"; TIMEZONE="Europe/Zurich"; EXPOSURE="reverse-proxy"; FORCE="false"; CORE_TAG_OVERRIDE=""; MODULES_TAG_OVERRIDE=""; GUARD_TAG_OVERRIDE=""
+INSTALL_DIR="/opt/misp-docker"; BASE_URL="https://misp.example.com"; ADMIN_EMAIL="admin@example.com"; ADMIN_ORG="ExampleOrg"; TIMEZONE="Europe/Zurich"; EXPOSURE="reverse-proxy"; PROXY_BIND_ADDRESS="127.0.0.1"; PROXY_BIND_EXPLICIT="false"; FORCE="false"; CORE_TAG_OVERRIDE=""; MODULES_TAG_OVERRIDE=""; GUARD_TAG_OVERRIDE=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --install-dir) INSTALL_DIR="$2"; shift 2;; --base-url) BASE_URL="$2"; shift 2;; --admin-email) ADMIN_EMAIL="$2"; shift 2;; --admin-org) ADMIN_ORG="$2"; shift 2;; --timezone) TIMEZONE="$2"; shift 2;; --exposure) EXPOSURE="$2"; shift 2;; --core-tag) CORE_TAG_OVERRIDE="$2"; shift 2;; --modules-tag) MODULES_TAG_OVERRIDE="$2"; shift 2;; --guard-tag) GUARD_TAG_OVERRIDE="$2"; shift 2;; --force) FORCE="true"; shift;; *) fatal "Unknown argument: $1";;
+    --install-dir) INSTALL_DIR="$2"; shift 2;; --base-url) BASE_URL="$2"; shift 2;; --admin-email) ADMIN_EMAIL="$2"; shift 2;; --admin-org) ADMIN_ORG="$2"; shift 2;; --timezone) TIMEZONE="$2"; shift 2;; --exposure) EXPOSURE="$2"; shift 2;; --proxy-bind-address) PROXY_BIND_ADDRESS="$2"; PROXY_BIND_EXPLICIT="true"; shift 2;; --core-tag) CORE_TAG_OVERRIDE="$2"; shift 2;; --modules-tag) MODULES_TAG_OVERRIDE="$2"; shift 2;; --guard-tag) GUARD_TAG_OVERRIDE="$2"; shift 2;; --force) FORCE="true"; shift;; *) fatal "Unknown argument: $1";;
   esac
 done
 acquire_operation_lock "$INSTALL_DIR"
 [[ -f "$INSTALL_DIR/template.env" ]] || fatal "Official upstream template.env missing in $INSTALL_DIR"
 [[ "$EXPOSURE" =~ ^(reverse-proxy|direct-qa)$ ]] || fatal "--exposure must be reverse-proxy or direct-qa"
 validate_public_base_url "$BASE_URL" "$EXPOSURE"
+if [[ "$EXPOSURE" == reverse-proxy ]]; then
+  PROXY_BIND_ADDRESS="$(validate_proxy_bind_address "$PROXY_BIND_ADDRESS")"
+elif [[ "$PROXY_BIND_EXPLICIT" == true ]]; then
+  fatal "--proxy-bind-address is only valid with --exposure reverse-proxy"
+else
+  PROXY_BIND_ADDRESS=""
+fi
 validate_env_inputs "$ADMIN_EMAIL" "$ADMIN_ORG" "$TIMEZONE" "$CORE_TAG_OVERRIDE" "$MODULES_TAG_OVERRIDE" "$GUARD_TAG_OVERRIDE"
 [[ -e "$INSTALL_DIR/.env" && "$FORCE" != true ]] && fatal "$INSTALL_DIR/.env already exists. Use --force only if intentionally rotating generated secrets."
 cp "$INSTALL_DIR/template.env" "$INSTALL_DIR/.env"; chmod 600 "$INSTALL_DIR/.env"
-export BASE_URL ADMIN_EMAIL ADMIN_ORG TIMEZONE EXPOSURE
+export BASE_URL ADMIN_EMAIL ADMIN_ORG TIMEZONE EXPOSURE PROXY_BIND_ADDRESS
 export ADMIN_PASSWORD_VALUE="$(random_b64 36)"
 export ADMIN_KEY_VALUE="$(random_hex 20)"
 # Upstream MISP Docker injects MYSQL_PASSWORD into database.php with sed and
@@ -30,7 +37,7 @@ export ENCRYPTION_KEY_VALUE="$(random_b64 32)"
 export SALT_VALUE="$(random_hex 32)"
 export UUID_VALUE="$(new_uuid)"
 export ADMIN_ORG_UUID_VALUE="$(new_uuid)"
-if [[ "$EXPOSURE" == direct-qa ]]; then export CORE_HTTP_PORT_VALUE="80" CORE_HTTPS_PORT_VALUE="443"; else export CORE_HTTP_PORT_VALUE="127.0.0.1:8080" CORE_HTTPS_PORT_VALUE="127.0.0.1:8443"; fi
+if [[ "$EXPOSURE" == direct-qa ]]; then export CORE_HTTP_PORT_VALUE="80" CORE_HTTPS_PORT_VALUE="443"; else export CORE_HTTP_PORT_VALUE="$PROXY_BIND_ADDRESS:8080" CORE_HTTPS_PORT_VALUE="$PROXY_BIND_ADDRESS:8443"; fi
 python3 - "$INSTALL_DIR/.env" <<'PY'
 from pathlib import Path
 import os, sys

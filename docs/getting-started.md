@@ -69,6 +69,8 @@ http://127.0.0.1:8080
 https://127.0.0.1:8443
 ```
 
+This loopback bind is the secure default for a proxy on the same host. The lifecycle manager does not modify the host firewall. If the reverse proxy runs on another host, follow the explicit bind and source-restricted firewall procedure in the production deployment guide; do not switch to `direct-qa` for production exposure.
+
 For production planning details, read [Production deployment guide](production-deployment.md).
 
 ## 4. Verify the deployment

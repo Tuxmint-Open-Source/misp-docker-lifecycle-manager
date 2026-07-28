@@ -42,7 +42,44 @@ sudo ./lifecycle/install.sh \
   --exposure reverse-proxy
 ```
 
-The reverse proxy should forward to the local HTTPS endpoint documented by the installer output and overlay docs.
+The reverse proxy should forward to the local HTTPS endpoint documented by the installer output and overlay docs. By default, the manager binds only `127.0.0.1:8080` and `127.0.0.1:8443`, which is the intended same-host proxy shape.
+
+### Firewall ownership
+
+The lifecycle manager does not modify the host firewall: it does **not** add, remove, or inspect host firewall rules. Firewall policy remains operator-owned because interface, zone, source network, and upstream network controls are deployment-specific. A successful installation therefore does not imply that a remote proxy can reach MISP.
+
+### Reverse proxy on another host
+
+Use an explicit IPv4 bind only when the reverse proxy is on another host. Prefer the MISP host's specific interface address; `0.0.0.0` is supported as an explicit choice but listens on every IPv4 interface and therefore requires a source-restricted firewall.
+
+```bash
+sudo ./lifecycle/install.sh \
+  --install-dir /opt/misp-docker \
+  --upstream-ref master \
+  --base-url https://misp.example.com \
+  --admin-email admin@example.com \
+  --admin-org ExampleOrg \
+  --timezone Europe/Zurich \
+  --exposure reverse-proxy \
+  --proxy-bind-address 0.0.0.0
+```
+
+Allow TCP 8080/8443 only from the remote proxy's trusted source address or subnet. Docker-published ports are forwarded before ordinary host-zone input rules, so a normal `firewall-cmd --add-port` or zone rich rule is not sufficient proof of restriction. Prefer an upstream network firewall/ACL. If filtering on the Docker host, apply the restriction at the `DOCKER-USER` forwarding boundary and make it persistent with the host's managed firewall tooling.
+
+For example, the following runtime rules accept the documentation-only proxy source and reject other sources based on the original published ports. Replace the source and integrate equivalent rules into the host's persistent firewall policy before relying on them:
+
+```bash
+sudo iptables -I DOCKER-USER 1 -p tcp -s 203.0.113.10/32 \
+  -m conntrack --ctstate NEW --ctorigdstport 8443 -j ACCEPT
+sudo iptables -I DOCKER-USER 2 -p tcp \
+  -m conntrack --ctstate NEW --ctorigdstport 8443 -j DROP
+sudo iptables -I DOCKER-USER 3 -p tcp -s 203.0.113.10/32 \
+  -m conntrack --ctstate NEW --ctorigdstport 8080 -j ACCEPT
+sudo iptables -I DOCKER-USER 4 -p tcp \
+  -m conntrack --ctstate NEW --ctorigdstport 8080 -j DROP
+```
+
+Do not add unrestricted public port rules for 8080/8443. Confirm the persistent rules after reboot and Docker/firewall restarts. Keep TLS verification enabled between the proxy and MISP, validate that the proxy source can connect, and verify from another source that the published ports are denied.
 
 Direct-QA mode is useful for validation and controlled QA. It is not the recommended long-term public exposure model.
 
