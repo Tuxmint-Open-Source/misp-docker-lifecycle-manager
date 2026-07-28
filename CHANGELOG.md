@@ -6,6 +6,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ### Changed
 
+- Update artifact and CodeQL Actions as coordinated immutable-SHA families, add a read-only upload/download transfer gate, and group coupled workflow steps in Dependabot.
 - Mark immutable `v1.3.1` and its published operator-bundle artifact as validated compatible with MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2` after the complete exact-tag and packaged-artifact lifecycle matrix passed.
 
 ## [1.3.1] - 2026-07-23
