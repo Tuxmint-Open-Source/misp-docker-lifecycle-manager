@@ -4,6 +4,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-07-28
+
 ### Fixed
 
 - Generate bounded SOS OS facts on supported Python 3.9 hosts and fail installation before image pulls when Docker's data-root filesystem has less than 10 GiB free.
@@ -229,7 +231,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - MISP schema readiness handling via `Admin runUpdates` and `bookmarks` table check.
 - Public documentation for architecture, upgrade path, troubleshooting, shell scripts, and versioning.
 
-[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.3.1...HEAD
+[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.1.0...v1.2.0
