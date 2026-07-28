@@ -350,6 +350,65 @@ class LifecycleSafetyTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("only valid with --exposure reverse-proxy", result.stderr)
 
+    def test_deployment_bind_contract_checks_both_ports_and_legacy_state_source(self):
+        with tempfile.TemporaryDirectory() as td:
+            env_file = Path(td) / ".env"
+            env_file.write_text(
+                "CORE_HTTP_PORT=127.0.0.1:8080\n"
+                "CORE_HTTPS_PORT=127.0.0.1:8443\n"
+            )
+            result = run_bash(
+                'source lifecycle/lib.sh; deployment_bind_from_env "$1" reverse-proxy',
+                str(env_file),
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout.strip(), "127.0.0.1")
+
+            env_file.write_text(
+                "CORE_HTTP_PORT=0.0.0.0:8080\n"
+                "CORE_HTTPS_PORT=127.0.0.1:8443\n"
+            )
+            result = run_bash(
+                'source lifecycle/lib.sh; deployment_bind_from_env "$1" reverse-proxy',
+                str(env_file),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("must use the same bind address", result.stderr)
+
+    def test_update_refuses_state_and_env_proxy_bind_mismatch_before_backup(self):
+        with tempfile.TemporaryDirectory() as td:
+            install = Path(td) / "install"
+            install.mkdir()
+            subprocess.run(["git", "init", "-q", str(install)], check=True)
+            subprocess.run(
+                ["git", "-C", str(install), "remote", "add", "origin", "https://github.com/MISP/misp-docker.git"],
+                check=True,
+            )
+            (install / ".env").write_text(
+                "CORE_HTTP_PORT=0.0.0.0:8080\n"
+                "CORE_HTTPS_PORT=0.0.0.0:8443\n"
+            )
+            (install / ".installer-state.json").write_text(json.dumps({
+                "installer": "misp-docker-lifecycle-manager",
+                "install_dir": str(install),
+                "upstream_repo": "https://github.com/MISP/misp-docker.git",
+                "upstream_ref": "master",
+                "exposure": "reverse-proxy",
+                "base_url": "https://misp.example.com",
+                "proxy_bind_address": "127.0.0.1",
+            }))
+            result = subprocess.run(
+                ["bash", str(ROOT / "lifecycle" / "update.sh"), "--install-dir", str(install)],
+                cwd=ROOT,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("does not match .env", result.stderr)
+            self.assertNotIn("Backup written", result.stdout)
+
     def test_operation_lock_rejects_concurrent_mutation(self):
         with tempfile.TemporaryDirectory() as td:
             install = str(Path(td) / "install")
@@ -386,7 +445,11 @@ class LifecycleSafetyTests(unittest.TestCase):
             install.mkdir()
             backup_root.mkdir(mode=0o700)
             fake_bin.mkdir()
-            (install / ".env").write_text("BASE_URL=https://misp.example.com\n")
+            (install / ".env").write_text(
+                "BASE_URL=https://misp.example.com\n"
+                "CORE_HTTP_PORT=8080\n"
+                "CORE_HTTPS_PORT=8443\n"
+            )
             (install / ".env").chmod(0o600)
             (install / "docker-compose.yml").write_text("services: {}\n")
             (install / "docker-compose.override.yml").write_text("services: {}\n")

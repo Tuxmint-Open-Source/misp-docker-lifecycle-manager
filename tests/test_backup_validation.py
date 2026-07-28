@@ -35,7 +35,11 @@ def make_backup(
     extra_config: str | None = None,
     unsafe_host_link: bool = False,
     state_overrides: dict[str, object] | None = None,
-    env_text: bytes = b"BASE_URL=https://misp.example.com\n",
+    env_text: bytes = (
+        b"BASE_URL=https://misp.example.com\n"
+        b"CORE_HTTP_PORT=8080\n"
+        b"CORE_HTTPS_PORT=8443\n"
+    ),
 ) -> Path:
     backup = root / "backup"
     backup.mkdir()
@@ -212,10 +216,69 @@ class BackupValidationTests(unittest.TestCase):
             backup = make_backup(Path(td), state_overrides={
                 "exposure": "reverse-proxy",
                 "base_url": "https://other.example.com",
-            })
+            }, env_text=(
+                b"BASE_URL=https://misp.example.com\n"
+                b"CORE_HTTP_PORT=127.0.0.1:8080\n"
+                b"CORE_HTTPS_PORT=127.0.0.1:8443\n"
+            ))
             result = self.run_validator(backup)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("does not match .installer-state.json", result.stderr)
+
+    def test_accepts_legacy_reverse_proxy_state_by_deriving_explicit_env_bind(self):
+        with tempfile.TemporaryDirectory() as td:
+            backup = make_backup(
+                Path(td),
+                state_overrides={
+                    "exposure": "reverse-proxy",
+                    "base_url": "https://misp.example.com",
+                },
+                env_text=(
+                    b"BASE_URL=https://misp.example.com\n"
+                    b"CORE_HTTP_PORT=127.0.0.1:8080\n"
+                    b"CORE_HTTPS_PORT=127.0.0.1:8443\n"
+                ),
+            )
+            result = self.run_validator(backup)
+            self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_rejects_http_and_https_proxy_bind_disagreement(self):
+        with tempfile.TemporaryDirectory() as td:
+            backup = make_backup(
+                Path(td),
+                state_overrides={
+                    "exposure": "reverse-proxy",
+                    "base_url": "https://misp.example.com",
+                    "proxy_bind_address": "127.0.0.1",
+                },
+                env_text=(
+                    b"BASE_URL=https://misp.example.com\n"
+                    b"CORE_HTTP_PORT=0.0.0.0:8080\n"
+                    b"CORE_HTTPS_PORT=127.0.0.1:8443\n"
+                ),
+            )
+            result = self.run_validator(backup)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("must use the same bind address", result.stderr)
+
+    def test_rejects_implicit_all_interface_reverse_proxy_ports(self):
+        with tempfile.TemporaryDirectory() as td:
+            backup = make_backup(
+                Path(td),
+                state_overrides={
+                    "exposure": "reverse-proxy",
+                    "base_url": "https://misp.example.com",
+                    "proxy_bind_address": "127.0.0.1",
+                },
+                env_text=(
+                    b"BASE_URL=https://misp.example.com\n"
+                    b"CORE_HTTP_PORT=8080\n"
+                    b"CORE_HTTPS_PORT=8443\n"
+                ),
+            )
+            result = self.run_validator(backup)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("must use an explicit IPv4 bind", result.stderr)
 
     def test_rejects_invalid_resolved_commit_in_backup_state(self):
         with tempfile.TemporaryDirectory() as td:

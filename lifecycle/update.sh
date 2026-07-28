@@ -81,7 +81,8 @@ repo = state.get('upstream_repo')
 requested_ref = state.get('upstream_ref')
 exposure = state.get('exposure')
 base_url = state.get('base_url')
-proxy_bind_address = state.get('proxy_bind_address', '127.0.0.1' if exposure == 'reverse-proxy' else '')
+proxy_bind_present = 'proxy_bind_address' in state
+proxy_bind_address = state.get('proxy_bind_address', '')
 if not all(isinstance(value, str) for value in (recorded_install, repo, requested_ref, exposure, base_url, proxy_bind_address)):
     raise SystemExit('state source/deployment fields must be strings')
 if Path(recorded_install).resolve() != Path(sys.argv[2]).resolve():
@@ -94,6 +95,7 @@ print(repo)
 print(requested_ref)
 print(exposure)
 print(base_url)
+print('true' if proxy_bind_present else 'false')
 print(proxy_bind_address)
 PY
 mapfile -t state_vals < "$state_values_file"
@@ -101,12 +103,19 @@ state_repo="${state_vals[0]:-}"
 state_requested_ref="${state_vals[1]:-}"
 state_exposure="${state_vals[2]:-}"
 state_base_url="${state_vals[3]:-}"
-state_proxy_bind_address="${state_vals[4]:-}"
+state_proxy_bind_present="${state_vals[4]:-}"
+state_proxy_bind_address="${state_vals[5]:-}"
 requested_ref="${UPSTREAM_REF:-$state_requested_ref}"
 validate_upstream_source "$state_repo" "$requested_ref"
 validate_public_base_url "$state_base_url" "$state_exposure"
+env_proxy_bind_address="$(deployment_bind_from_env "$INSTALL_DIR/.env" "$state_exposure")"
 if [[ "$state_exposure" == reverse-proxy ]]; then
-  state_proxy_bind_address="$(validate_proxy_bind_address "$state_proxy_bind_address")"
+  if [[ "$state_proxy_bind_present" == true ]]; then
+    state_proxy_bind_address="$(validate_proxy_bind_address "$state_proxy_bind_address")"
+    [[ "$state_proxy_bind_address" == "$env_proxy_bind_address" ]] || fatal "Lifecycle state proxy bind does not match .env; refusing update."
+  else
+    state_proxy_bind_address="$env_proxy_bind_address"
+  fi
 elif [[ -n "$state_proxy_bind_address" ]]; then
   fatal "direct-qa state must not contain a proxy bind address"
 fi
