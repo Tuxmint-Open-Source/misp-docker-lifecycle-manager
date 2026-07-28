@@ -322,6 +322,53 @@ class LifecycleSafetyTests(unittest.TestCase):
             self.assertEqual(state["proxy_bind_address"], "0.0.0.0")
             self.assertIn("Proxy bind address: 0.0.0.0", result.stdout)
 
+    def test_generated_direct_qa_env_matches_lifecycle_validation_contract(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            upstream = root / "upstream"
+            install = root / "install"
+            fake_bin = root / "bin"
+            init_upstream(upstream)
+            fake_bin.mkdir()
+            docker = fake_bin / "docker"
+            docker.write_text("#!/bin/sh\nexit 0\n")
+            docker.chmod(0o755)
+            env = os.environ.copy()
+            env["PATH"] = str(fake_bin) + os.pathsep + env["PATH"]
+            result = subprocess.run(
+                [
+                    str(ROOT / "lifecycle" / "install.sh"),
+                    "--upstream-repo", str(upstream),
+                    "--upstream-ref", "master",
+                    "--install-dir", str(install),
+                    "--base-url", "https://misp.example.com",
+                    "--admin-email", "admin@example.com",
+                    "--admin-org", "Example Org",
+                    "--timezone", "UTC",
+                    "--exposure", "direct-qa",
+                    "--no-start",
+                ],
+                cwd=ROOT,
+                env=env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            env_text = (install / ".env").read_text()
+            self.assertIn("CORE_HTTP_PORT=80", env_text)
+            self.assertIn("CORE_HTTPS_PORT=443", env_text)
+            contract = run_bash(
+                'source lifecycle/lib.sh; deployment_bind_from_env "$1" direct-qa',
+                str(install / ".env"),
+            )
+            self.assertEqual(contract.returncode, 0, contract.stderr)
+            self.assertEqual(contract.stdout.strip(), "")
+            state = json.loads((install / ".installer-state.json").read_text())
+            self.assertEqual(state["exposure"], "direct-qa")
+            self.assertEqual(state["proxy_bind_address"], "")
+
     def test_proxy_bind_rejects_invalid_values_and_direct_qa_use(self):
         for value in ("example.com", "::", "224.0.0.1", "255.255.255.255", "127.0.0.1:8443"):
             with self.subTest(value=value):
@@ -447,8 +494,8 @@ class LifecycleSafetyTests(unittest.TestCase):
             fake_bin.mkdir()
             (install / ".env").write_text(
                 "BASE_URL=https://misp.example.com\n"
-                "CORE_HTTP_PORT=8080\n"
-                "CORE_HTTPS_PORT=8443\n"
+                "CORE_HTTP_PORT=80\n"
+                "CORE_HTTPS_PORT=443\n"
             )
             (install / ".env").chmod(0o600)
             (install / "docker-compose.yml").write_text("services: {}\n")

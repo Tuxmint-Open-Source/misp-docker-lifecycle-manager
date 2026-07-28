@@ -37,8 +37,8 @@ def make_backup(
     state_overrides: dict[str, object] | None = None,
     env_text: bytes = (
         b"BASE_URL=https://misp.example.com\n"
-        b"CORE_HTTP_PORT=8080\n"
-        b"CORE_HTTPS_PORT=8443\n"
+        b"CORE_HTTP_PORT=80\n"
+        b"CORE_HTTPS_PORT=443\n"
     ),
 ) -> Path:
     backup = root / "backup"
@@ -82,6 +82,20 @@ class BackupValidationTests(unittest.TestCase):
             result = self.run_validator(make_backup(Path(td)))
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("backup validation OK", result.stdout)
+
+    def test_rejects_noncanonical_direct_qa_ports(self):
+        with tempfile.TemporaryDirectory() as td:
+            backup = make_backup(
+                Path(td),
+                env_text=(
+                    b"BASE_URL=https://misp.example.com\n"
+                    b"CORE_HTTP_PORT=8080\n"
+                    b"CORE_HTTPS_PORT=8443\n"
+                ),
+            )
+            result = self.run_validator(backup)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("CORE_HTTP_PORT=80 and CORE_HTTPS_PORT=443", result.stderr)
 
     def test_stages_private_regular_copies_before_validation(self):
         with tempfile.TemporaryDirectory() as td:

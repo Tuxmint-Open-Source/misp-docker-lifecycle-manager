@@ -199,9 +199,9 @@ def deployment_bind_from_env(env: dict[str, str], exposure: str) -> str:
     http_port = env.get("CORE_HTTP_PORT", "")
     https_port = env.get("CORE_HTTPS_PORT", "")
     if exposure == "direct-qa":
-        if http_port != "8080" or https_port != "8443":
+        if http_port != "80" or https_port != "443":
             raise ValidationError(
-                "direct-qa .env must publish CORE_HTTP_PORT=8080 and CORE_HTTPS_PORT=8443"
+                "direct-qa .env must publish CORE_HTTP_PORT=80 and CORE_HTTPS_PORT=443"
             )
         return ""
     if exposure != "reverse-proxy":

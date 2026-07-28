@@ -231,8 +231,8 @@ for line in Path(env_path).read_text(errors='strict').splitlines():
 http_port = env.get('CORE_HTTP_PORT', '')
 https_port = env.get('CORE_HTTPS_PORT', '')
 if exposure == 'direct-qa':
-    if http_port != '8080' or https_port != '8443':
-        raise SystemExit('direct-qa .env must publish CORE_HTTP_PORT=8080 and CORE_HTTPS_PORT=8443')
+    if http_port != '80' or https_port != '443':
+        raise SystemExit('direct-qa .env must publish CORE_HTTP_PORT=80 and CORE_HTTPS_PORT=443')
     print('')
     raise SystemExit(0)
 if exposure != 'reverse-proxy':
