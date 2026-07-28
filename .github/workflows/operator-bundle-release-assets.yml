@@ -96,8 +96,8 @@ jobs:
           sha256sum --check ./*.sha256
 
       - name: Upload verified bundle artifact
-        # actions/upload-artifact@v6
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        # actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: operator-bundle-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
@@ -106,11 +106,35 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+  validate-operator-bundle-transfer:
+    name: Validate operator bundle artifact transfer
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build-operator-bundle
+    permissions:
+      contents: read
+
+    steps:
+      - name: Download verified bundle artifact
+        # actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: operator-bundle-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist
+
+      - name: Verify transferred bundle checksums
+        run: |
+          set -euo pipefail
+          cd dist
+          test "$(find . -maxdepth 1 -name '*.tar.gz' -type f | wc -l)" -eq 1
+          test "$(find . -maxdepth 1 -name '*.tar.gz.sha256' -type f | wc -l)" -eq 1
+          sha256sum --check ./*.tar.gz.sha256
+
   publish-release-assets:
     name: Publish operator bundle release assets
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: build-operator-bundle
+    needs: validate-operator-bundle-transfer
     if: >-
       github.repository == 'Tuxmint-Open-Source/misp-docker-lifecycle-manager' &&
       (github.event_name == 'release' ||
@@ -120,8 +144,8 @@ jobs:
 
     steps:
       - name: Download verified bundle artifact
-        # actions/download-artifact@v7
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
+        # actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: operator-bundle-${{ github.run_id }}-${{ github.run_attempt }}
           path: dist

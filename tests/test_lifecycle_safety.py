@@ -406,11 +406,11 @@ esac
     def test_action_version_annotations_match_pinned_shas(self):
         workflow = (ROOT / ".github" / "workflows" / "operator-bundle-release-assets.yml").read_text()
         self.assertIn(
-            "# actions/upload-artifact@v6\n        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f",
+            "# actions/upload-artifact@v7\n        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
             workflow,
         )
         self.assertIn(
-            "# actions/download-artifact@v7\n        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131",
+            "# actions/download-artifact@v8\n        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c",
             workflow,
         )
 

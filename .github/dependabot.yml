@@ -8,6 +8,14 @@ updates:
       time: "06:20"
       timezone: "Etc/UTC"
     open-pull-requests-limit: 3
+    groups:
+      artifact-actions:
+        patterns:
+          - "actions/upload-artifact"
+          - "actions/download-artifact"
+      codeql-actions:
+        patterns:
+          - "github/codeql-action/*"
     labels:
       - "type: maintenance"
       - "area: github-actions"
