@@ -11,6 +11,69 @@ warn() { printf '\033[1;33m[WARN]\033[0m %s\n' "$*" >&2; }
 fatal() { printf '\033[1;31m[ERROR]\033[0m %s\n' "$*" >&2; exit 1; }
 require_cmd() { command -v "$1" >/dev/null 2>&1 || fatal "Required command not found: $1"; }
 
+check_docker_storage_capacity() {
+  local minimum_bytes="${1:-10737418240}" docker_root containerd_root="" line storage_output
+  local -a storage_paths=()
+  local -a storage_values=()
+  [[ "$minimum_bytes" =~ ^[1-9][0-9]*$ ]] || fatal "Docker storage minimum must be a positive byte count"
+  require_cmd docker
+  docker_root="$(docker info --format '{{.DockerRootDir}}' 2>/dev/null)" || \
+    fatal "Unable to inspect Docker storage before pulling images; verify that Docker is running and accessible"
+  [[ "$docker_root" == /* && "$docker_root" != *$'\n'* && -d "$docker_root" ]] || \
+    fatal "Docker reported an invalid or unavailable data-root before pulling images"
+  storage_paths+=("$docker_root")
+  if command -v containerd >/dev/null 2>&1; then
+    while IFS= read -r line; do
+      if [[ "$line" =~ ^root[[:space:]]*=[[:space:]]*\"([^\"]+)\"[[:space:]]*$ ]]; then
+        containerd_root="${BASH_REMATCH[1]}"
+        break
+      fi
+    done < <(containerd config dump 2>/dev/null || true)
+  fi
+  if [[ -z "$containerd_root" && -d /var/lib/containerd ]]; then
+    containerd_root=/var/lib/containerd
+  fi
+  if [[ -n "$containerd_root" ]]; then
+    [[ "$containerd_root" == /* && "$containerd_root" != *$'\n'* && -d "$containerd_root" ]] || \
+      fatal "containerd reported an invalid or unavailable root before pulling images"
+    storage_paths+=("$containerd_root")
+  fi
+  storage_output="$(python3 - "$minimum_bytes" "${storage_paths[@]}" <<'PY'
+import shutil
+import sys
+
+minimum = int(sys.argv[1])
+gib = 1024 ** 3
+print(f"{minimum / gib:.1f}")
+seen = set()
+for path in sys.argv[2:]:
+    device = __import__("os").stat(path).st_dev
+    if device in seen:
+        continue
+    seen.add(device)
+    free = shutil.disk_usage(path).free
+    print(path)
+    print(free)
+    print(f"{free / gib:.1f}")
+PY
+)" || fatal "Unable to inspect Docker/containerd storage filesystems before pulling images"
+  mapfile -t storage_values <<< "$storage_output"
+  [[ "${storage_values[0]:-}" =~ ^[0-9]+([.][0-9]+)?$ && ${#storage_values[@]} -ge 4 ]] || \
+    fatal "Unable to inspect Docker/containerd storage filesystems before pulling images"
+  local index path free_bytes free_gib
+  for ((index=1; index<${#storage_values[@]}; index+=3)); do
+    path="${storage_values[index]:-}"
+    free_bytes="${storage_values[index+1]:-}"
+    free_gib="${storage_values[index+2]:-}"
+    [[ "$path" == /* && "$free_bytes" =~ ^[0-9]+$ && "$free_gib" =~ ^[0-9]+([.][0-9]+)?$ ]] || \
+      fatal "Unable to inspect Docker/containerd storage filesystems before pulling images"
+    if (( free_bytes < minimum_bytes )); then
+      fatal "Container image storage filesystem for $path has ${free_gib} GiB free; at least ${storage_values[0]} GiB is required before pulling images. Free or extend that filesystem, or move Docker/containerd storage."
+    fi
+    log "Container image storage preflight passed for $path (${free_gib} GiB free)."
+  done
+}
+
 acquire_operation_lock() {
   local install_dir="$1" canonical parent lock_id lock_file old_umask
   local -a lock_values=()

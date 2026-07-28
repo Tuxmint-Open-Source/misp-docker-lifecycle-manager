@@ -52,6 +52,12 @@ There is no lock-in: after a successful install, `/opt/misp-docker` remains a no
 
 For a first test install using the stable release, read [`docs/getting-started.md`](docs/getting-started.md). The shortened path is:
 
+Install Git before using this clone-based path. On a supported Rocky-compatible host:
+
+```bash
+sudo dnf install -y git
+```
+
 ```bash
 git clone https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager.git
 cd misp-docker-lifecycle-manager

@@ -107,6 +107,7 @@ fi
 "$SCRIPT_DIR/validate.sh" --install-dir "$INSTALL_DIR"
 
 if [[ "$START" == true ]]; then
+  check_docker_storage_capacity
   compose_cmd "$INSTALL_DIR" pull
   operation_started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   compose_cmd "$INSTALL_DIR" up -d

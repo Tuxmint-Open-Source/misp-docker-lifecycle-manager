@@ -42,6 +42,7 @@ ARCH_MAP = {
     "arm64": "arm64", "armv7l": "armv7", "ppc64le": "ppc64le",
     "s390x": "s390x",
 }
+OS_RELEASE_PATHS = (Path("/etc/os-release"), Path("/usr/lib/os-release"))
 
 
 def yes_no(value: bool) -> str:
@@ -100,17 +101,55 @@ def read_public_tags(env_file: Path) -> dict[str, str]:
     return values
 
 
+def read_os_release() -> dict[str, str]:
+    limit = 64 * 1024
+    flags = os.O_RDONLY | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_CLOEXEC", 0)
+    for path in OS_RELEASE_PATHS:
+        fd = -1
+        try:
+            fd = os.open(path, flags)
+            metadata = os.fstat(fd)
+            if not stat.S_ISREG(metadata.st_mode) or metadata.st_size > limit:
+                continue
+            chunks = []
+            remaining = limit + 1
+            while remaining:
+                chunk = os.read(fd, remaining)
+                if not chunk:
+                    break
+                chunks.append(chunk)
+                remaining -= len(chunk)
+            payload = b"".join(chunks)
+            if len(payload) > limit:
+                continue
+            lines = payload.decode("utf-8").splitlines()
+        except (OSError, UnicodeError):
+            continue
+        finally:
+            if fd >= 0:
+                os.close(fd)
+        release: dict[str, str] = {}
+        for line in lines:
+            key, separator, raw = line.partition("=")
+            if not separator or key not in {"ID", "VERSION_ID"}:
+                continue
+            value = raw.strip()
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+                value = value[1:-1]
+            release[key] = value
+        return release
+    return {}
+
+
 def os_facts() -> tuple[str, str, str, str]:
     os_id = "unknown"
     os_major = "unknown"
-    try:
-        release = platform.freedesktop_os_release()
-        candidate = release.get("ID", "").lower()
+    release = read_os_release()
+    candidate = release.get("ID", "").lower()
+    if candidate:
         os_id = candidate if candidate in SAFE_OS_IDS else "other"
-        major = release.get("VERSION_ID", "").split(".", 1)[0]
-        os_major = major if major.isdigit() and len(major) <= 3 else "unknown"
-    except OSError:
-        pass
+    major = release.get("VERSION_ID", "").split(".", 1)[0]
+    os_major = major if major.isdigit() and len(major) <= 3 else "unknown"
     kernel_match = re.match(r"([0-9]+\.[0-9]+)", platform.release())
     kernel_series = kernel_match.group(1) if kernel_match else "unknown"
     architecture = ARCH_MAP.get(platform.machine().lower(), "other")

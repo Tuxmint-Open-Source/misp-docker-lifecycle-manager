@@ -4,6 +4,11 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+### Fixed
+
+- Generate bounded SOS OS facts on supported Python 3.9 hosts and fail installation before image pulls when Docker's data-root filesystem has less than 10 GiB free.
+- Document Git as a bootstrap prerequisite before the README and getting-started clone paths.
+
 ### Changed
 
 - Update artifact and CodeQL Actions as coordinated immutable-SHA families, add a read-only upload/download transfer gate, and group coupled workflow steps in Dependabot.

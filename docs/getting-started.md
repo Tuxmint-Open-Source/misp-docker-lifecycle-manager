@@ -14,6 +14,7 @@ Read the [support matrix](support-matrix.md) first if you are unsure whether thi
 This guide assumes:
 
 - one Linux host dedicated to a single-server Docker deployment;
+- Git is installed before cloning the manager (`sudo dnf install -y git` on a supported Rocky-compatible host);
 - Docker and Docker Compose are available or can be installed by the host-preparation helper;
 - you will run lifecycle commands with `sudo`;
 - your public URL is a real hostname such as `https://misp.example.com`;
