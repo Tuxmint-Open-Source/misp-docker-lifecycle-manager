@@ -109,6 +109,27 @@ class StructuredSosReportTests(unittest.TestCase):
         self.assertNotIn("fixture-secret-value", serialized)
         self.assertNotIn("private.invalid", serialized)
 
+    def test_os_facts_supports_python_without_freedesktop_helper(self):
+        with tempfile.TemporaryDirectory() as td:
+            release = Path(td) / "os-release"
+            release.write_text('ID="rocky"\nVERSION_ID="9.8"\n')
+            with mock.patch.object(SOS.platform, "freedesktop_os_release", None), mock.patch.object(
+                SOS, "OS_RELEASE_PATHS", (release,)
+            ):
+                os_id, os_major, _kernel, _architecture = SOS.os_facts()
+            self.assertEqual(os_id, "rocky")
+            self.assertEqual(os_major, "9")
+
+    def test_os_facts_remains_unknown_without_release_metadata(self):
+        with tempfile.TemporaryDirectory() as td:
+            missing = Path(td) / "missing-os-release"
+            with mock.patch.object(SOS.platform, "freedesktop_os_release", None), mock.patch.object(
+                SOS, "OS_RELEASE_PATHS", (missing,)
+            ):
+                os_id, os_major, _kernel, _architecture = SOS.os_facts()
+            self.assertEqual(os_id, "unknown")
+            self.assertEqual(os_major, "unknown")
+
     def test_invalid_workflow_is_rejected_without_report(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

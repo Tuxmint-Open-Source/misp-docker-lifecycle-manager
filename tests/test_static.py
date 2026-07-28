@@ -142,6 +142,14 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('download.docker.com', text)
         self.assertIn('docker-ce', text)
 
+    def test_clone_paths_document_git_as_a_bootstrap_prerequisite(self):
+        readme = (ROOT / 'README.md').read_text()
+        getting_started = (ROOT / 'docs' / 'getting-started.md').read_text()
+        self.assertIn('sudo dnf install -y git', readme)
+        self.assertIn('sudo dnf install -y git', getting_started)
+        self.assertLess(readme.index('sudo dnf install -y git'), readme.index('git clone'))
+        self.assertLess(getting_started.index('sudo dnf install -y git'), getting_started.index('git clone'))
+
     def test_prepare_host_docker_group_is_explicit_opt_in(self):
         text = (ROOT / 'lifecycle' / 'prepare-host-rocky.sh').read_text()
         self.assertIn('ADD_CURRENT_USER_TO_DOCKER_GROUP="false"', text)

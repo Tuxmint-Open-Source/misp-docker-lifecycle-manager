@@ -11,6 +11,36 @@ warn() { printf '\033[1;33m[WARN]\033[0m %s\n' "$*" >&2; }
 fatal() { printf '\033[1;31m[ERROR]\033[0m %s\n' "$*" >&2; exit 1; }
 require_cmd() { command -v "$1" >/dev/null 2>&1 || fatal "Required command not found: $1"; }
 
+check_docker_storage_capacity() {
+  local minimum_bytes="${1:-10737418240}" docker_root storage_output
+  local -a storage_values=()
+  [[ "$minimum_bytes" =~ ^[1-9][0-9]*$ ]] || fatal "Docker storage minimum must be a positive byte count"
+  require_cmd docker
+  docker_root="$(docker info --format '{{.DockerRootDir}}' 2>/dev/null)" || \
+    fatal "Unable to inspect Docker storage before pulling images; verify that Docker is running and accessible"
+  [[ "$docker_root" == /* && "$docker_root" != *$'\n'* && -d "$docker_root" ]] || \
+    fatal "Docker reported an invalid or unavailable data-root before pulling images"
+  storage_output="$(python3 - "$docker_root" "$minimum_bytes" <<'PY'
+import shutil
+import sys
+
+path, minimum = sys.argv[1], int(sys.argv[2])
+free = shutil.disk_usage(path).free
+gib = 1024 ** 3
+print(free)
+print(f"{free / gib:.1f}")
+print(f"{minimum / gib:.1f}")
+PY
+)" || fatal "Unable to inspect the Docker data-root filesystem before pulling images"
+  mapfile -t storage_values <<< "$storage_output"
+  [[ "${storage_values[0]:-}" =~ ^[0-9]+$ ]] || \
+    fatal "Unable to inspect the Docker data-root filesystem before pulling images"
+  if (( storage_values[0] < minimum_bytes )); then
+    fatal "Docker data-root filesystem has ${storage_values[1]} GiB free; at least ${storage_values[2]} GiB is required before pulling images. Free or extend that filesystem, or move Docker's data-root."
+  fi
+  log "Docker data-root storage preflight passed (${storage_values[1]} GiB free)."
+}
+
 acquire_operation_lock() {
   local install_dir="$1" canonical parent lock_id lock_file old_umask
   local -a lock_values=()

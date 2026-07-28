@@ -23,7 +23,7 @@ Before installation, prepare:
 - root or sudo access
 - working DNS for the intended public MISP URL
 - firewall rules allowing the chosen external access path
-- enough disk for Docker images, database growth, attachments, logs, and backups
+- enough disk for Docker images, database growth, attachments, logs, and backups; install requires at least 10 GiB free on Docker's data-root filesystem before its initial image pull, but production capacity planning should allow substantially more
 - an email address for the initial MISP administrator
 - a backup location and retention plan
 

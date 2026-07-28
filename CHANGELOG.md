@@ -4,6 +4,11 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+### Fixed
+
+- Generate bounded SOS OS facts on supported Python 3.9 hosts and fail installation before image pulls when Docker's data-root filesystem has less than 10 GiB free.
+- Document Git as a bootstrap prerequisite before the README and getting-started clone paths.
+
 ### Changed
 
 - Mark immutable `v1.3.1` and its published operator-bundle artifact as validated compatible with MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2` after the complete exact-tag and packaged-artifact lifecycle matrix passed.

@@ -34,6 +34,59 @@ def init_upstream(path: Path) -> None:
 
 
 class LifecycleSafetyTests(unittest.TestCase):
+
+    def test_install_checks_docker_storage_before_pull(self):
+        install = (ROOT / "lifecycle" / "install.sh").read_text()
+        check = 'check_docker_storage_capacity'
+        pull = 'compose_cmd "$INSTALL_DIR" pull'
+        self.assertIn(check, install)
+        self.assertLess(install.index(check), install.index(pull))
+
+    def test_docker_storage_check_fails_early_with_actionable_guidance(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            fake_bin = root / "bin"
+            fake_bin.mkdir()
+            docker = fake_bin / "docker"
+            docker.write_text(f"#!/bin/sh\nprintf '%s\\n' '{root}'\n")
+            docker.chmod(0o755)
+            env = {**os.environ, "PATH": str(fake_bin) + os.pathsep + os.environ["PATH"]}
+            result = subprocess.run(
+                [
+                    "bash", "-c",
+                    "source lifecycle/lib.sh; check_docker_storage_capacity 999999999999999",
+                ],
+                cwd=ROOT,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+                env=env,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("Docker data-root filesystem", result.stderr)
+            self.assertIn("before pulling images", result.stderr)
+
+    def test_docker_storage_check_allows_sufficient_capacity(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            fake_bin = root / "bin"
+            fake_bin.mkdir()
+            docker = fake_bin / "docker"
+            docker.write_text(f"#!/bin/sh\nprintf '%s\\n' '{root}'\n")
+            docker.chmod(0o755)
+            env = {**os.environ, "PATH": str(fake_bin) + os.pathsep + os.environ["PATH"]}
+            result = subprocess.run(
+                ["bash", "-c", "source lifecycle/lib.sh; check_docker_storage_capacity 1"],
+                cwd=ROOT,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+                env=env,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("storage preflight passed", result.stderr)
     def test_generate_env_rejects_control_characters_before_writing(self):
         with tempfile.TemporaryDirectory() as td:
             install = Path(td)
