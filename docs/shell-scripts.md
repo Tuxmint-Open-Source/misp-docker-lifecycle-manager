@@ -89,10 +89,12 @@ Use `--prepare-host` if you also want `install.sh` to run host preparation on Ro
 
 | Mode | Bind behavior | Intended use |
 | --- | --- | --- |
-| `reverse-proxy` | Local ports such as `127.0.0.1:8080` and `127.0.0.1:8443`. | Default production-oriented shape behind an external reverse proxy. |
+| `reverse-proxy` | `127.0.0.1:8080` and `127.0.0.1:8443` by default; `--proxy-bind-address IPv4` is an explicit override for a proxy on another host. | Default production-oriented shape behind an external reverse proxy. |
 | `direct-qa` | Host ports `0.0.0.0:80` and `0.0.0.0:443`. | Disposable validation and controlled QA only. |
 
 Do not use `direct-qa` as the long-term public exposure model.
+
+`--proxy-bind-address` accepts an IPv4 literal only and is rejected outside `reverse-proxy` mode. The manager records the selected bind but does not alter the host firewall. Remote binds require source-restricted rules as documented in [Production deployment guide](production-deployment.md#reverse-proxy-on-another-host).
 
 ## Backup artifacts
 

@@ -275,6 +275,80 @@ class LifecycleSafetyTests(unittest.TestCase):
             state = json.loads((install / ".installer-state.json").read_text())
             self.assertRegex(state["upstream_commit"], r"^[0-9a-f]{40}$")
             self.assertEqual(state["upstream_ref"], "master")
+            self.assertEqual(state["proxy_bind_address"], "127.0.0.1")
+            env_text = (install / ".env").read_text()
+            self.assertIn("CORE_HTTP_PORT=127.0.0.1:8080", env_text)
+            self.assertIn("CORE_HTTPS_PORT=127.0.0.1:8443", env_text)
+
+    def test_remote_proxy_bind_is_explicit_validated_and_persisted(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            upstream = root / "upstream"
+            install = root / "install"
+            fake_bin = root / "bin"
+            init_upstream(upstream)
+            fake_bin.mkdir()
+            docker = fake_bin / "docker"
+            docker.write_text("#!/bin/sh\nexit 0\n")
+            docker.chmod(0o755)
+            env = os.environ.copy()
+            env["PATH"] = str(fake_bin) + os.pathsep + env["PATH"]
+            result = subprocess.run(
+                [
+                    str(ROOT / "lifecycle" / "install.sh"),
+                    "--upstream-repo", str(upstream),
+                    "--upstream-ref", "master",
+                    "--install-dir", str(install),
+                    "--base-url", "https://misp.example.com",
+                    "--admin-email", "admin@example.com",
+                    "--admin-org", "Example Org",
+                    "--timezone", "UTC",
+                    "--exposure", "reverse-proxy",
+                    "--proxy-bind-address", "0.0.0.0",
+                    "--no-start",
+                ],
+                cwd=ROOT,
+                env=env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            env_text = (install / ".env").read_text()
+            self.assertIn("CORE_HTTP_PORT=0.0.0.0:8080", env_text)
+            self.assertIn("CORE_HTTPS_PORT=0.0.0.0:8443", env_text)
+            state = json.loads((install / ".installer-state.json").read_text())
+            self.assertEqual(state["proxy_bind_address"], "0.0.0.0")
+            self.assertIn("Proxy bind address: 0.0.0.0", result.stdout)
+
+    def test_proxy_bind_rejects_invalid_values_and_direct_qa_use(self):
+        for value in ("example.com", "::", "224.0.0.1", "255.255.255.255", "127.0.0.1:8443"):
+            with self.subTest(value=value):
+                result = run_bash(
+                    'source lifecycle/lib.sh; validate_proxy_bind_address "$1"',
+                    value,
+                )
+                self.assertNotEqual(result.returncode, 0)
+        result = subprocess.run(
+            [
+                str(ROOT / "lifecycle" / "install.sh"),
+                "--install-dir", "/tmp/unused-misp-bind-test",
+                "--base-url", "https://misp.example.com",
+                "--admin-email", "admin@example.com",
+                "--admin-org", "Example Org",
+                "--exposure", "direct-qa",
+                "--proxy-bind-address", "0.0.0.0",
+                "--no-start",
+            ],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("only valid with --exposure reverse-proxy", result.stderr)
 
     def test_operation_lock_rejects_concurrent_mutation(self):
         with tempfile.TemporaryDirectory() as td:

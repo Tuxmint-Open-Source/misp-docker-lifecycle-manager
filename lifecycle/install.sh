@@ -32,6 +32,8 @@ Options:
   --admin-org NAME        Initial MISP organization name (required)
   --timezone TZ           Container timezone (default: Europe/Zurich)
   --exposure MODE         reverse-proxy or direct-qa (default: reverse-proxy)
+  --proxy-bind-address IP IPv4 host bind for reverse-proxy mode
+                          (default: 127.0.0.1; use 0.0.0.0 only with a source-restricted firewall)
   --prepare-host          Install Docker packages on Rocky Linux first
   --bootstrap-tls         Generate a bootstrap self-signed certificate
   --no-start              Generate files only; do not pull/start containers
@@ -39,7 +41,7 @@ Options:
   --version               Show manager version
 
 Exposure modes:
-  reverse-proxy  Binds MISP to localhost ports 8080/8443 for an external proxy.
+  reverse-proxy  Binds MISP to 127.0.0.1 ports 8080/8443 by default.
   direct-qa      Binds MISP directly to host ports 80/443 for lab testing only.
 EOF
 }
@@ -55,6 +57,8 @@ ADMIN_EMAIL=""
 ADMIN_ORG=""
 TIMEZONE="Europe/Zurich"
 EXPOSURE="reverse-proxy"
+PROXY_BIND_ADDRESS="127.0.0.1"
+PROXY_BIND_EXPLICIT="false"
 PREPARE_HOST="false"
 BOOTSTRAP_TLS="false"
 START="true"
@@ -72,6 +76,7 @@ while [[ $# -gt 0 ]]; do
     --admin-org) ADMIN_ORG="$2"; shift 2;;
     --timezone) TIMEZONE="$2"; shift 2;;
     --exposure) EXPOSURE="$2"; shift 2;;
+    --proxy-bind-address) PROXY_BIND_ADDRESS="$2"; PROXY_BIND_EXPLICIT="true"; shift 2;;
     --prepare-host) PREPARE_HOST="true"; shift;;
     --bootstrap-tls) BOOTSTRAP_TLS="true"; shift;;
     --no-start) START="false"; shift;;
@@ -86,6 +91,13 @@ done
 [[ -n "$ADMIN_ORG" ]] || fatal "--admin-org is required"
 [[ "$EXPOSURE" =~ ^(reverse-proxy|direct-qa)$ ]] || fatal "--exposure must be reverse-proxy or direct-qa"
 validate_public_base_url "$BASE_URL" "$EXPOSURE"
+if [[ "$EXPOSURE" == reverse-proxy ]]; then
+  PROXY_BIND_ADDRESS="$(validate_proxy_bind_address "$PROXY_BIND_ADDRESS")"
+elif [[ "$PROXY_BIND_EXPLICIT" == true ]]; then
+  fatal "--proxy-bind-address is only valid with --exposure reverse-proxy"
+else
+  PROXY_BIND_ADDRESS=""
+fi
 validate_env_inputs "$ADMIN_EMAIL" "$ADMIN_ORG" "$TIMEZONE" "$CORE_TAG_OVERRIDE" "$MODULES_TAG_OVERRIDE" "$GUARD_TAG_OVERRIDE"
 validate_upstream_source "$UPSTREAM_REPO" "$UPSTREAM_REF"
 acquire_operation_lock "$INSTALL_DIR"
@@ -96,7 +108,9 @@ acquire_operation_lock "$INSTALL_DIR"
 
 # Keep upstream clean: fetch official files, then add generated config beside them.
 "$SCRIPT_DIR/fetch-upstream.sh" --upstream-repo "$UPSTREAM_REPO" --upstream-ref "$UPSTREAM_REF" --install-dir "$INSTALL_DIR"
-"$SCRIPT_DIR/generate-env.sh" --install-dir "$INSTALL_DIR" --base-url "$BASE_URL" --admin-email "$ADMIN_EMAIL" --admin-org "$ADMIN_ORG" --timezone "$TIMEZONE" --exposure "$EXPOSURE" --core-tag "$CORE_TAG_OVERRIDE" --modules-tag "$MODULES_TAG_OVERRIDE" --guard-tag "$GUARD_TAG_OVERRIDE"
+generate_env_args=(--install-dir "$INSTALL_DIR" --base-url "$BASE_URL" --admin-email "$ADMIN_EMAIL" --admin-org "$ADMIN_ORG" --timezone "$TIMEZONE" --exposure "$EXPOSURE" --core-tag "$CORE_TAG_OVERRIDE" --modules-tag "$MODULES_TAG_OVERRIDE" --guard-tag "$GUARD_TAG_OVERRIDE")
+[[ "$EXPOSURE" == reverse-proxy ]] && generate_env_args+=(--proxy-bind-address "$PROXY_BIND_ADDRESS")
+"$SCRIPT_DIR/generate-env.sh" "${generate_env_args[@]}"
 "$SCRIPT_DIR/render-compose.sh" --install-dir "$INSTALL_DIR" --exposure "$EXPOSURE"
 
 if [[ "$BOOTSTRAP_TLS" == true ]]; then
@@ -124,7 +138,7 @@ else
 fi
 
 resolved_commit="$(git -C "$INSTALL_DIR" rev-parse HEAD)"
-write_state "$INSTALL_DIR/.installer-state.json" "$UPSTREAM_REPO" "$UPSTREAM_REF" "$resolved_commit" "$INSTALL_DIR" "$EXPOSURE" "$BASE_URL"
+write_state "$INSTALL_DIR/.installer-state.json" "$UPSTREAM_REPO" "$UPSTREAM_REF" "$resolved_commit" "$INSTALL_DIR" "$EXPOSURE" "$BASE_URL" "$PROXY_BIND_ADDRESS"
 cat <<EOF
 
 Installation complete.
@@ -134,6 +148,7 @@ Admin password: stored in $INSTALL_DIR/.env
 Credentials helper: sudo ./lifecycle/admin-credentials.sh --install-dir $INSTALL_DIR
 Install dir: $INSTALL_DIR
 Exposure mode: $EXPOSURE
+Proxy bind address: ${PROXY_BIND_ADDRESS:-not applicable}
 Stack start: $stack_status
 Interactive login: $login_status
 Manager version: $(installer_version)

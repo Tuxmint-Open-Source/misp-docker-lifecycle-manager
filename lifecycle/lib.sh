@@ -190,6 +190,25 @@ if exposure == 'direct-qa':
 PY
 }
 
+validate_proxy_bind_address() {
+  local bind_address="$1"
+  python3 - "$bind_address" <<'PY'
+import ipaddress
+import sys
+
+value = sys.argv[1]
+try:
+    address = ipaddress.ip_address(value)
+except ValueError as exc:
+    raise SystemExit(f'proxy bind address must be an IPv4 literal: {exc}')
+if address.version != 4:
+    raise SystemExit('proxy bind address must be an IPv4 literal')
+if address.is_multicast or value == '255.255.255.255':
+    raise SystemExit('proxy bind address must not be multicast or limited broadcast')
+print(address)
+PY
+}
+
 url_hostname() {
   local base_url="$1" fallback="${2:-}"
   python3 - "$base_url" "$fallback" <<'PY'
@@ -526,11 +545,11 @@ wait_for_misp_live_marker() {
 
 write_state() {
   # Store non-secret deployment metadata for operators and future update runs.
-  local state_file="$1" upstream_repo="$2" upstream_ref="$3" upstream_commit="$4" install_dir="$5" exposure="$6" base_url="$7"
-  python3 - "$state_file" "$upstream_repo" "$upstream_ref" "$upstream_commit" "$install_dir" "$exposure" "$base_url" "$(installer_version)" <<'PY'
+  local state_file="$1" upstream_repo="$2" upstream_ref="$3" upstream_commit="$4" install_dir="$5" exposure="$6" base_url="$7" proxy_bind_address="${8:-}"
+  python3 - "$state_file" "$upstream_repo" "$upstream_ref" "$upstream_commit" "$install_dir" "$exposure" "$base_url" "$proxy_bind_address" "$(installer_version)" <<'PY'
 import datetime, json, os, re, sys, tempfile
 from pathlib import Path
-p, repo, ref, commit, install_dir, exposure, base_url, installer_version = sys.argv[1:]
+p, repo, ref, commit, install_dir, exposure, base_url, proxy_bind_address, installer_version = sys.argv[1:]
 if not re.fullmatch(r'[0-9a-f]{40}', commit):
     raise SystemExit('upstream commit must be a full lowercase Git commit ID')
 data={
@@ -540,6 +559,7 @@ data={
     'install_dir': install_dir,
     'exposure': exposure,
     'base_url': base_url,
+    'proxy_bind_address': proxy_bind_address,
     'installer': 'misp-docker-lifecycle-manager',
     'installer_version': installer_version,
     'updated_at_utc': datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z'),

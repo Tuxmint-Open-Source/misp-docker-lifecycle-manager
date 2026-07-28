@@ -150,6 +150,21 @@ class StaticRepoTests(unittest.TestCase):
         self.assertLess(readme.index('sudo dnf install -y git'), readme.index('git clone'))
         self.assertLess(getting_started.index('sudo dnf install -y git'), getting_started.index('git clone'))
 
+    def test_remote_proxy_bind_and_firewall_ownership_are_documented(self):
+        readme = (ROOT / 'README.md').read_text()
+        getting_started = (ROOT / 'docs' / 'getting-started.md').read_text()
+        deployment = (ROOT / 'docs' / 'production-deployment.md').read_text()
+        shell_docs = (ROOT / 'docs' / 'shell-scripts.md').read_text()
+        install = (ROOT / 'lifecycle' / 'install.sh').read_text()
+        for text in (readme, getting_started, deployment):
+            self.assertIn('does not modify the host firewall', text.lower())
+        self.assertIn('--proxy-bind-address', install)
+        self.assertIn('--proxy-bind-address', shell_docs)
+        self.assertIn('--proxy-bind-address 0.0.0.0', deployment)
+        self.assertIn('source address="203.0.113.10/32"', deployment)
+        self.assertIn('Do not add unrestricted public port rules', deployment)
+        self.assertIn('127.0.0.1:8443', deployment)
+
     def test_prepare_host_docker_group_is_explicit_opt_in(self):
         text = (ROOT / 'lifecycle' / 'prepare-host-rocky.sh').read_text()
         self.assertIn('ADD_CURRENT_USER_TO_DOCKER_GROUP="false"', text)

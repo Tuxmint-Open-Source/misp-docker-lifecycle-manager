@@ -42,7 +42,39 @@ sudo ./lifecycle/install.sh \
   --exposure reverse-proxy
 ```
 
-The reverse proxy should forward to the local HTTPS endpoint documented by the installer output and overlay docs.
+The reverse proxy should forward to the local HTTPS endpoint documented by the installer output and overlay docs. By default, the manager binds only `127.0.0.1:8080` and `127.0.0.1:8443`, which is the intended same-host proxy shape.
+
+### Firewall ownership
+
+The lifecycle manager does not modify the host firewall: it does **not** add, remove, or inspect host firewall rules. Firewall policy remains operator-owned because interface, zone, source network, and upstream network controls are deployment-specific. A successful installation therefore does not imply that a remote proxy can reach MISP.
+
+### Reverse proxy on another host
+
+Use an explicit IPv4 bind only when the reverse proxy is on another host. Prefer the MISP host's specific interface address; `0.0.0.0` is supported as an explicit choice but listens on every IPv4 interface and therefore requires a source-restricted firewall.
+
+```bash
+sudo ./lifecycle/install.sh \
+  --install-dir /opt/misp-docker \
+  --upstream-ref master \
+  --base-url https://misp.example.com \
+  --admin-email admin@example.com \
+  --admin-org ExampleOrg \
+  --timezone Europe/Zurich \
+  --exposure reverse-proxy \
+  --proxy-bind-address 0.0.0.0
+```
+
+Allow TCP 8080/8443 only from the remote proxy's trusted source address or subnet. For example, with firewalld, replace the documentation-only source below with the real proxy source and confirm the active zone before applying it:
+
+```bash
+sudo firewall-cmd --permanent --zone=public \
+  --add-rich-rule='rule family="ipv4" source address="203.0.113.10/32" port port="8080" protocol="tcp" accept'
+sudo firewall-cmd --permanent --zone=public \
+  --add-rich-rule='rule family="ipv4" source address="203.0.113.10/32" port port="8443" protocol="tcp" accept'
+sudo firewall-cmd --reload
+```
+
+Do not add unrestricted public port rules for 8080/8443. Keep TLS verification enabled between the proxy and MISP, and validate from the proxy host that other sources cannot connect.
 
 Direct-QA mode is useful for validation and controlled QA. It is not the recommended long-term public exposure model.
 

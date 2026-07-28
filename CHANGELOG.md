@@ -11,6 +11,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ### Changed
 
+- Preserve loopback as the reverse-proxy default while supporting an explicit persisted IPv4 bind for a proxy on another host, with operator-owned source-restricted firewall guidance.
 - Update checkout and Python-setup Actions as one immutable-SHA workflow-bootstrap family, with synchronized regression assertions and Dependabot grouping.
 - Update artifact and CodeQL Actions as coordinated immutable-SHA families, add a read-only upload/download transfer gate, and group coupled workflow steps in Dependabot.
 - Mark immutable `v1.3.1` and its published operator-bundle artifact as validated compatible with MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2` after the complete exact-tag and packaged-artifact lifecycle matrix passed.

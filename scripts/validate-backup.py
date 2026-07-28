@@ -12,7 +12,7 @@ import stat
 import sys
 import tarfile
 from pathlib import Path, PurePosixPath
-from typing import NoReturn
+from typing import NoReturn, cast
 from urllib.parse import urlparse
 
 ARTIFACTS = {
@@ -186,6 +186,15 @@ def validate_public_base_url(base_url: str, exposure: str) -> None:
         raise ValidationError("direct-qa BASE_URL must not use a loopback host")
 
 
+def validate_proxy_bind_address(value: str) -> None:
+    try:
+        address = ipaddress.ip_address(value)
+    except ValueError as exc:
+        raise ValidationError("proxy bind address must be an IPv4 literal") from exc
+    if address.version != 4 or address.is_multicast or value == "255.255.255.255":
+        raise ValidationError("proxy bind address is not a supported IPv4 host bind")
+
+
 def validate_config_archive(path: Path) -> None:
     seen: set[str] = set()
     env_tar_member: tarfile.TarInfo | None = None
@@ -242,17 +251,31 @@ def validate_config_archive(path: Path) -> None:
             raw_commit = state.get("upstream_commit", "")
             raw_exposure = state.get("exposure", "")
             raw_base_url = state.get("base_url", "")
+            raw_proxy_bind_address = state.get(
+                "proxy_bind_address",
+                "127.0.0.1" if raw_exposure == "reverse-proxy" else "",
+            )
             if not all(
                 isinstance(value, str)
-                for value in (raw_repo, raw_ref, raw_commit, raw_exposure, raw_base_url)
+                for value in (raw_repo, raw_ref, raw_commit, raw_exposure, raw_base_url, raw_proxy_bind_address)
             ):
                 raise ValidationError(".installer-state.json source and deployment fields must be strings")
+            raw_repo = cast(str, raw_repo)
+            raw_ref = cast(str, raw_ref)
+            raw_commit = cast(str, raw_commit)
+            raw_exposure = cast(str, raw_exposure)
+            raw_base_url = cast(str, raw_base_url)
+            raw_proxy_bind_address = cast(str, raw_proxy_bind_address)
             if raw_commit and not re.fullmatch(r"[0-9a-f]{40}", raw_commit):
                 raise ValidationError(".installer-state.json contains an invalid upstream commit")
             if raw_exposure and raw_exposure not in {"reverse-proxy", "direct-qa"}:
                 raise ValidationError(".installer-state.json contains an unsupported exposure mode")
-            if any(any(ord(ch) < 32 or ord(ch) == 127 for ch in value) for value in (raw_exposure, raw_base_url)):
+            if any(any(ord(ch) < 32 or ord(ch) == 127 for ch in value) for value in (raw_exposure, raw_base_url, raw_proxy_bind_address)):
                 raise ValidationError(".installer-state.json deployment fields contain control characters")
+            if raw_exposure == "reverse-proxy":
+                validate_proxy_bind_address(raw_proxy_bind_address)
+            elif raw_proxy_bind_address:
+                raise ValidationError("direct-qa state must not contain a proxy bind address")
             repo = raw_repo
             ref = raw_ref
             if repo:
@@ -283,11 +306,16 @@ def validate_config_archive(path: Path) -> None:
         env_base_url = env.get("BASE_URL", "")
         state_base_url = state.get("base_url", "")
         state_exposure = state.get("exposure", "")
+        state_proxy_bind_address = state.get("proxy_bind_address", "")
+        env_https_port = env.get("CORE_HTTPS_PORT", "")
         exposure = state_exposure or (
-            "reverse-proxy" if env.get("CORE_HTTPS_PORT", "").startswith("127.0.0.1:") else "direct-qa"
+            "reverse-proxy" if ":" in env_https_port else "direct-qa"
         )
-        if not isinstance(state_base_url, str) or not isinstance(state_exposure, str):
+        if not all(isinstance(value, str) for value in (state_base_url, state_exposure, state_proxy_bind_address)):
             raise ValidationError(".installer-state.json deployment fields must be strings")
+        state_base_url = cast(str, state_base_url)
+        state_exposure = cast(str, state_exposure)
+        state_proxy_bind_address = cast(str, state_proxy_bind_address)
         if not env_base_url:
             raise ValidationError(".env lacks BASE_URL")
         validate_public_base_url(env_base_url, exposure)
@@ -295,6 +323,11 @@ def validate_config_archive(path: Path) -> None:
             validate_public_base_url(state_base_url, exposure)
             if state_base_url != env_base_url:
                 raise ValidationError(".env BASE_URL does not match .installer-state.json")
+        if exposure == "reverse-proxy":
+            env_proxy_bind_address = env_https_port.rsplit(":", 1)[0] if ":" in env_https_port else "127.0.0.1"
+            validate_proxy_bind_address(env_proxy_bind_address)
+            if state_proxy_bind_address and state_proxy_bind_address != env_proxy_bind_address:
+                raise ValidationError(".env proxy bind does not match .installer-state.json")
 
 
 def validate_host_archive(path: Path) -> None:

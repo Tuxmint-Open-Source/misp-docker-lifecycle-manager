@@ -81,27 +81,35 @@ repo = state.get('upstream_repo')
 requested_ref = state.get('upstream_ref')
 exposure = state.get('exposure')
 base_url = state.get('base_url')
-if not all(isinstance(value, str) for value in (recorded_install, repo, requested_ref, exposure, base_url)):
+proxy_bind_address = state.get('proxy_bind_address', '127.0.0.1' if exposure == 'reverse-proxy' else '')
+if not all(isinstance(value, str) for value in (recorded_install, repo, requested_ref, exposure, base_url, proxy_bind_address)):
     raise SystemExit('state source/deployment fields must be strings')
 if Path(recorded_install).resolve() != Path(sys.argv[2]).resolve():
     raise SystemExit('state install directory does not match update target')
 if not repo or not requested_ref or exposure not in {'reverse-proxy', 'direct-qa'} or not base_url:
     raise SystemExit('state file lacks valid repository/ref/exposure/base URL metadata')
-if any(ord(ch) < 32 or ord(ch) == 127 for value in (repo, requested_ref, exposure, base_url) for ch in value):
+if any(ord(ch) < 32 or ord(ch) == 127 for value in (repo, requested_ref, exposure, base_url, proxy_bind_address) for ch in value):
     raise SystemExit('state source/deployment fields contain control characters')
 print(repo)
 print(requested_ref)
 print(exposure)
 print(base_url)
+print(proxy_bind_address)
 PY
 mapfile -t state_vals < "$state_values_file"
 state_repo="${state_vals[0]:-}"
 state_requested_ref="${state_vals[1]:-}"
 state_exposure="${state_vals[2]:-}"
 state_base_url="${state_vals[3]:-}"
+state_proxy_bind_address="${state_vals[4]:-}"
 requested_ref="${UPSTREAM_REF:-$state_requested_ref}"
 validate_upstream_source "$state_repo" "$requested_ref"
 validate_public_base_url "$state_base_url" "$state_exposure"
+if [[ "$state_exposure" == reverse-proxy ]]; then
+  state_proxy_bind_address="$(validate_proxy_bind_address "$state_proxy_bind_address")"
+elif [[ -n "$state_proxy_bind_address" ]]; then
+  fatal "direct-qa state must not contain a proxy bind address"
+fi
 origin_url="$(git -C "$INSTALL_DIR" remote get-url origin)"
 validate_upstream_source "$origin_url" "$requested_ref"
 [[ "$origin_url" == "$state_repo" ]] || fatal "Git origin does not match lifecycle-manager state; refusing update."
@@ -134,7 +142,7 @@ fi
 "$SCRIPT_DIR/doctor.sh" --install-dir "$INSTALL_DIR"
 
 new_commit="$(git -C "$INSTALL_DIR" rev-parse HEAD)"
-write_state "$state_file" "$origin_url" "$requested_ref" "$new_commit" "$INSTALL_DIR" "$state_exposure" "$state_base_url"
+write_state "$state_file" "$origin_url" "$requested_ref" "$new_commit" "$INSTALL_DIR" "$state_exposure" "$state_base_url" "$state_proxy_bind_address"
 new_ref="$(git -C "$INSTALL_DIR" rev-parse --short HEAD)"
 log "Updated upstream $old_ref -> $new_ref"
 log "Interactive login: $login_status."
