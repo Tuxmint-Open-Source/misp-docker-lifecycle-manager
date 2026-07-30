@@ -72,7 +72,7 @@ The docs intentionally separate different kinds of information:
 
 ## Current release status
 
-`v1.4.0` is being prepared on `main` and remains pending publication and exact-tag/package-artifact validation. `v1.3.1` remains the latest published and latest validated-compatible release; its published operator-bundle artifact passed the lifecycle validation matrix for the documented scope.
+`v1.4.0` is the latest published release and remains pending completion of exact-tag/package-artifact validation. `v1.3.1` remains the latest validated-compatible release; its published operator-bundle artifact passed the lifecycle validation matrix for the documented scope.
 
 See [production readiness](production-readiness.md) for the current release-readiness state.
 

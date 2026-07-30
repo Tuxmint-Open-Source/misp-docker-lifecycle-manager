@@ -2,7 +2,7 @@
 
 This guide describes the supported production deployment workflow for `misp-docker-lifecycle-manager` within the documented stable release scope.
 
-This `main` guide includes behavior planned for `v1.4.0`. Publication and exact-tag/package-artifact validation remain pending, so `v1.3.1` remains the latest published and latest validated-compatible release.
+`v1.4.0` is the latest published release. Exact-tag/package-artifact validation remains in progress, so `v1.3.1` remains the latest validated-compatible release.
 
 ## Supported production shape
 
@@ -50,7 +50,7 @@ The lifecycle manager does not modify the host firewall: it does **not** add, re
 
 ### Reverse proxy on another host
 
-The `--proxy-bind-address` option is new in the pending `v1.4.0` release and is not available in `v1.3.1`.
+The `--proxy-bind-address` option is available in `v1.4.0` and is not available in `v1.3.1`.
 
 Use an explicit IPv4 bind only when the reverse proxy is on another host. Prefer the MISP host's specific interface address; `0.0.0.0` is supported as an explicit choice but listens on every IPv4 interface and therefore requires a source-restricted firewall.
 
