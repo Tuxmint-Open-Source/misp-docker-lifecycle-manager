@@ -11,7 +11,7 @@ edit_uri: edit/main/docs/
 docs_dir: docs
 
 theme:
-  name: readthedocs
+  name: material
 
 nav:
   - Home: README.md

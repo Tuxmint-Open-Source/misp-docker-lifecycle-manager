@@ -631,6 +631,17 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Restore and recover', operator)
         self.assertIn('manager release/ref × official MISP Docker component set = status', operator)
 
+    def test_hosted_documentation_uses_pinned_material_foundation(self):
+        config = (ROOT / 'mkdocs.yml').read_text()
+        requirements = (ROOT / 'docs' / 'requirements.txt').read_text().splitlines()
+        readthedocs = (ROOT / '.readthedocs.yaml').read_text()
+
+        self.assertIn('theme:\n  name: material', config)
+        self.assertIn('mkdocs==1.6.1', requirements)
+        self.assertIn('mkdocs-material==9.7.7', requirements)
+        self.assertIn('configuration: mkdocs.yml', readthedocs)
+        self.assertIn('requirements: docs/requirements.txt', readthedocs)
+
     def test_documentation_cross_links_existing_major_pages(self):
         major_docs = [
             'architecture.md',
