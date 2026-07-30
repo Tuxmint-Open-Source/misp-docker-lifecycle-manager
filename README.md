@@ -10,7 +10,7 @@
 >
 > Select through these channels, but install and report the immutable SemVer tag. The machine-readable source is [`.release-channels.json`](.release-channels.json); mutable `stable` and `latest` Git tags are intentionally not used.
 
-A non-invasive lifecycle manager for official `MISP/misp-docker` single-server Docker deployments.
+A non-invasive lifecycle manager for official [`MISP/misp-docker`](https://github.com/MISP/misp-docker) single-server Docker deployments.
 
 Current `VERSION` value on `main`: `1.4.0`. The `v1.4.0` release is being prepared and remains pending publication, exact-tag validation, and published-artifact validation. `v1.3.1` remains the latest published and latest validated-compatible release.
 
