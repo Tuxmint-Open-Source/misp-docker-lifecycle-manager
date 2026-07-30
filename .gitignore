@@ -20,3 +20,5 @@ ssl/key.pem
 .idea/
 __pycache__/
 .pytest_cache/
+.generated-docs/
+.generated-docs-test-*/

@@ -637,10 +637,20 @@ class StaticRepoTests(unittest.TestCase):
         readthedocs = (ROOT / '.readthedocs.yaml').read_text()
 
         self.assertIn('theme:\n  name: material', config)
+        self.assertIn('docs_dir: .generated-docs', config)
         self.assertIn('mkdocs==1.6.1', requirements)
         self.assertIn('mkdocs-material==9.7.7', requirements)
         self.assertIn('configuration: mkdocs.yml', readthedocs)
         self.assertIn('requirements: docs/requirements.txt', readthedocs)
+        self.assertIn('fail_on_warning: true', readthedocs)
+        self.assertIn('python scripts/prepare-docs-tree.py', readthedocs)
+
+        repository_gate = (
+            ROOT / '.github' / 'workflows' / 'repository-gates.yml'
+        ).read_text()
+        self.assertIn('python3 -m pip install -r docs/requirements.txt', repository_gate)
+        self.assertIn('python3 scripts/prepare-docs-tree.py', repository_gate)
+        self.assertIn('mkdocs build --strict', repository_gate)
 
     def test_documentation_cross_links_existing_major_pages(self):
         major_docs = [

@@ -8,7 +8,7 @@ repo_name: Tuxmint-Open-Source/misp-docker-lifecycle-manager
 repo_url: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager
 edit_uri: edit/main/docs/
 
-docs_dir: docs
+docs_dir: .generated-docs
 
 theme:
   name: material

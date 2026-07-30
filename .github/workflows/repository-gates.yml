@@ -37,6 +37,9 @@ jobs:
       - name: Install hash-pinned gate dependency
         run: python3 -m pip install --require-hashes -r .github/requirements/repository-gates.txt
 
+      - name: Install pinned documentation dependencies
+        run: python3 -m pip install -r docs/requirements.txt
+
       - name: Run unit and static tests
         run: python3 -m unittest discover -s tests
 
@@ -63,6 +66,11 @@ jobs:
               path = Path(name)
               yaml.safe_load(path.read_text())
           PY
+
+      - name: Build documentation strictly
+        run: |
+          python3 scripts/prepare-docs-tree.py
+          mkdocs build --strict
 
       - name: Check repository tree for whitespace errors
         env:
