@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 48 48" fill="none">
+  <title>MISP DLM</title>
+  <rect width="48" height="48" rx="8" fill="#161826"></rect>
+  <path d="M20 10 H12 V38 H20" stroke="#e9e9ed" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+  <path d="M28 10 H36 V38 H28" stroke="#e9e9ed" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+  <circle cx="24" cy="24" r="4.6" fill="#9184d9"></circle>
+</svg>

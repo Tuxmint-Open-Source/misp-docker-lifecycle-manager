@@ -4,14 +4,34 @@ site_description: >-
   Lifecycle management tooling for official MISP Docker
   single-server deployments.
 
-repo_name: Tuxmint-Open-Source/misp-docker-lifecycle-manager
 repo_url: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager
+repo_name: Tuxmint-Open-Source/misp-docker-lifecycle-manager
 edit_uri: edit/main/docs/
+
+extra_css:
+  - assets/stylesheets/brand.css
 
 docs_dir: .generated-docs
 
 theme:
   name: material
+  logo: assets/brand/misp-dlm-mark.svg
+  favicon: assets/brand/misp-dlm-favicon-32.svg
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
 
 nav:
   - Home: README.md
@@ -50,6 +70,7 @@ nav:
 
   - Reference:
       - Shell scripts: shell-scripts.md
+      - Brand assets: brand-assets.md
 
 markdown_extensions:
   - admonition

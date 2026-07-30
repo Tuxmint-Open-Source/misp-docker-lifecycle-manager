@@ -735,6 +735,84 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('if path == Path("mkdocs.yml"):', repository_gate)
         self.assertIn('mkdocs build --strict', repository_gate)
 
+    def test_project_identity_assets_are_licensed_and_integrated(self):
+        import hashlib
+        import struct
+
+        config = (ROOT / 'mkdocs.yml').read_text()
+        readme = (ROOT / 'README.md').read_text()
+        docs_index = (ROOT / 'docs' / 'README.md').read_text()
+        asset_license = (ROOT / 'ASSET-LICENSE.md').read_text()
+        brand_docs = (ROOT / 'docs' / 'brand-assets.md').read_text()
+        brand_css = (ROOT / 'docs' / 'assets' / 'stylesheets' / 'brand.css').read_text()
+        asset_root = ROOT / 'docs' / 'assets' / 'brand'
+
+        expected = {
+            'misp-dlm-mark.svg':
+                'f02f1b22488cbe8403fdde11c0b5e99fba40e6ef404c56a99ab55a0d357b67b7',
+            'misp-dlm-favicon-32.svg':
+                '9273556d7289fc59028c77f1e3875d1500c08b9338f22b727271474a8e374cc6',
+            'png/misp-dlm-lockup-1408.png':
+                '7c3ad531043f5b7716ac980934faced1b50d4408114750608fe1d06c3dd0c63f',
+            'png/misp-dlm-lockup-light-1408.png':
+                '252aac116d9ca6a4dfbfca82701ad9dfa56b760f1ac9d1c78f6951db295366c7',
+            'png/misp-dlm-banner-1280.png':
+                'aaf1a257b87195cfcef45644ed66c7ba60fdc9319590825d30a7f9683245c1ff',
+        }
+        for name, digest in expected.items():
+            path = asset_root / name
+            self.assertTrue(path.is_file(), name)
+            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), digest)
+
+        for name, dimensions in {
+            'png/misp-dlm-lockup-1408.png': (1408, 384),
+            'png/misp-dlm-lockup-light-1408.png': (1408, 384),
+            'png/misp-dlm-banner-1280.png': (1280, 640),
+        }.items():
+            data = (asset_root / name).read_bytes()
+            self.assertEqual(data[:8], b'\x89PNG\r\n\x1a\n')
+            self.assertEqual(struct.unpack('>II', data[16:24]), dimensions)
+
+        for name in ['misp-dlm-mark.svg', 'misp-dlm-favicon-32.svg']:
+            svg = (asset_root / name).read_text().lower()
+            self.assertIn('<svg', svg)
+            self.assertNotIn('<script', svg)
+            self.assertNotIn('javascript:', svg)
+            self.assertNotRegex(svg, r'(?:href|src)=["\']https?://')
+
+        self.assertIn('logo: assets/brand/misp-dlm-mark.svg', config)
+        self.assertIn('favicon: assets/brand/misp-dlm-favicon-32.svg', config)
+        self.assertIn('media: "(prefers-color-scheme: light)"', config)
+        self.assertIn('media: "(prefers-color-scheme: dark)"', config)
+        self.assertIn('scheme: slate', config)
+        self.assertIn('name: Switch to dark mode', config)
+        self.assertIn('name: Switch to light mode', config)
+        self.assertIn('- assets/stylesheets/brand.css', config)
+        self.assertIn('- Brand assets: brand-assets.md', config)
+        self.assertIn('prefers-color-scheme: dark', readme)
+        self.assertIn('class="misp-dlm-readme-lockup"', readme)
+        self.assertIn('misp-dlm-lockup-1408.png', readme)
+        self.assertIn('misp-dlm-lockup-light-1408.png', readme)
+        self.assertIn('[`ASSET-LICENSE.md`](ASSET-LICENSE.md)', readme)
+        self.assertIn('[Brand assets](brand-assets.md)', docs_index)
+        self.assertIn('[asset license](../ASSET-LICENSE.md)', docs_index)
+
+        self.assertIn('CC BY-ND 4.0', asset_license)
+        self.assertIn('https://creativecommons.org/licenses/by-nd/4.0/', asset_license)
+        self.assertIn('MISP Docker Lifecycle Manager project', asset_license)
+        self.assertIn('generated with AI tooling', asset_license)
+        self.assertIn(
+            "does not change the repository's GPL-3.0 software license",
+            asset_license,
+        )
+        self.assertIn('does not claim ownership of the **MISP** name', asset_license)
+        self.assertIn('not represented as registered trademarks', asset_license)
+        self.assertIn('CC BY-ND 4.0', brand_docs)
+        self.assertIn('social preview', brand_docs)
+        self.assertIn('[data-md-color-scheme="slate"]', brand_css)
+        self.assertIn('misp-dlm-lockup-1408.png', brand_css)
+        self.assertIn('misp-dlm-lockup-light-1408.png', brand_css)
+
     def test_documentation_cross_links_existing_major_pages(self):
         major_docs = [
             'architecture.md',

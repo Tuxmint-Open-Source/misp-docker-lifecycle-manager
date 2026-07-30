@@ -1,0 +1,7 @@
+.misp-dlm-readme-lockup {
+  content: url("../brand/png/misp-dlm-lockup-light-1408.png");
+}
+
+[data-md-color-scheme="slate"] .misp-dlm-readme-lockup {
+  content: url("../brand/png/misp-dlm-lockup-1408.png");
+}
