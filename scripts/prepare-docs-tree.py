@@ -20,6 +20,15 @@ def replace_markdown_target(text: str, old: str, new: str) -> str:
     return text.replace(f"]({old})", f"]({new})")
 
 
+def rewrite_github_alerts(text: str) -> str:
+    """Render GitHub alert markers as portable labeled blockquotes."""
+    return re.sub(
+        r"(?m)^> \[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]$",
+        lambda match: f"> **{match.group(1).title()}**",
+        text,
+    )
+
+
 def validate_output(output: Path) -> Path:
     resolved = output.resolve()
     if resolved == ROOT or ROOT not in resolved.parents:
@@ -52,7 +61,7 @@ def rewrite_docs_pages(output: Path, root_markdown: list[Path]) -> None:
                 f"../{REPOSITORY_SECTION}/upstream-review.md",
             )
 
-        page.write_text(text)
+        page.write_text(rewrite_github_alerts(text))
 
 
 def rewrite_repository_pages(output: Path) -> None:
@@ -68,7 +77,7 @@ def rewrite_repository_pages(output: Path) -> None:
             text = replace_markdown_target(
                 text, "../../docs/compatibility.md", "../compatibility.md"
             )
-        page.write_text(text)
+        page.write_text(rewrite_github_alerts(text))
 
 
 def prepare(output: Path) -> None:

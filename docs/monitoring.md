@@ -12,7 +12,7 @@ It should help monitoring systems detect whether the lifecycle-managed deploymen
 
 It is not intended to replace:
 
-- deep troubleshooting with [`doctor.sh`](shell-scripts.md#post-install-and-update-verification);
+- deep troubleshooting with [`doctor.sh`](shell-scripts.md#main-commands);
 - public-safe support diagnostics with [`sos-report.sh`](sos-report.md);
 - MISP application-level business monitoring;
 - external reverse-proxy, TLS, DNS, mail-delivery, or SIEM monitoring.

@@ -72,6 +72,21 @@ class GeneratedDocsTreeTests(unittest.TestCase):
         upstream = (self.output / "repository" / "upstream-review.md").read_text()
         self.assertIn("](../compatibility.md)", upstream)
 
+        historical_source = (
+            ROOT
+            / "docs"
+            / "validation"
+            / "compatibility-v0.3.3-misp-core-v2.5.43.md"
+        ).read_text()
+        historical_generated = (
+            self.output
+            / "validation"
+            / "compatibility-v0.3.3-misp-core-v2.5.43.md"
+        ).read_text()
+        self.assertIn("> [!IMPORTANT]", historical_source)
+        self.assertNotIn("> [!IMPORTANT]", historical_generated)
+        self.assertIn("> **Important**", historical_generated)
+
     def test_preparer_rejects_canonical_or_repository_root_output(self):
         for output in [".", "docs"]:
             result = subprocess.run(

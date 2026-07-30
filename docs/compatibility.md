@@ -30,7 +30,7 @@ A pair is called **validated compatible** only after the documented validation s
 | `v0.3.2` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ❌ Validation failed | 2026-07-12 | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](validation/compatibility-v0.3.3-misp-core-v2.5.43.md) |
 | `v0.3.1` release | `v2.5.42` | `v3.0.8` | `v1.2` | ⚪ Superseded historical validation | 2026-07-08 | [`real-world-v0.3.1.md`](validation/real-world-v0.3.1.md) |
 
-> [!IMPORTANT]
+> **Important**
 > The immutable `v1.4.0` tag and published operator-bundle artifact passed the complete exact-tag/package-artifact lifecycle matrix plus an explicit remote reverse-proxy bind gate. `v1.3.1`, `v1.3.0`, and `v1.2.0` remain retained historical validated evidence. PR-branch evidence remains capability evidence only and is not a substitute for exact-tag validation.
 >
 > The `v1.0.0` release tag remains historical validated evidence. Future manager releases or upstream component sets require separate validation before compatibility is claimed.

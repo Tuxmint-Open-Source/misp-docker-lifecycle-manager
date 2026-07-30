@@ -699,6 +699,42 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('`v1.4.0` bundle passed', bundle)
         self.assertNotIn('cannot yet be recommended as validated', bundle)
 
+    def test_hosted_documentation_renders_portable_diagrams_and_notices(self):
+        config = (ROOT / 'mkdocs.yml').read_text()
+        architecture = (ROOT / 'docs' / 'architecture.md').read_text()
+        getting_started = (ROOT / 'docs' / 'getting-started.md').read_text()
+        compatibility = (ROOT / 'docs' / 'compatibility.md').read_text()
+        root_readme = (ROOT / 'README.md').read_text()
+        monitoring = (ROOT / 'docs' / 'monitoring.md').read_text()
+
+        self.assertIn('- pymdownx.superfences:', config)
+        self.assertIn('- name: mermaid', config)
+        self.assertIn('class: mermaid', config)
+        self.assertIn(
+            'format: !!python/name:pymdownx.superfences.fence_code_format',
+            config,
+        )
+        self.assertIn('```mermaid', architecture)
+        self.assertIn('> **Important**', getting_started)
+        self.assertIn('> **Important**', compatibility)
+        self.assertIn('> **Important — Release channels**', root_readme)
+        self.assertNotIn('[!IMPORTANT]', getting_started)
+        self.assertNotIn('[!IMPORTANT]', compatibility)
+        self.assertNotIn('[!IMPORTANT]', root_readme)
+        self.assertIn(
+            '(shell-scripts.md#main-commands)',
+            monitoring,
+        )
+        self.assertNotIn(
+            '(shell-scripts.md#post-install-and-update-verification)',
+            monitoring,
+        )
+        repository_gate = (
+            ROOT / '.github' / 'workflows' / 'repository-gates.yml'
+        ).read_text()
+        self.assertIn('if path == Path("mkdocs.yml"):', repository_gate)
+        self.assertIn('mkdocs build --strict', repository_gate)
+
     def test_documentation_cross_links_existing_major_pages(self):
         major_docs = [
             'architecture.md',

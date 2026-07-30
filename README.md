@@ -1,7 +1,6 @@
 # MISP Docker Lifecycle Manager
 
-> [!IMPORTANT]
-> **Release channels**
+> **Important — Release channels**
 >
 > | Channel | Version | Meaning |
 > | --- | --- | --- |
