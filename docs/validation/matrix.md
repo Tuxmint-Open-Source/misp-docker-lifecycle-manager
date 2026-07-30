@@ -41,6 +41,8 @@ It is not a guarantee that every environment or component combination works. It 
 
 ## Detailed reports
 
+The latest validated-compatible report is linked directly in primary navigation. Previous stable, release-candidate, pre-1.0, and supporting reports remain available through the [validation evidence archive](README.md).
+
 - [`compatibility-v1.4.0-misp-core-v2.5.44.md`](compatibility-v1.4.0-misp-core-v2.5.44.md)
 - [`compatibility-v1.3.1-misp-core-v2.5.44.md`](compatibility-v1.3.1-misp-core-v2.5.44.md)
 - [`compatibility-v1.3.0-misp-core-v2.5.44.md`](compatibility-v1.3.0-misp-core-v2.5.44.md)
@@ -60,3 +62,4 @@ It is not a guarantee that every environment or component combination works. It 
 - Return to the [documentation map](../README.md).
 - Review compatibility status definitions in [Compatibility](../compatibility.md).
 - Review production-readiness state in [Production readiness](../production-readiness.md).
+- Browse retained reports in the [Validation evidence archive](README.md).

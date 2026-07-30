@@ -664,6 +664,41 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('python3 scripts/prepare-docs-tree.py', repository_gate)
         self.assertIn('mkdocs build --strict', repository_gate)
 
+    def test_hosted_documentation_separates_current_and_archived_evidence(self):
+        config = (ROOT / 'mkdocs.yml').read_text()
+        docs_index = (ROOT / 'docs' / 'README.md').read_text()
+        archive = (ROOT / 'docs' / 'validation' / 'README.md').read_text()
+        bundle = (ROOT / 'docs' / 'operator-bundle.md').read_text()
+        validation_dir = ROOT / 'docs' / 'validation'
+        current_report = 'compatibility-v1.4.0-misp-core-v2.5.44.md'
+
+        self.assertIn('- Operator bundle: operator-bundle.md', config)
+        self.assertIn(
+            f'- Current validation evidence: validation/{current_report}',
+            config,
+        )
+        self.assertIn('- Evidence archive: validation/README.md', config)
+        self.assertIn(f'validation/{current_report}', docs_index)
+        self.assertIn('validation/README.md', docs_index)
+        self.assertIn(f'validation/{current_report}', bundle)
+        self.assertIn('latest published and validated-compatible release', archive)
+
+        reports = {
+            path.name
+            for path in validation_dir.glob('*.md')
+            if path.name not in {'README.md', 'matrix.md', current_report}
+        }
+        self.assertGreater(len(reports), 10)
+        for report in reports:
+            self.assertIn(f']({report})', archive, report)
+
+        primary_nav = config.split('nav:', 1)[1].split('markdown_extensions:', 1)[0]
+        for report in reports:
+            self.assertNotIn(f'validation/{report}', primary_nav, report)
+
+        self.assertIn('`v1.4.0` bundle passed', bundle)
+        self.assertNotIn('cannot yet be recommended as validated', bundle)
+
     def test_documentation_cross_links_existing_major_pages(self):
         major_docs = [
             'architecture.md',

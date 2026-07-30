@@ -19,6 +19,7 @@ nav:
   - Getting started:
       - Support matrix: support-matrix.md
       - Getting started: getting-started.md
+      - Operator bundle: operator-bundle.md
       - Production deployment: production-deployment.md
 
   - Operations:
@@ -37,7 +38,9 @@ nav:
 
   - Compatibility:
       - Compatibility: compatibility.md
+      - Current validation evidence: validation/compatibility-v1.4.0-misp-core-v2.5.44.md
       - Validation matrix: validation/matrix.md
+      - Evidence archive: validation/README.md
       - Production readiness: production-readiness.md
 
   - Maintainers:
