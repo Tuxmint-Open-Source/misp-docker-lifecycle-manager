@@ -2,7 +2,7 @@
 
 This guide describes the supported production deployment workflow for `misp-docker-lifecycle-manager` within the documented stable release scope.
 
-`v1.3.1` is the latest published release for the documented single-server Docker lifecycle-manager scope and component tuple. Exact-tag/package-artifact validation passed, so `v1.3.1` is the latest validated-compatible release.
+This `main` guide includes behavior planned for `v1.4.0`. Publication and exact-tag/package-artifact validation remain pending, so `v1.3.1` remains the latest published and latest validated-compatible release.
 
 ## Supported production shape
 
@@ -49,6 +49,8 @@ The reverse proxy should forward to the local HTTPS endpoint documented by the i
 The lifecycle manager does not modify the host firewall: it does **not** add, remove, or inspect host firewall rules. Firewall policy remains operator-owned because interface, zone, source network, and upstream network controls are deployment-specific. A successful installation therefore does not imply that a remote proxy can reach MISP.
 
 ### Reverse proxy on another host
+
+The `--proxy-bind-address` option is new in the pending `v1.4.0` release and is not available in `v1.3.1`.
 
 Use an explicit IPv4 bind only when the reverse proxy is on another host. Prefer the MISP host's specific interface address; `0.0.0.0` is supported as an explicit choice but listens on every IPv4 interface and therefore requires a source-restricted firewall.
 
@@ -143,11 +145,11 @@ See [`backup-restore-and-rollback.md`](backup-restore-and-rollback.md) for the v
 
 The generated deployment remains a normal official `MISP/misp-docker` checkout. If this installer repository is removed after installation, operators can still inspect and manage the generated deployment with normal Docker Compose commands from the install directory.
 
-No-lock-in behavior passed exact-tag and packaged-artifact validation for `v1.3.1` with the documented component tuple.
+No-lock-in behavior passed exact-tag and packaged-artifact validation for `v1.3.1` with the documented component tuple. `v1.4.0` no-lock-in evidence is pending exact-tag validation.
 
 ## Compatibility scope
 
-The immutable `v1.3.1` tag and published operator-bundle artifact passed restore, browser-login, restore-based rollback, monitoring, and lifecycle validation for core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`.
+The immutable `v1.3.1` tag and published operator-bundle artifact passed restore, browser-login, restore-based rollback, monitoring, and lifecycle validation for core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`. `v1.4.0` requires separate exact-tag/package-artifact validation before compatibility is claimed.
 
 ## What to read next
 

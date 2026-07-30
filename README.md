@@ -10,9 +10,9 @@
 >
 > Select through these channels, but install and report the immutable SemVer tag. The machine-readable source is [`.release-channels.json`](.release-channels.json); mutable `stable` and `latest` Git tags are intentionally not used.
 
-A non-invasive lifecycle manager for official `MISP/misp-docker` single-server Docker deployments.
+A non-invasive lifecycle manager for official [`MISP/misp-docker`](https://github.com/MISP/misp-docker) single-server Docker deployments.
 
-Current `VERSION` value on `main`: `1.3.1`. The immutable `v1.3.1` tag and published operator-bundle artifact are validated compatible with the component set listed below.
+Current `VERSION` value on `main`: `1.4.0`. The `v1.4.0` release is being prepared and remains pending publication, exact-tag validation, and published-artifact validation. `v1.3.1` remains the latest published and latest validated-compatible release.
 
 MISP Docker Lifecycle Manager helps operators install, configure, validate, update, back up, restore, and safely remove MISP Docker deployments while keeping the generated deployment a normal official upstream checkout.
 
@@ -83,7 +83,7 @@ sudo ./lifecycle/admin-credentials.sh --install-dir /opt/misp-docker
 
 For production planning, reverse-proxy details, recovery, updates, and limitations, use the documentation map instead of treating this quick path as the full guide.
 
-The default reverse-proxy bind is loopback for a proxy on the same host. A proxy on another host requires the explicit bind and source-restricted firewall procedure in the [production deployment guide](docs/production-deployment.md). The lifecycle manager does not modify the host firewall.
+The current published `v1.3.1` path uses the loopback default for a proxy on the same host. The pending `v1.4.0` release adds an explicit bind and source-restricted firewall procedure for a proxy on another host; see the [production deployment guide](docs/production-deployment.md). The lifecycle manager does not modify the host firewall.
 
 ## Compatibility status
 
@@ -95,6 +95,7 @@ manager release/ref × official MISP Docker component set = status
 
 | Manager release/ref | MISP core | MISP modules | MISP guard | Status |
 | --- | ---: | ---: | ---: | --- |
+| `v1.4.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | 🟡 Pending validation |
 | `v1.3.1` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible |
 | `v1.3.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible |
 | `v1.2.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible |
@@ -139,7 +140,7 @@ For update policy and version details, see [`docs/upgrade-path.md`](docs/upgrade
 
 ## Release readiness
 
-`v1.3.1` is the latest published and latest validated-compatible release; its immutable tag and published operator-bundle artifact passed the required lifecycle matrix for the documented scope.
+`v1.4.0` is the next release and remains pending publication and exact-tag/package-artifact validation for the listed component set. `v1.3.1` remains the latest published and latest validated-compatible release; its immutable tag and published operator-bundle artifact passed the required lifecycle matrix for the documented scope.
 
 See [`docs/production-readiness.md`](docs/production-readiness.md).
 
