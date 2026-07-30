@@ -448,6 +448,7 @@ class StaticRepoTests(unittest.TestCase):
         versioning = (ROOT / 'docs' / 'versioning.md').read_text()
         upgrade = (ROOT / 'docs' / 'upgrade-path.md').read_text()
         docs_index = (ROOT / 'docs' / 'README.md').read_text()
+        contributor_path = (ROOT / 'docs' / 'contribute-and-maintain.md').read_text()
         readme = (ROOT / 'README.md').read_text()
         qa = (ROOT / 'QA.md').read_text()
         changelog = (ROOT / 'CHANGELOG.md').read_text()
@@ -468,8 +469,8 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('does not fork, vendor, or rewrite upstream source trees', policy)
         self.assertIn('[Upstream input policy](upstream-inputs.md)', versioning)
         self.assertIn('[Upstream input policy](upstream-inputs.md)', upgrade)
-        self.assertIn('[`docs/upstream-inputs.md`](docs/upstream-inputs.md)', readme)
-        self.assertIn('[Upstream input policy](upstream-inputs.md)', docs_index)
+        self.assertIn('[upstream input policy](upstream-inputs.md)', contributor_path)
+        self.assertIn('contribute-and-maintain.md', docs_index)
         self.assertIn('mutable upstream branches are review inputs, not immutable compatibility evidence', qa)
         self.assertIn('Document the immutable upstream Git and container input policy', changelog)
 
@@ -477,6 +478,7 @@ class StaticRepoTests(unittest.TestCase):
         policy = (ROOT / 'docs' / 'release' / 'integrity-and-provenance.md').read_text()
         release = (ROOT / 'docs' / 'release' / 'release-process.md').read_text()
         docs_index = (ROOT / 'docs' / 'README.md').read_text()
+        contributor_path = (ROOT / 'docs' / 'contribute-and-maintain.md').read_text()
         bundle_docs = (ROOT / 'docs' / 'operator-bundle.md').read_text()
         qa = (ROOT / 'QA.md').read_text()
         changelog = (ROOT / 'CHANGELOG.md').read_text()
@@ -496,7 +498,8 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('A checksum-verified artifact is only described as validated compatible after', policy)
         self.assertIn('manager release/ref × official MISP Docker component set = validation status', policy)
         self.assertIn('Release integrity and deferred provenance controls are documented in [Release integrity and provenance policy](integrity-and-provenance.md)', release)
-        self.assertIn('[release integrity policy](release/integrity-and-provenance.md)', docs_index)
+        self.assertIn('[Release integrity and provenance](release/integrity-and-provenance.md)', contributor_path)
+        self.assertIn('contribute-and-maintain.md', docs_index)
         self.assertIn('[release integrity and provenance policy](release/integrity-and-provenance.md)', bundle_docs)
         self.assertIn('Do **not** pipe downloaded release assets directly into a shell', bundle_docs)
         self.assertIn('tar -tzf misp-docker-lifecycle-manager-vX.Y.Z.tar.gz', bundle_docs)
@@ -581,7 +584,9 @@ class StaticRepoTests(unittest.TestCase):
                 self.assertNotIn(phrase, content, f'{path} still presents the stable release as future work')
 
     def test_documentation_red_line_entry_points_exist(self):
+        config = (ROOT / 'mkdocs.yml').read_text()
         docs_readme = (ROOT / 'docs' / 'README.md').read_text()
+        contributor_path = (ROOT / 'docs' / 'contribute-and-maintain.md').read_text()
         getting_started = (ROOT / 'docs' / 'getting-started.md').read_text()
         operator = (ROOT / 'docs' / 'operator-guide.md').read_text()
         readme = (ROOT / 'README.md').read_text()
@@ -599,23 +604,47 @@ class StaticRepoTests(unittest.TestCase):
         ]:
             self.assertIn(path, readme)
 
-        self.assertIn('Choose your path', docs_readme)
-        self.assertIn('Users and operators', docs_readme)
-        self.assertIn('Contributors and maintainers', docs_readme)
-        self.assertIn('Common user/operator tasks', docs_readme)
-        self.assertIn('Common contributor/maintainer tasks', docs_readme)
+        self.assertIn('What do you want to do?', docs_readme)
+        self.assertIn('| I want to… | Start here | Continue with |', docs_readme)
+        for task in [
+            'Evaluate support',
+            'Install for the first time',
+            'Operate or update MISP',
+            'Back up or recover',
+            'Deploy securely',
+            'Troubleshoot or report a problem',
+            'Inspect compatibility evidence',
+        ]:
+            self.assertIn(task, docs_readme)
+        self.assertNotIn('## Documentation types', docs_readme)
+        self.assertNotIn('## Common contributor/maintainer tasks', docs_readme)
         self.assertIn('getting-started.md', docs_readme)
         self.assertIn('operator-guide.md', docs_readme)
         self.assertIn('support-matrix.md', docs_readme)
-        self.assertIn('maintainer-workflow.md', docs_readme)
-        self.assertIn('release/release-process.md', docs_readme)
+        self.assertIn('contribute-and-maintain.md', docs_readme)
+        self.assertIn('maintainer-workflow.md', contributor_path)
+        self.assertIn('release/release-process.md', contributor_path)
         self.assertIn('compatibility.md', docs_readme)
 
-        self.assertIn('| Reader path | Read this |', readme)
-        self.assertIn('New user/operator', readme)
-        self.assertIn('Production operator', readme)
-        self.assertIn('Contributor/maintainer', readme)
-        self.assertNotIn('| If you want to... | Read this |', readme)
+        self.assertIn('| I want to… | Read this |', readme)
+        self.assertIn('choose the right path', readme)
+        self.assertIn('contribute or maintain the project', readme)
+        self.assertLess(len(readme.splitlines()), 130)
+        self.assertLess(len(docs_readme.splitlines()), 80)
+        task_nav = [
+            'Evaluate support:',
+            'Install:',
+            'Operate and update:',
+            'Back up and recover:',
+            'Deploy securely:',
+            'Troubleshoot and report:',
+            'Contribute and maintain:',
+        ]
+        positions = [config.index(label) for label in task_nav]
+        self.assertEqual(positions, sorted(positions))
+        self.assertIn('Contributor and maintainer path: contribute-and-maintain.md', config)
+        self.assertNotIn('\n  - Operations:', config)
+        self.assertNotIn('\n  - Reference:', config)
         self.assertIn('Split the documentation entry path', (ROOT / 'CHANGELOG.md').read_text())
 
         self.assertIn('first successful path', getting_started)
@@ -742,6 +771,7 @@ class StaticRepoTests(unittest.TestCase):
         config = (ROOT / 'mkdocs.yml').read_text()
         readme = (ROOT / 'README.md').read_text()
         docs_index = (ROOT / 'docs' / 'README.md').read_text()
+        contributor_path = (ROOT / 'docs' / 'contribute-and-maintain.md').read_text()
         asset_license = (ROOT / 'ASSET-LICENSE.md').read_text()
         brand_docs = (ROOT / 'docs' / 'brand-assets.md').read_text()
         brand_css = (ROOT / 'docs' / 'assets' / 'stylesheets' / 'brand.css').read_text()
@@ -794,8 +824,9 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('misp-dlm-lockup-1408.png', readme)
         self.assertIn('misp-dlm-lockup-light-1408.png', readme)
         self.assertIn('[`ASSET-LICENSE.md`](ASSET-LICENSE.md)', readme)
-        self.assertIn('[Brand assets](brand-assets.md)', docs_index)
-        self.assertIn('[asset license](../ASSET-LICENSE.md)', docs_index)
+        self.assertIn('[Brand assets](brand-assets.md)', contributor_path)
+        self.assertIn('[asset license and usage notice](../ASSET-LICENSE.md)', contributor_path)
+        self.assertIn('contribute-and-maintain.md', docs_index)
 
         self.assertIn('CC BY-ND 4.0', asset_license)
         self.assertIn('https://creativecommons.org/licenses/by-nd/4.0/', asset_license)
@@ -863,6 +894,7 @@ class StaticRepoTests(unittest.TestCase):
         monitoring = (ROOT / 'docs' / 'monitoring.md').read_text()
         readme = (ROOT / 'README.md').read_text()
         docs_index = (ROOT / 'docs' / 'README.md').read_text()
+        contributor_path = (ROOT / 'docs' / 'contribute-and-maintain.md').read_text()
         operator = (ROOT / 'docs' / 'operator-guide.md').read_text()
         shell_docs = (ROOT / 'docs' / 'shell-scripts.md').read_text()
         readiness = (ROOT / 'docs' / 'production-readiness.md').read_text()
@@ -894,8 +926,8 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Community testing wanted', monitoring)
         self.assertIn('scripts/validate-healthcheck-output.py', monitoring)
         self.assertIn('monitoring-healthcheck-pr61.md', monitoring)
-        self.assertIn('monitoring issue #62', readme)
-        self.assertIn('Native ingestion by Zabbix, Checkmk, Nagios/Icinga, and Prometheus remains community-testing work', readme)
+        self.assertIn('community testing issue #62', contributor_path)
+        self.assertIn('Monitoring ingestion for Zabbix, Checkmk, Nagios/Icinga, and Prometheus remains community-testing work', contributor_path)
         self.assertIn('Monitoring integration contributions', (ROOT / 'CONTRIBUTING.md').read_text())
         validation_report = (ROOT / 'docs' / 'validation' / 'monitoring-healthcheck-pr61.md').read_text()
         self.assertIn('Stop only the `misp-core` service', validation_report)
@@ -903,8 +935,8 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('post-`v1.0.0` development commit', validation_report)
         self.assertIn('`promtool` was not installed', validation_report)
         self.assertIn('../monitoring.md#integration-validation-status', validation_report)
-        self.assertIn('[`CONTRIBUTING.md`](../CONTRIBUTING.md)', docs_index)
-        self.assertIn('community testing issue #62', docs_index)
+        self.assertIn('[`CONTRIBUTING.md`](../CONTRIBUTING.md)', contributor_path)
+        self.assertIn('community testing issue #62', contributor_path)
 
     def test_healthcheck_output_validator_accepts_unknown_contract(self):
         validator = ROOT / 'scripts' / 'validate-healthcheck-output.py'
@@ -1221,10 +1253,12 @@ class StaticRepoTests(unittest.TestCase):
 
     def test_maintainer_workflow_documents_repo_operations(self):
         docs_index = (ROOT / 'docs' / 'README.md').read_text()
+        contributor_path = (ROOT / 'docs' / 'contribute-and-maintain.md').read_text()
         maintainer = (ROOT / 'docs' / 'maintainer-workflow.md').read_text()
         changelog = (ROOT / 'CHANGELOG.md').read_text()
 
-        self.assertIn('maintainer-workflow.md', docs_index)
+        self.assertIn('contribute-and-maintain.md', docs_index)
+        self.assertIn('maintainer-workflow.md', contributor_path)
         self.assertIn('GitHub is configured to delete merged branches automatically', maintainer)
         self.assertIn('The GitHub Wiki is not used for canonical docs', maintainer)
         self.assertIn('type: security', maintainer)
@@ -1396,20 +1430,15 @@ class StaticRepoTests(unittest.TestCase):
 
         self.assertEqual(version, '1.4.0')
         self.assertIn('Current `VERSION` value on `main`: `1.4.0`', readme)
-        self.assertIn('`v1.4.0` release tag', readme)
-        self.assertIn('`v1.3.1` release tag', readme)
-        self.assertIn('`v1.3.0` release tag', readme)
         self.assertIn('Latest validated | `v1.4.0`', readme)
-        self.assertIn('`v1.2.0` release tag', readme)
-        self.assertIn('`v1.1.0` release tag', readme)
         self.assertIn('Release channels', readme)
         self.assertIn('Latest published', readme)
         self.assertIn('Latest validated', readme)
         self.assertNotIn('**NOT PRODUCTION READY**', readme)
         self.assertIn('git checkout v1.4.0', readme)
         self.assertNotIn('git checkout v1.3.1', readme)
-        self.assertIn('`v1.0.0` release tag', readme)
-        self.assertIn('✅ Validated compatible', readme)
+        self.assertIn('manager `v1.4.0`, MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`', readme)
+        self.assertIn('docs/validation/README.md', readme)
         self.assertIn('| `v1.4.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | 2026-07-30 |', compatibility)
         self.assertIn('published operator-bundle artifact passed the complete exact-tag/package-artifact lifecycle matrix', compatibility)
         self.assertIn('| `v1.3.1` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | 2026-07-23 |', compatibility)
@@ -1495,11 +1524,12 @@ class StaticRepoTests(unittest.TestCase):
             self.assertRegex(channels[channel], r'^v\d+\.\d+\.\d+$')
             self.assertIn(f'`{channels[channel]}` release tag', compatibility)
 
-    def test_primary_readme_focuses_on_stable_release_evidence(self):
+    def test_primary_readme_focuses_on_current_release_and_routes_history_to_archive(self):
         readme = (ROOT / 'README.md').read_text()
-        self.assertIn('`v1.1.0` release tag', readme)
-        self.assertIn('`v1.0.0` release tag', readme)
-        self.assertIn('retained historical evidence', readme)
+        self.assertIn('Latest validated | `v1.4.0`', readme)
+        self.assertIn('docs/validation/README.md', readme)
+        self.assertNotIn('`v1.1.0` release tag', readme)
+        self.assertNotIn('`v1.0.0` release tag', readme)
         self.assertNotIn('release candidate tag', readme)
         self.assertNotIn('`v0.', readme)
         self.assertNotIn('historical pre-1.0 metadata markers', readme)

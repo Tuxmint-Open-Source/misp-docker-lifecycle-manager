@@ -1,87 +1,49 @@
-# Documentation
+# What do you want to do?
 
-Start here if you are new to **MISP Docker Lifecycle Manager**.
+MISP Docker Lifecycle Manager helps operate an official [`MISP/misp-docker`](https://github.com/MISP/misp-docker) single-server deployment without taking ownership of the generated upstream checkout.
 
-The documentation is split by reader path so operators do not need to read maintainer/release material before they can install and operate a supported deployment.
+Choose the task that matches what you need now:
 
-## Choose your path
+| I want to… | Start here | Continue with |
+| --- | --- | --- |
+| **Evaluate support** | [Support matrix](support-matrix.md) | [Compatibility](compatibility.md) |
+| **Install for the first time** | [Getting started](getting-started.md) | [Operator bundle](operator-bundle.md) for the checksummed release artifact |
+| **Operate or update MISP** | [Operator guide](operator-guide.md) | [Upgrade path](upgrade-path.md) and [monitoring](monitoring.md) |
+| **Back up or recover** | [Backup, restore, and rollback](backup-restore-and-rollback.md) | Review recovery before an update or incident |
+| **Deploy securely** | [Production deployment](production-deployment.md) | [Security model](security.md) and [architecture](architecture.md) |
+| **Troubleshoot or report a problem** | [Troubleshooting](troubleshooting.md) | [Anonymous SOS reports](sos-report.md) or [`SECURITY.md`](../SECURITY.md) for sensitive issues |
+| **Inspect compatibility evidence** | [Current `v1.4.0` validation](validation/compatibility-v1.4.0-misp-core-v2.5.44.md) | [Validation matrix](validation/matrix.md) and [evidence archive](validation/README.md) |
 
-### Users and operators
+> **Important — Release channels**
+>
+> `v1.4.0` is both the latest published release and the latest validated-compatible release. Install and report immutable SemVer tags; `stable` and `latest` are not Git tags in this project.
 
-Follow this path when you want to install, run, update, monitor, or recover a MISP deployment:
+## New operator path
 
-1. [Support matrix](support-matrix.md) — confirm that your deployment model is supported.
-2. [Getting started](getting-started.md) — perform a first install and verification pass.
-3. [Operator guide](operator-guide.md) — follow the normal lifecycle of a managed deployment.
-4. [Production deployment guide](production-deployment.md) — plan reverse proxy, host, secrets, and operational choices.
-5. [Backup, restore, and rollback](backup-restore-and-rollback.md) — understand recovery before you need it.
-6. [Upgrade path](upgrade-path.md) — update the manager and MISP components safely.
-7. [Monitoring](monitoring.md) — review the healthcheck contract and planned integrations.
-8. [Troubleshooting](troubleshooting.md) — diagnose failed installs, login issues, and update problems.
+If this is your first visit, use this short path:
 
-### Contributors and maintainers
+1. Confirm the deployment shape in the [support matrix](support-matrix.md).
+2. Complete the [getting-started](getting-started.md) installation and verification pass.
+3. Follow the [operator guide](operator-guide.md) for normal lifecycle work.
+4. Read [backup, restore, and rollback](backup-restore-and-rollback.md) before the first update.
+5. Use the [production deployment guide](production-deployment.md) before exposing a real service.
 
-Follow this path when you want to contribute, review release evidence, or maintain the repository:
+The lifecycle manager does not modify the host firewall. Remote reverse-proxy deployments require the explicit bind and source-restricted Docker-aware firewall procedure in the production guide.
 
-1. [`CONTRIBUTING.md`](../CONTRIBUTING.md) — public-safety rules, PR workflow, and contribution expectations.
-2. [`AGENTS.md`](../AGENTS.md) — repository rules for automated contributors.
-3. [Maintainer workflow](maintainer-workflow.md) — GitHub settings, labels, SOS triage, upstream monitoring, and release operations.
-4. [Release process](release/release-process.md) — release PR, tagging, GitHub Release, and post-tag validation workflow.
-5. [Release integrity policy](release/integrity-and-provenance.md) — artifact integrity controls and deferred provenance mechanisms.
-6. [Upstream input policy](upstream-inputs.md) — upstream Git, component tag, and future digest identity rules.
-7. [Compatibility](compatibility.md) and [validation matrix](validation/matrix.md) — validated manager/component evidence.
+## Current compatibility evidence
 
-## Common user/operator tasks
+Compatibility is an explicit pair:
 
-| I want to... | Start here |
-| --- | --- |
-| check whether my deployment is supported | [Support matrix](support-matrix.md) |
-| install MISP for the first time | [Getting started](getting-started.md) |
-| install from the checksummed release artifact | [Operator bundle](operator-bundle.md) |
-| follow the normal lifecycle | [Operator guide](operator-guide.md) |
-| plan a reverse-proxy deployment | [Production deployment guide](production-deployment.md) |
-| update MISP components | [Upgrade path](upgrade-path.md) |
-| back up or restore MISP | [Backup, restore, and rollback](backup-restore-and-rollback.md) |
-| plan monitoring integration | [Monitoring](monitoring.md) and [community testing issue #62](https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/issues/62) |
-| recover from a failed update | [Backup, restore, and rollback](backup-restore-and-rollback.md#restore-based-rollback-after-failed-update) |
-| understand secrets and privileges | [Security](security.md) |
-| debug a failure | [Troubleshooting](troubleshooting.md) |
-| report a reproducible bug safely | [Anonymous SOS reports](sos-report.md) |
+```text
+manager release/ref × official MISP Docker component set = status
+```
 
-## Common contributor/maintainer tasks
+The current validated tuple is manager `v1.4.0`, MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`. Read the [current report](validation/compatibility-v1.4.0-misp-core-v2.5.44.md) for scope and limitations. Older immutable reports remain available in the [evidence archive](validation/README.md).
 
-| I want to... | Start here |
-| --- | --- |
-| contribute code, docs, or integration testing | [`CONTRIBUTING.md`](../CONTRIBUTING.md) |
-| inspect every script and option | [Shell scripts reference](shell-scripts.md) |
-| understand or reuse the project identity | [Brand assets](brand-assets.md) and [asset license](../ASSET-LICENSE.md) |
-| review current compatibility evidence | [Current `v1.4.0` validation](validation/compatibility-v1.4.0-misp-core-v2.5.44.md) and [validation matrix](validation/matrix.md) |
-| inspect retained historical evidence | [Validation evidence archive](validation/README.md) |
-| understand release and upstream input identity | [Versioning](versioning.md), [Release integrity](release/integrity-and-provenance.md), and [Upstream input policy](upstream-inputs.md) |
-| maintain the repository or cut a release | [Maintainer workflow](maintainer-workflow.md), then [release process](release/release-process.md) |
-| update release/provenance policy | [Release integrity policy](release/integrity-and-provenance.md) and [Upstream input policy](upstream-inputs.md) |
+## Contribute or maintain
 
-## Documentation types
+Contributor, release, policy, script-reference, and project-identity material is collected in [Contribute and maintain](contribute-and-maintain.md). Operators do not need that material to follow the task paths above.
 
-The docs intentionally separate different kinds of information:
+## Offline and versioned documentation
 
-- **First path:** [Getting started](getting-started.md).
-- **Operator journey:** [Operator guide](operator-guide.md).
-- **How-to guides:** [Production deployment](production-deployment.md), [upgrade path](upgrade-path.md), [backup/restore/rollback](backup-restore-and-rollback.md), [monitoring](monitoring.md), [troubleshooting](troubleshooting.md).
-- **Explanation:** [Architecture](architecture.md), [security](security.md), [support matrix](support-matrix.md), [versioning](versioning.md), [upstream input policy](upstream-inputs.md).
-- **Reference:** [Operator bundle](operator-bundle.md), [shell scripts](shell-scripts.md), [monitoring contract](monitoring.md), [compatibility](compatibility.md), [validation matrix](validation/matrix.md), [evidence archive](validation/README.md).
-- **Support and reporting:** [Troubleshooting](troubleshooting.md), [anonymous SOS reports](sos-report.md), [security](security.md).
-- **Maintainer workflow:** [Maintainer workflow](maintainer-workflow.md), [release process](release/release-process.md), [release integrity policy](release/integrity-and-provenance.md).
-
-## Current release status
-
-`v1.4.0` is the latest published and validated-compatible release. Its immutable tag and published operator-bundle artifact passed the complete lifecycle matrix and explicit remote-proxy bind gate for the documented scope.
-
-See [production readiness](production-readiness.md) for the current release-readiness state.
-
-## What to read next
-
-- New operator: continue with [Getting started](getting-started.md).
-- Planning a real deployment: read [Support matrix](support-matrix.md), then [Production deployment guide](production-deployment.md).
-- Contributor or maintainer: read [`CONTRIBUTING.md`](../CONTRIBUTING.md), then [Maintainer workflow](maintainer-workflow.md).
-- Reviewing release evidence: read [Compatibility](compatibility.md), then the [current validation report](validation/compatibility-v1.4.0-misp-core-v2.5.44.md). Older evidence remains in the [archive](validation/README.md).
+These pages live in the repository and remain usable from an exact branch or tag. Start from this `docs/README.md` file when reading offline; root policies such as [`SECURITY.md`](../SECURITY.md) and [`CONTRIBUTING.md`](../CONTRIBUTING.md) remain canonical.

@@ -34,41 +34,44 @@ theme:
         name: Switch to light mode
 
 nav:
-  - Home: README.md
+  - Choose a task: README.md
 
-  - Getting started:
+  - Evaluate support:
       - Support matrix: support-matrix.md
-      - Getting started: getting-started.md
-      - Operator bundle: operator-bundle.md
-      - Production deployment: production-deployment.md
-
-  - Operations:
-      - Operator guide: operator-guide.md
-      - Upgrade path: upgrade-path.md
-      - Backup, restore and rollback: backup-restore-and-rollback.md
-      - Monitoring: monitoring.md
-      - Troubleshooting: troubleshooting.md
-      - SOS reports: sos-report.md
-
-  - Architecture and security:
-      - Architecture: architecture.md
-      - Security: security.md
-      - Versioning: versioning.md
-      - Upstream inputs: upstream-inputs.md
-
-  - Compatibility:
       - Compatibility: compatibility.md
       - Current validation evidence: validation/compatibility-v1.4.0-misp-core-v2.5.44.md
       - Validation matrix: validation/matrix.md
       - Evidence archive: validation/README.md
       - Production readiness: production-readiness.md
 
-  - Maintainers:
+  - Install:
+      - Getting started: getting-started.md
+      - Operator bundle: operator-bundle.md
+
+  - Operate and update:
+      - Operator guide: operator-guide.md
+      - Upgrade path: upgrade-path.md
+      - Monitoring: monitoring.md
+
+  - Back up and recover:
+      - Backup, restore and rollback: backup-restore-and-rollback.md
+
+  - Deploy securely:
+      - Production deployment: production-deployment.md
+      - Security: security.md
+      - Architecture: architecture.md
+
+  - Troubleshoot and report:
+      - Troubleshooting: troubleshooting.md
+      - SOS reports: sos-report.md
+
+  - Contribute and maintain:
+      - Contributor and maintainer path: contribute-and-maintain.md
       - Maintainer workflow: maintainer-workflow.md
       - Release process: release/release-process.md
       - Integrity and provenance: release/integrity-and-provenance.md
-
-  - Reference:
+      - Versioning: versioning.md
+      - Upstream inputs: upstream-inputs.md
       - Shell scripts: shell-scripts.md
       - Brand assets: brand-assets.md
 
