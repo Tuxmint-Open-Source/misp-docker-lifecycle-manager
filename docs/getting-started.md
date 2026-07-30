@@ -5,7 +5,7 @@ This guide gives you a first successful path through MISP Docker Lifecycle Manag
 It is intentionally shorter than the full [operator guide](operator-guide.md). Use it to understand the flow, then read the production and recovery docs before relying on a deployment.
 
 > [!IMPORTANT]
-> `v1.4.0` is the latest published release and remains pending completion of exact-tag/package-artifact validation. `v1.3.1` remains the latest validated-compatible release for the documented component set and single-server Docker lifecycle-manager scope. Validate your own deployment assumptions and keep backups before relying on a deployment operationally.
+> `v1.4.0` is the latest published and validated-compatible release for the documented component set and single-server Docker lifecycle-manager scope. Validate your own deployment assumptions and keep backups before relying on a deployment operationally.
 
 ## Before you begin
 

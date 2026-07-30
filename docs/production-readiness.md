@@ -1,6 +1,6 @@
 # Production readiness
 
-`v1.4.0` is the latest published release for the documented single-server Docker lifecycle-manager scope and component tuple. Exact-tag/package-artifact validation is still in progress, so `v1.3.1` remains the latest validated-compatible release.
+`v1.4.0` is the latest published and validated-compatible release for the documented single-server Docker lifecycle-manager scope and component tuple.
 
 Production readiness here applies only to the public support matrix and explicitly validated manager release/component pairs. It is not a claim that every operating system, topology, proxy, customization, or future MISP component set is supported.
 
@@ -10,19 +10,19 @@ Production readiness here applies only to the public support matrix and explicit
 | --- | --- |
 | Latest published manager release | `v1.4.0` |
 | Latest validated MISP component set | core `v2.5.44`, modules `v3.0.9`, guard `v1.2` |
-| Compatibility status | 🟡 `v1.4.0` pending exact-tag validation; ✅ `v1.3.1` validated compatible for the listed component tuple |
+| Compatibility status | ✅ `v1.4.0` validated compatible for the listed component tuple |
 | Public compatibility evidence | ✅ [`compatibility.md`](compatibility.md) and [`validation/matrix.md`](validation/matrix.md) |
 | Public support scope | ✅ [`support-matrix.md`](support-matrix.md) |
 | Production deployment guide | ✅ [`production-deployment.md`](production-deployment.md) |
 | Security model | ✅ [`security.md`](security.md) |
-| Backup, restore, and rollback | 🟡 `v1.4.0` pending exact-tag evidence; ✅ `v1.3.1` exact-tag and packaged-artifact evidence |
-| Browser-facing login | 🟡 `v1.4.0` pending exact-tag evidence; ✅ `v1.3.1` exact-tag and packaged-artifact evidence |
-| No-lock-in Compose operation | 🟡 `v1.4.0` pending exact-tag evidence; ✅ `v1.3.1` exact-tag and packaged-artifact evidence |
-| Monitoring contract | 🟡 `v1.4.0` pending exact-tag evidence; ✅ `v1.3.1` exact-tag and packaged-artifact evidence; native platform ingestion remains unvalidated |
+| Backup, restore, and rollback | ✅ `v1.4.0` exact-tag and published-artifact evidence |
+| Browser-facing login | ✅ `v1.4.0` exact-tag and published-artifact evidence |
+| No-lock-in Compose operation | ✅ `v1.4.0` exact-tag and published-artifact evidence |
+| Monitoring contract | ✅ `v1.4.0` exact-tag and published-artifact evidence; native platform ingestion remains unvalidated |
 
 ## `v1.4.0` release-validation state
 
-`v1.4.0` packages work added after the `v1.3.1` tag, including explicit persisted IPv4 binding for a reverse proxy on another host while preserving loopback as the default, fail-closed exposure-state validation, fresh-install prerequisite fixes, and coordinated immutable-SHA workflow maintenance. PR-branch capability and disposable remote-proxy/browser validation passed before release preparation, but exact-tag/package-artifact validation for `v1.4.0` is pending. `v1.3.1` remains the latest validated-compatible release until that post-tag validation passes.
+`v1.4.0` packages work added after the `v1.3.1` tag, including explicit persisted IPv4 binding for a reverse proxy on another host while preserving loopback as the default, fail-closed exposure-state validation, fresh-install prerequisite fixes, and coordinated immutable-SHA workflow maintenance. The immutable tag and published operator bundle passed the complete lifecycle matrix for the documented component tuple. A separate release-specific gate also passed explicit remote binding, Docker-aware source allow/deny filtering, verified backend TLS, browser login, update preservation, and cleanup.
 
 ## `v1.3.1` release-validation state
 
