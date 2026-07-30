@@ -6,7 +6,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ### Added
 
-- Add a strict Material for MkDocs and Read the Docs foundation with a deterministic version-local build tree for canonical repository policy pages.
+- Add a strict Material for MkDocs and Read the Docs foundation with a complete hash-verified dependency lock and a deterministic version-local build tree for canonical repository policy pages.
 
 ## [1.4.0] - 2026-07-30
 

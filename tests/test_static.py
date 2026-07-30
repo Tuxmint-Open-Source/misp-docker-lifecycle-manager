@@ -633,13 +633,22 @@ class StaticRepoTests(unittest.TestCase):
 
     def test_hosted_documentation_uses_pinned_material_foundation(self):
         config = (ROOT / 'mkdocs.yml').read_text()
-        requirements = (ROOT / 'docs' / 'requirements.txt').read_text().splitlines()
+        requirements_text = (ROOT / 'docs' / 'requirements.txt').read_text()
+        requirements_input = (ROOT / 'docs' / 'requirements.in').read_text()
         readthedocs = (ROOT / '.readthedocs.yaml').read_text()
 
         self.assertIn('theme:\n  name: material', config)
         self.assertIn('docs_dir: .generated-docs', config)
-        self.assertIn('mkdocs==1.6.1', requirements)
-        self.assertIn('mkdocs-material==9.7.7', requirements)
+        self.assertRegex(requirements_text, r'(?m)^mkdocs==1\.6\.1 \\$')
+        self.assertRegex(requirements_text, r'(?m)^mkdocs-material==9\.7\.7 \\$')
+        self.assertIn('pip==25.3', requirements_input)
+        self.assertIn('pip-tools==7.6.0', requirements_input)
+        locked_packages = re.findall(r'^([a-z0-9-]+)==[^ ]+ \\$', requirements_text, re.MULTILINE)
+        self.assertGreater(len(locked_packages), 20)
+        self.assertNotRegex(requirements_text, r'(?m)^[a-z0-9-]+(?:~=|>=|<=|!=|>|<)')
+        for package in locked_packages:
+            block = requirements_text.split(f'{package}==', 1)[1].split('\n    # via', 1)[0]
+            self.assertIn('--hash=sha256:', block, package)
         self.assertIn('configuration: mkdocs.yml', readthedocs)
         self.assertIn('requirements: docs/requirements.txt', readthedocs)
         self.assertIn('fail_on_warning: true', readthedocs)
@@ -648,7 +657,10 @@ class StaticRepoTests(unittest.TestCase):
         repository_gate = (
             ROOT / '.github' / 'workflows' / 'repository-gates.yml'
         ).read_text()
-        self.assertIn('python3 -m pip install -r docs/requirements.txt', repository_gate)
+        self.assertIn(
+            'python3 -m pip install --require-hashes -r docs/requirements.txt',
+            repository_gate,
+        )
         self.assertIn('python3 scripts/prepare-docs-tree.py', repository_gate)
         self.assertIn('mkdocs build --strict', repository_gate)
 

@@ -1,0 +1,4 @@
+# Regenerate with Python 3.13, pip==25.3, and pip-tools==7.6.0:
+# pip-compile --generate-hashes --strip-extras --allow-unsafe --resolver=backtracking --newline=lf docs/requirements.in --output-file docs/requirements.txt
+mkdocs==1.6.1
+mkdocs-material==9.7.7
