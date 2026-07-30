@@ -37,6 +37,7 @@ Follow this path when you want to contribute, review release evidence, or mainta
 | --- | --- |
 | check whether my deployment is supported | [Support matrix](support-matrix.md) |
 | install MISP for the first time | [Getting started](getting-started.md) |
+| install from the checksummed release artifact | [Operator bundle](operator-bundle.md) |
 | follow the normal lifecycle | [Operator guide](operator-guide.md) |
 | plan a reverse-proxy deployment | [Production deployment guide](production-deployment.md) |
 | update MISP components | [Upgrade path](upgrade-path.md) |
@@ -53,7 +54,8 @@ Follow this path when you want to contribute, review release evidence, or mainta
 | --- | --- |
 | contribute code, docs, or integration testing | [`CONTRIBUTING.md`](../CONTRIBUTING.md) |
 | inspect every script and option | [Shell scripts reference](shell-scripts.md) |
-| review compatibility evidence | [Compatibility](compatibility.md) and [validation matrix](validation/matrix.md) |
+| review current compatibility evidence | [Current `v1.4.0` validation](validation/compatibility-v1.4.0-misp-core-v2.5.44.md) and [validation matrix](validation/matrix.md) |
+| inspect retained historical evidence | [Validation evidence archive](validation/README.md) |
 | understand release and upstream input identity | [Versioning](versioning.md), [Release integrity](release/integrity-and-provenance.md), and [Upstream input policy](upstream-inputs.md) |
 | maintain the repository or cut a release | [Maintainer workflow](maintainer-workflow.md), then [release process](release/release-process.md) |
 | update release/provenance policy | [Release integrity policy](release/integrity-and-provenance.md) and [Upstream input policy](upstream-inputs.md) |
@@ -66,7 +68,7 @@ The docs intentionally separate different kinds of information:
 - **Operator journey:** [Operator guide](operator-guide.md).
 - **How-to guides:** [Production deployment](production-deployment.md), [upgrade path](upgrade-path.md), [backup/restore/rollback](backup-restore-and-rollback.md), [monitoring](monitoring.md), [troubleshooting](troubleshooting.md).
 - **Explanation:** [Architecture](architecture.md), [security](security.md), [support matrix](support-matrix.md), [versioning](versioning.md), [upstream input policy](upstream-inputs.md).
-- **Reference:** [Shell scripts](shell-scripts.md), [monitoring contract](monitoring.md), [compatibility](compatibility.md), [validation matrix](validation/matrix.md).
+- **Reference:** [Operator bundle](operator-bundle.md), [shell scripts](shell-scripts.md), [monitoring contract](monitoring.md), [compatibility](compatibility.md), [validation matrix](validation/matrix.md), [evidence archive](validation/README.md).
 - **Support and reporting:** [Troubleshooting](troubleshooting.md), [anonymous SOS reports](sos-report.md), [security](security.md).
 - **Maintainer workflow:** [Maintainer workflow](maintainer-workflow.md), [release process](release/release-process.md), [release integrity policy](release/integrity-and-provenance.md).
 
@@ -81,4 +83,4 @@ See [production readiness](production-readiness.md) for the current release-read
 - New operator: continue with [Getting started](getting-started.md).
 - Planning a real deployment: read [Support matrix](support-matrix.md), then [Production deployment guide](production-deployment.md).
 - Contributor or maintainer: read [`CONTRIBUTING.md`](../CONTRIBUTING.md), then [Maintainer workflow](maintainer-workflow.md).
-- Reviewing release evidence: read [Compatibility](compatibility.md), then [Validation matrix](validation/matrix.md).
+- Reviewing release evidence: read [Compatibility](compatibility.md), then the [current validation report](validation/compatibility-v1.4.0-misp-core-v2.5.44.md). Older evidence remains in the [archive](validation/README.md).

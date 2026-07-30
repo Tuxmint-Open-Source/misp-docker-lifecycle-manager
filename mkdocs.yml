@@ -1,0 +1,63 @@
+site_name: MISP Docker Lifecycle Manager
+
+site_description: >-
+  Lifecycle management tooling for official MISP Docker
+  single-server deployments.
+
+repo_name: Tuxmint-Open-Source/misp-docker-lifecycle-manager
+repo_url: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager
+edit_uri: edit/main/docs/
+
+docs_dir: .generated-docs
+
+theme:
+  name: material
+
+nav:
+  - Home: README.md
+
+  - Getting started:
+      - Support matrix: support-matrix.md
+      - Getting started: getting-started.md
+      - Operator bundle: operator-bundle.md
+      - Production deployment: production-deployment.md
+
+  - Operations:
+      - Operator guide: operator-guide.md
+      - Upgrade path: upgrade-path.md
+      - Backup, restore and rollback: backup-restore-and-rollback.md
+      - Monitoring: monitoring.md
+      - Troubleshooting: troubleshooting.md
+      - SOS reports: sos-report.md
+
+  - Architecture and security:
+      - Architecture: architecture.md
+      - Security: security.md
+      - Versioning: versioning.md
+      - Upstream inputs: upstream-inputs.md
+
+  - Compatibility:
+      - Compatibility: compatibility.md
+      - Current validation evidence: validation/compatibility-v1.4.0-misp-core-v2.5.44.md
+      - Validation matrix: validation/matrix.md
+      - Evidence archive: validation/README.md
+      - Production readiness: production-readiness.md
+
+  - Maintainers:
+      - Maintainer workflow: maintainer-workflow.md
+      - Release process: release/release-process.md
+      - Integrity and provenance: release/integrity-and-provenance.md
+
+  - Reference:
+      - Shell scripts: shell-scripts.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - tables
+  - toc:
+      permalink: true

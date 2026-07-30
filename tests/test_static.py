@@ -631,6 +631,110 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Restore and recover', operator)
         self.assertIn('manager release/ref × official MISP Docker component set = status', operator)
 
+    def test_hosted_documentation_uses_pinned_material_foundation(self):
+        config = (ROOT / 'mkdocs.yml').read_text()
+        requirements_text = (ROOT / 'docs' / 'requirements.txt').read_text()
+        requirements_input = (ROOT / 'docs' / 'requirements.in').read_text()
+        readthedocs = (ROOT / '.readthedocs.yaml').read_text()
+
+        self.assertIn('theme:\n  name: material', config)
+        self.assertIn('docs_dir: .generated-docs', config)
+        self.assertRegex(requirements_text, r'(?m)^mkdocs==1\.6\.1 \\$')
+        self.assertRegex(requirements_text, r'(?m)^mkdocs-material==9\.7\.7 \\$')
+        self.assertIn('pip==25.3', requirements_input)
+        self.assertIn('pip-tools==7.6.0', requirements_input)
+        locked_packages = re.findall(r'^([a-z0-9-]+)==[^ ]+ \\$', requirements_text, re.MULTILINE)
+        self.assertGreater(len(locked_packages), 20)
+        self.assertNotRegex(requirements_text, r'(?m)^[a-z0-9-]+(?:~=|>=|<=|!=|>|<)')
+        for package in locked_packages:
+            block = requirements_text.split(f'{package}==', 1)[1].split('\n    # via', 1)[0]
+            self.assertIn('--hash=sha256:', block, package)
+        self.assertIn('configuration: mkdocs.yml', readthedocs)
+        self.assertIn('requirements: docs/requirements.txt', readthedocs)
+        self.assertIn('fail_on_warning: true', readthedocs)
+        self.assertIn('python scripts/prepare-docs-tree.py', readthedocs)
+
+        repository_gate = (
+            ROOT / '.github' / 'workflows' / 'repository-gates.yml'
+        ).read_text()
+        self.assertIn(
+            'python3 -m pip install --require-hashes -r docs/requirements.txt',
+            repository_gate,
+        )
+        self.assertIn('python3 scripts/prepare-docs-tree.py', repository_gate)
+        self.assertIn('mkdocs build --strict', repository_gate)
+
+    def test_hosted_documentation_separates_current_and_archived_evidence(self):
+        config = (ROOT / 'mkdocs.yml').read_text()
+        docs_index = (ROOT / 'docs' / 'README.md').read_text()
+        archive = (ROOT / 'docs' / 'validation' / 'README.md').read_text()
+        bundle = (ROOT / 'docs' / 'operator-bundle.md').read_text()
+        validation_dir = ROOT / 'docs' / 'validation'
+        current_report = 'compatibility-v1.4.0-misp-core-v2.5.44.md'
+
+        self.assertIn('- Operator bundle: operator-bundle.md', config)
+        self.assertIn(
+            f'- Current validation evidence: validation/{current_report}',
+            config,
+        )
+        self.assertIn('- Evidence archive: validation/README.md', config)
+        self.assertIn(f'validation/{current_report}', docs_index)
+        self.assertIn('validation/README.md', docs_index)
+        self.assertIn(f'validation/{current_report}', bundle)
+        self.assertIn('latest published and validated-compatible release', archive)
+
+        reports = {
+            path.name
+            for path in validation_dir.glob('*.md')
+            if path.name not in {'README.md', 'matrix.md', current_report}
+        }
+        self.assertGreater(len(reports), 10)
+        for report in reports:
+            self.assertIn(f']({report})', archive, report)
+
+        primary_nav = config.split('nav:', 1)[1].split('markdown_extensions:', 1)[0]
+        for report in reports:
+            self.assertNotIn(f'validation/{report}', primary_nav, report)
+
+        self.assertIn('`v1.4.0` bundle passed', bundle)
+        self.assertNotIn('cannot yet be recommended as validated', bundle)
+
+    def test_hosted_documentation_renders_portable_diagrams_and_notices(self):
+        config = (ROOT / 'mkdocs.yml').read_text()
+        architecture = (ROOT / 'docs' / 'architecture.md').read_text()
+        getting_started = (ROOT / 'docs' / 'getting-started.md').read_text()
+        compatibility = (ROOT / 'docs' / 'compatibility.md').read_text()
+        root_readme = (ROOT / 'README.md').read_text()
+        monitoring = (ROOT / 'docs' / 'monitoring.md').read_text()
+
+        self.assertIn('- pymdownx.superfences:', config)
+        self.assertIn('- name: mermaid', config)
+        self.assertIn('class: mermaid', config)
+        self.assertIn(
+            'format: !!python/name:pymdownx.superfences.fence_code_format',
+            config,
+        )
+        self.assertIn('```mermaid', architecture)
+        self.assertIn('> **Important**', getting_started)
+        self.assertIn('> **Important**', compatibility)
+        self.assertIn('> **Important — Release channels**', root_readme)
+        self.assertNotIn('[!IMPORTANT]', getting_started)
+        self.assertNotIn('[!IMPORTANT]', compatibility)
+        self.assertNotIn('[!IMPORTANT]', root_readme)
+        self.assertIn(
+            '(shell-scripts.md#main-commands)',
+            monitoring,
+        )
+        self.assertNotIn(
+            '(shell-scripts.md#post-install-and-update-verification)',
+            monitoring,
+        )
+        repository_gate = (
+            ROOT / '.github' / 'workflows' / 'repository-gates.yml'
+        ).read_text()
+        self.assertIn('if path == Path("mkdocs.yml"):', repository_gate)
+        self.assertIn('mkdocs build --strict', repository_gate)
+
     def test_documentation_cross_links_existing_major_pages(self):
         major_docs = [
             'architecture.md',
