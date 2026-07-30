@@ -54,6 +54,7 @@ Follow this path when you want to contribute, review release evidence, or mainta
 | --- | --- |
 | contribute code, docs, or integration testing | [`CONTRIBUTING.md`](../CONTRIBUTING.md) |
 | inspect every script and option | [Shell scripts reference](shell-scripts.md) |
+| understand or reuse the project identity | [Brand assets](brand-assets.md) and [asset license](../ASSET-LICENSE.md) |
 | review current compatibility evidence | [Current `v1.4.0` validation](validation/compatibility-v1.4.0-misp-core-v2.5.44.md) and [validation matrix](validation/matrix.md) |
 | inspect retained historical evidence | [Validation evidence archive](validation/README.md) |
 | understand release and upstream input identity | [Versioning](versioning.md), [Release integrity](release/integrity-and-provenance.md), and [Upstream input policy](upstream-inputs.md) |

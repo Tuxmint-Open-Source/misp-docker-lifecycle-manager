@@ -67,9 +67,14 @@ def rewrite_docs_pages(output: Path, root_markdown: list[Path]) -> None:
 def rewrite_repository_pages(output: Path) -> None:
     repository_dir = output / REPOSITORY_SECTION
     docs_link = re.compile(r"]\(docs/([^)]*)\)")
+    docs_html_asset = re.compile(r'(?P<attribute>src|srcset)="docs/(?P<target>[^"]+)"')
 
     for page in repository_dir.glob("*.md"):
         text = docs_link.sub(r"](../\1)", page.read_text())
+        text = docs_html_asset.sub(
+            r'\g<attribute>="../\g<target>"',
+            text,
+        )
         text = replace_markdown_target(
             text, ".release-channels.json", "release-channels.json"
         )

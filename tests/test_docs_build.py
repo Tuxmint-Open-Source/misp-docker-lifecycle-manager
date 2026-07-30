@@ -68,6 +68,15 @@ class GeneratedDocsTreeTests(unittest.TestCase):
         generated_root_readme = (self.output / "repository" / "README.md").read_text()
         self.assertIn("](release-channels.json)", generated_root_readme)
         self.assertNotIn("](.release-channels.json)", generated_root_readme)
+        self.assertIn(
+            'srcset="../assets/brand/png/misp-dlm-lockup-1408.png"',
+            generated_root_readme,
+        )
+        self.assertIn(
+            'src="../assets/brand/png/misp-dlm-lockup-light-1408.png"',
+            generated_root_readme,
+        )
+        self.assertNotIn('src="docs/assets/', generated_root_readme)
 
         upstream = (self.output / "repository" / "upstream-review.md").read_text()
         self.assertIn("](../compatibility.md)", upstream)

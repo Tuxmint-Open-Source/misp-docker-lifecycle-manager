@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/png/misp-dlm-lockup-1408.png">
+    <img class="misp-dlm-readme-lockup" src="docs/assets/brand/png/misp-dlm-lockup-light-1408.png" alt="MISP DLM — Docker Lifecycle Manager" width="352">
+  </picture>
+</p>
+
 # MISP Docker Lifecycle Manager
 
 > **Important — Release channels**
@@ -153,6 +160,7 @@ Please keep public examples sanitized and avoid committing generated secrets, ru
 
 Useful project docs:
 
+- [`ASSET-LICENSE.md`](ASSET-LICENSE.md)
 - [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - [`AGENTS.md`](AGENTS.md)
 - [`QA.md`](QA.md)
