@@ -37,7 +37,7 @@ The standard ten-scenario lifecycle matrix used the published bundle as its sour
 
 ## Cleanup
 
-The exact test firewall rules, proxy configuration, browser credentials, certificates, copied artifacts, Compose deployment, and project-scoped volumes were removed. The approved disposable slots were reverted to their clean snapshot and checked for test residue.
+The disposable validation environment was returned to a clean, residue-free state after the gate completed.
 
 ## Notes and limitations
 
