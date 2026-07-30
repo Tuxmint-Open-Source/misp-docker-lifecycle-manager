@@ -1,6 +1,6 @@
 # Support matrix
 
-This page defines the public support scope of the stable release line. `v1.4.0` is being prepared with the same proposed support scope, but publication and exact-tag validation are pending. `v1.3.1` remains the current published and latest validated-compatible release.
+This page defines the public support scope of the stable release line. `v1.4.0` is the current published release, but exact-tag/package-artifact validation is still in progress. `v1.3.1` remains the latest validated-compatible release.
 
 Anything outside this matrix may still work, but it is not part of the validated support contract unless a later compatibility report says so explicitly.
 

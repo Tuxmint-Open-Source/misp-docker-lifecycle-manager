@@ -31,7 +31,7 @@ A pair is called **validated compatible** only after the documented validation s
 | `v0.3.1` release | `v2.5.42` | `v3.0.8` | `v1.2` | ⚪ Superseded historical validation | 2026-07-08 | [`real-world-v0.3.1.md`](validation/real-world-v0.3.1.md) |
 
 > [!IMPORTANT]
-> `v1.4.0` remains pending publication and full validation as an immutable tag and published operator-bundle artifact. `v1.3.1` remains the latest published and latest validated-compatible release, and `v1.3.0` and `v1.2.0` remain retained historical validated evidence. PR-branch evidence remains capability evidence only and is not a substitute for exact-tag validation.
+> The immutable `v1.4.0` tag and operator-bundle artifact are published, but full exact-tag/package-artifact validation remains in progress. `v1.3.1` remains the latest validated-compatible release, and `v1.3.0` and `v1.2.0` remain retained historical validated evidence. PR-branch evidence remains capability evidence only and is not a substitute for exact-tag validation.
 >
 > The `v1.0.0` release tag remains historical validated evidence. Future manager releases or upstream component sets require separate validation before compatibility is claimed.
 >
