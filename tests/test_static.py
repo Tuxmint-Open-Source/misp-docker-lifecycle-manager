@@ -1272,7 +1272,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('| `v1.2.0` | Previous stable release with retained compatibility evidence', security)
         self.assertIn('| `v1.1.0` | Previous stable release with retained compatibility evidence', security)
         self.assertIn('| `v1.0.0` | Previous stable release with retained historical compatibility evidence', security)
-        self.assertIn('## [1.4.0] - 2026-07-28', changelog)
+        self.assertIn('## [1.4.0] - 2026-07-30', changelog)
         self.assertIn('## [1.3.1] - 2026-07-23', changelog)
         self.assertIn('## [1.3.0] - 2026-07-23', changelog)
         self.assertIn('## [1.2.0] - 2026-07-22', changelog)
