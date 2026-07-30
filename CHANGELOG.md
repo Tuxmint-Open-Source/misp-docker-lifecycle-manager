@@ -9,6 +9,10 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Add a strict Material for MkDocs and Read the Docs foundation with a complete hash-verified dependency lock, a deterministic version-local build tree for canonical repository policy pages, clear current-versus-archived validation evidence navigation, and portable Mermaid and important-notice rendering.
 - Add the licensed MISP DLM visual identity to the repository and Material documentation shell.
 
+### Changed
+
+- Replace overlapping documentation entry maps with an operator-focused task chooser, a secondary contributor/maintainer path, task-oriented navigation, and a shorter repository README.
+
 ## [1.4.0] - 2026-07-30
 
 ### Fixed
