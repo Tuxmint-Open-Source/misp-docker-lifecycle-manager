@@ -87,3 +87,5 @@ The current validated tuple is manager `v1.4.0`, MISP core `v2.5.44`, modules `v
 - Release history: [`CHANGELOG.md`](CHANGELOG.md)
 
 Repository-local documentation remains the versioned and offline source of truth. The hosted `latest` documentation renders the current `main` branch. Older release tags before the MkDocs/Read the Docs foundation, including `v1.4.0`, should be read from the repository tag rather than expected to have hosted release-tag pages.
+
+Read the Docs release-tag documentation starts with the first release tag that contains the MkDocs/Read the Docs foundation. Do not move or rewrite old release tags to make hosted pages build. Keep the hosted project root on `latest` until a post-foundation release tag is active, built, and verified as the RTD `stable` version.

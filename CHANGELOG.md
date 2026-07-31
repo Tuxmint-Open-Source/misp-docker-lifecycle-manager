@@ -16,6 +16,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Clarify the operator guide with a day-2 task map for status checks, updates, backups, monitoring, and troubleshooting handoff without changing lifecycle commands.
 - Clarify troubleshooting with a first-triage path, symptom map, and public-safe escalation handoff without changing diagnostic commands.
 - Link the verified Read the Docs `latest` site from the documentation entry points and document that older tags remain repository-local when they predate the hosted-docs foundation.
+- Document the Read the Docs release-tag policy: hosted tag docs begin with the first post-foundation release tag, old release tags are not rewritten, and the hosted root stays on `latest` until a post-foundation tag is active, built, and verified as `stable`.
 
 ## [1.4.0] - 2026-07-30
 

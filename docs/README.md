@@ -51,3 +51,5 @@ The current hosted documentation is available at [`misp-docker-lifecycle-manager
 These pages also live in the repository and remain usable from an exact branch or tag. Start from this `docs/README.md` file when reading offline; root policies such as [`SECURITY.md`](../SECURITY.md) and [`CONTRIBUTING.md`](../CONTRIBUTING.md) remain canonical.
 
 Hosted release-tag pages begin with releases that include the MkDocs/Read the Docs foundation. Older tags such as `v1.4.0` predate that foundation, so use the repository tag for their version-correct documentation.
+
+Do not move or rewrite old release tags to make hosted pages build. RTD `latest` remains the default hosted version until a post-foundation release tag is active, built, and verified as `stable`.
