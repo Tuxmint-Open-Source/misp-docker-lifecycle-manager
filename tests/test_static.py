@@ -632,7 +632,8 @@ class StaticRepoTests(unittest.TestCase):
 
         self.assertIn('| I want to… | Read this |', readme)
         self.assertIn('choose the right path', readme)
-        self.assertIn('misp-docker-lifecycle-manager.readthedocs.io/en/latest/', readme)
+        self.assertIn('misp-docker-lifecycle-manager.readthedocs.io', readme)
+        self.assertIn('https://misp-docker-lifecycle-manager.readthedocs.io/', readme)
         self.assertIn('The hosted `latest` documentation renders the current `main` branch', readme)
         self.assertIn('Older release tags before the MkDocs/Read the Docs foundation', readme)
         self.assertIn('contribute or maintain the project', readme)
