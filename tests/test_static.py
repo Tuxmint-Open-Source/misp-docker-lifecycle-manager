@@ -589,6 +589,7 @@ class StaticRepoTests(unittest.TestCase):
         contributor_path = (ROOT / 'docs' / 'contribute-and-maintain.md').read_text()
         getting_started = (ROOT / 'docs' / 'getting-started.md').read_text()
         operator = (ROOT / 'docs' / 'operator-guide.md').read_text()
+        troubleshooting = (ROOT / 'docs' / 'troubleshooting.md').read_text()
         readme = (ROOT / 'README.md').read_text()
         channels = json.loads((ROOT / '.release-channels.json').read_text())
 
@@ -698,6 +699,34 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('troubleshooting.md', operator)
         self.assertLess(operator.index('## Day-2 task map'), operator.index('## 1. Understand the model'))
         self.assertLess(len(operator.splitlines()), 240)
+
+        self.assertIn('## First triage path', troubleshooting)
+        self.assertIn('| Step | What to check | Command or handoff |', troubleshooting)
+        for task in [
+            'Managed deployment health',
+            'Login/readiness evidence',
+            'Service/runtime state',
+            'Current component context',
+            'Public-safe report if still unclear',
+        ]:
+            self.assertIn(task, troubleshooting)
+        self.assertIn('## Choose the matching symptom', troubleshooting)
+        for symptom in [
+            'Web UI login fails',
+            'Installer reports database-update failure',
+            'Compose output is noisy',
+            'Browser redirects to localhost',
+            'Monitoring reports warning/critical/unknown',
+            'Backup, restore, or rollback fails',
+        ]:
+            self.assertIn(symptom, troubleshooting)
+        self.assertIn('## Escalate or report safely', troubleshooting)
+        self.assertIn('Anonymous SOS reports](sos-report.md)', troubleshooting)
+        self.assertIn('[`SECURITY.md`](../SECURITY.md)', troubleshooting)
+        self.assertIn('Backup, restore, and rollback](backup-restore-and-rollback.md)', troubleshooting)
+        self.assertIn('login-check.sh --install-dir /opt/misp-docker --machine-readable', troubleshooting)
+        self.assertLess(troubleshooting.index('## First triage path'), troubleshooting.index('## Cannot log in'))
+        self.assertLess(len(troubleshooting.splitlines()), 230)
 
     def test_hosted_documentation_uses_pinned_material_foundation(self):
         config = (ROOT / 'mkdocs.yml').read_text()
