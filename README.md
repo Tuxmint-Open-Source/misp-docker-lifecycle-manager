@@ -25,7 +25,7 @@ The manager installs, configures, validates, updates, backs up, restores, and sa
 ## Start with your task
 
 For the current hosted reader experience, start at the verified Read the Docs site:
-[`misp-docker-lifecycle-manager.readthedocs.io/en/latest/`](https://misp-docker-lifecycle-manager.readthedocs.io/en/latest/).
+[`misp-docker-lifecycle-manager.readthedocs.io`](https://misp-docker-lifecycle-manager.readthedocs.io/).
 The repository-local links below remain the versioned/offline source of truth for exact branches and tags.
 
 | I want to… | Read this |
