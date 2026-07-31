@@ -9,6 +9,8 @@
 
 A non-invasive lifecycle manager for official [`MISP/misp-docker`](https://github.com/MISP/misp-docker) single-server Docker deployments.
 
+This is an independent community project. It is not part of, endorsed by, certified by, sponsored by, or supported by the MISP project, CIRCL, or the upstream MISP maintainers. Read [project origin and transparency](docs/project-origin-and-transparency.md) for the non-affiliation, naming, validation, and AI-assisted development model.
+
 > **Important — Release channels**
 >
 > | Channel | Version | Meaning |
@@ -84,6 +86,7 @@ The latest published release is `v1.4.1`, a documentation/hosted-docs patch rele
 - Contributions: [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - Quality gates: [`QA.md`](QA.md)
 - Project identity: [`ASSET-LICENSE.md`](ASSET-LICENSE.md) and [brand assets](docs/brand-assets.md)
+- Project origin and transparency: [`docs/project-origin-and-transparency.md`](docs/project-origin-and-transparency.md)
 - Release history: [`CHANGELOG.md`](CHANGELOG.md)
 
 Repository-local documentation remains the versioned and offline source of truth. The hosted `latest` documentation renders the current `main` branch. Older release tags before the MkDocs/Read the Docs foundation, including `v1.4.0`, should be read from the repository tag rather than expected to have hosted release-tag pages.

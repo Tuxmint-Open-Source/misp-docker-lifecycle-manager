@@ -4,6 +4,10 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+### Added
+
+- Add project origin and transparency documentation covering non-affiliation with the upstream MISP project, descriptive MISP-name usage, AI-assisted development under maintainer review, and validation-based trust boundaries.
+
 ## [1.4.1] - 2026-07-31
 
 ### Added

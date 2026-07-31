@@ -2,6 +2,8 @@
 
 MISP Docker Lifecycle Manager helps operate an official [`MISP/misp-docker`](https://github.com/MISP/misp-docker) single-server deployment without taking ownership of the generated upstream checkout.
 
+It is an independent community project, not part of, endorsed by, certified by, sponsored by, or supported by the MISP project, CIRCL, or the upstream MISP maintainers. Read [project origin and transparency](project-origin-and-transparency.md) for naming, support-boundary, validation, and AI-assisted development details.
+
 Choose the task that matches what you need now:
 
 | I want to… | Start here | Continue with |
@@ -42,7 +44,7 @@ The current validated tuple remains manager `v1.4.0`, MISP core `v2.5.44`, modul
 
 ## Contribute or maintain
 
-Contributor, release, policy, script-reference, and project-identity material is collected in [Contribute and maintain](contribute-and-maintain.md). Operators do not need that material to follow the task paths above.
+Contributor, release, policy, script-reference, transparency, and project-identity material is collected in [Contribute and maintain](contribute-and-maintain.md). Operators do not need that material to follow the task paths above.
 
 ## Offline and versioned documentation
 
