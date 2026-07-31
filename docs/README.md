@@ -14,11 +14,11 @@ Choose the task that matches what you need now:
 | **Back up or recover** | [Backup, restore, and rollback](backup-restore-and-rollback.md) | Review recovery before an update or incident |
 | **Deploy securely** | [Production deployment](production-deployment.md) | [Security model](security.md) and [architecture](architecture.md) |
 | **Troubleshoot or report a problem** | [Troubleshooting](troubleshooting.md) | [Anonymous SOS reports](sos-report.md) or [`SECURITY.md`](../SECURITY.md) for sensitive issues |
-| **Inspect compatibility evidence** | [Latest validated `v1.4.0` report](validation/compatibility-v1.4.0-misp-core-v2.5.44.md) | [Validation matrix](validation/matrix.md) and [evidence archive](validation/README.md) |
+| **Inspect compatibility evidence** | [Latest validated `v1.4.1` report](validation/compatibility-v1.4.1-misp-core-v2.5.44.md) | [Validation matrix](validation/matrix.md) and [evidence archive](validation/README.md) |
 
 > **Important — Release channels**
 >
-> `v1.4.1` is the latest published release. `v1.4.0` remains the latest validated-compatible release until exact-tag validation for `v1.4.1` passes. Install and report immutable SemVer tags; `stable` and `latest` are not Git tags in this project.
+> `v1.4.1` is the latest published and latest validated-compatible release. Install and report immutable SemVer tags; `stable` and `latest` are not Git tags in this project.
 
 ## New operator path
 
@@ -40,7 +40,7 @@ Compatibility is an explicit pair:
 manager release/ref × official MISP Docker component set = status
 ```
 
-The current validated tuple remains manager `v1.4.0`, MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`. Read the [current report](validation/compatibility-v1.4.0-misp-core-v2.5.44.md) for scope and limitations. `v1.4.1` exact-tag compatibility validation is pending. Older immutable reports remain available in the [evidence archive](validation/README.md).
+The current validated tuple is manager `v1.4.1`, MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`. Read the [current report](validation/compatibility-v1.4.1-misp-core-v2.5.44.md) for scope and limitations. Older immutable reports remain available in the [evidence archive](validation/README.md).
 
 ## Contribute or maintain
 

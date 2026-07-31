@@ -2,7 +2,7 @@
 
 This guide describes the supported production deployment workflow for `misp-docker-lifecycle-manager` within the documented stable release scope.
 
-`v1.4.1` is the latest published documentation/hosted-docs patch release. `v1.4.0` remains the latest validated-compatible release for the documented component tuple until `v1.4.1` exact-tag validation passes.
+`v1.4.1` is the latest published and latest validated-compatible release for the documented component tuple.
 
 ## Supported production shape
 
@@ -145,11 +145,11 @@ See [`backup-restore-and-rollback.md`](backup-restore-and-rollback.md) for the v
 
 The generated deployment remains a normal official `MISP/misp-docker` checkout. If this installer repository is removed after installation, operators can still inspect and manage the generated deployment with normal Docker Compose commands from the install directory.
 
-No-lock-in behavior passed exact-tag and published-artifact validation for `v1.4.0` with the documented component tuple.
+No-lock-in behavior passed exact-tag and published-artifact validation for `v1.4.1` with the documented component tuple.
 
 ## Compatibility scope
 
-The immutable `v1.4.0` tag and published operator-bundle artifact passed restore, browser-login, restore-based rollback, monitoring, lifecycle, and explicit remote-proxy bind validation for core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`.
+The immutable `v1.4.1` tag and published operator-bundle artifact passed restore, browser-login, restore-based rollback, monitoring, lifecycle, and explicit remote-proxy bind validation for core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`.
 
 ## What to read next
 

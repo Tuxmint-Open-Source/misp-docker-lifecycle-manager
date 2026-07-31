@@ -6,11 +6,12 @@ Compatibility claims remain scoped to the exact manager release or ref and the e
 
 ## Current validated release
 
-- [`v1.4.0` with MISP core `v2.5.44`](compatibility-v1.4.0-misp-core-v2.5.44.md) — latest validated-compatible release. `v1.4.1` exact-tag validation is pending.
+- [`v1.4.1` with MISP core `v2.5.44`](compatibility-v1.4.1-misp-core-v2.5.44.md) — latest validated-compatible release.
 - [Validation and compatibility matrix](matrix.md) — current and historical status summary.
 
 ## Previous stable-release evidence
 
+- [`v1.4.0` with MISP core `v2.5.44`](compatibility-v1.4.0-misp-core-v2.5.44.md)
 - [`v1.3.1` with MISP core `v2.5.44`](compatibility-v1.3.1-misp-core-v2.5.44.md)
 - [`v1.3.0` with MISP core `v2.5.44`](compatibility-v1.3.0-misp-core-v2.5.44.md)
 - [`v1.2.0` with MISP core `v2.5.44`](compatibility-v1.2.0-misp-core-v2.5.44.md)

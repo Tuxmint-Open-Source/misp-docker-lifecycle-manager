@@ -23,7 +23,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Clarify troubleshooting with a first-triage path, symptom map, and public-safe escalation handoff without changing diagnostic commands.
 - Link the verified Read the Docs `latest` site from the documentation entry points and document that older tags remain repository-local when they predate the hosted-docs foundation.
 - Document the Read the Docs release-tag policy: hosted tag docs begin with the first post-foundation release tag, old release tags are not rewritten, and the hosted root stays on `latest` until a post-foundation tag is active, built, and verified as `stable`.
-- Publish `v1.4.1` as a documentation and hosted-docs patch release while keeping `v1.4.0` as the latest validated-compatible release until exact-tag validation for `v1.4.1` passes.
+- Publish `v1.4.1` as a documentation and hosted-docs patch release; post-release exact-tag/package-artifact validation later marked it as validated compatible.
 
 ## [1.4.0] - 2026-07-30
 
