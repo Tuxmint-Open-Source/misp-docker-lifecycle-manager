@@ -635,6 +635,8 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('The current validated tuple is manager `v1.4.1`', docs_readme)
         self.assertIn('maintainer-workflow.md', contributor_path)
         self.assertIn('release/release-process.md', contributor_path)
+        self.assertIn('validation/compatibility-v1.4.1-misp-core-v2.5.44.md', contributor_path)
+        self.assertNotIn('validation/compatibility-v1.4.0-misp-core-v2.5.44.md', contributor_path)
         self.assertIn('compatibility.md', docs_readme)
 
         self.assertIn('| I want to… | Read this |', readme)
