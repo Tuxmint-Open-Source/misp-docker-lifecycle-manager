@@ -24,7 +24,7 @@ Upstream MISP components keep their own licenses and governance. This repository
 
 This project was built with AI-assisted engineering under maintainer review.
 
-The `hermes-archham <hermes@tuxmint.com>` Git author represents the archham/Tuxmint AI-assisted development workflow for this repository. archham is the project maintainer and reviewed scope, architecture, pull requests, public wording, release gates, and validation evidence. archham also performed or approved manual testing where it was needed.
+The [hermes-archham](https://github.com/hermes-archham) Git author represents the archham/Tuxmint AI-assisted development workflow for this repository. archham is the project maintainer and reviewed scope, architecture, pull requests, public wording, release gates, and validation evidence. archham also performed or approved manual testing where it was needed.
 
 AI assistance does not replace maintainership or validation. Compatibility claims in this repository are based on exact release tags, published release artifacts, documented component tuples, automated gates, and sanitized validation evidence.
 
