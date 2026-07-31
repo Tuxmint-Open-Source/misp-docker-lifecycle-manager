@@ -24,6 +24,10 @@ The manager installs, configures, validates, updates, backs up, restores, and sa
 
 ## Start with your task
 
+For the current hosted reader experience, start at the verified Read the Docs site:
+[`misp-docker-lifecycle-manager.readthedocs.io/en/latest/`](https://misp-docker-lifecycle-manager.readthedocs.io/en/latest/).
+The repository-local links below remain the versioned/offline source of truth for exact branches and tags.
+
 | I want to… | Read this |
 | --- | --- |
 | choose the right path | [`docs/README.md`](docs/README.md) |
@@ -82,4 +86,4 @@ The current validated tuple is manager `v1.4.0`, MISP core `v2.5.44`, modules `v
 - Project identity: [`ASSET-LICENSE.md`](ASSET-LICENSE.md) and [brand assets](docs/brand-assets.md)
 - Release history: [`CHANGELOG.md`](CHANGELOG.md)
 
-Repository-local documentation remains the versioned and offline source of truth. The hosted documentation renders the same branch or tag.
+Repository-local documentation remains the versioned and offline source of truth. The hosted `latest` documentation renders the current `main` branch. Older release tags before the MkDocs/Read the Docs foundation, including `v1.4.0`, should be read from the repository tag rather than expected to have hosted release-tag pages.

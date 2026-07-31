@@ -46,4 +46,8 @@ Contributor, release, policy, script-reference, and project-identity material is
 
 ## Offline and versioned documentation
 
-These pages live in the repository and remain usable from an exact branch or tag. Start from this `docs/README.md` file when reading offline; root policies such as [`SECURITY.md`](../SECURITY.md) and [`CONTRIBUTING.md`](../CONTRIBUTING.md) remain canonical.
+The current hosted documentation is available at [`misp-docker-lifecycle-manager.readthedocs.io/en/latest/`](https://misp-docker-lifecycle-manager.readthedocs.io/en/latest/).
+
+These pages also live in the repository and remain usable from an exact branch or tag. Start from this `docs/README.md` file when reading offline; root policies such as [`SECURITY.md`](../SECURITY.md) and [`CONTRIBUTING.md`](../CONTRIBUTING.md) remain canonical.
+
+Hosted release-tag pages begin with releases that include the MkDocs/Read the Docs foundation. Older tags such as `v1.4.0` predate that foundation, so use the repository tag for their version-correct documentation.

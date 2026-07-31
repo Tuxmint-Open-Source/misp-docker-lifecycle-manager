@@ -15,6 +15,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Clarify the getting-started path so prerequisites, supported deployment shape, install verification, and production/recovery next steps are easier to scan without changing lifecycle commands.
 - Clarify the operator guide with a day-2 task map for status checks, updates, backups, monitoring, and troubleshooting handoff without changing lifecycle commands.
 - Clarify troubleshooting with a first-triage path, symptom map, and public-safe escalation handoff without changing diagnostic commands.
+- Link the verified Read the Docs `latest` site from the documentation entry points and document that older tags remain repository-local when they predate the hosted-docs foundation.
 
 ## [1.4.0] - 2026-07-30
 
