@@ -67,6 +67,7 @@ nav:
 
   - Contribute and maintain:
       - Contributor and maintainer path: contribute-and-maintain.md
+      - Project origin and transparency: project-origin-and-transparency.md
       - Maintainer workflow: maintainer-workflow.md
       - Release process: release/release-process.md
       - Integrity and provenance: release/integrity-and-provenance.md

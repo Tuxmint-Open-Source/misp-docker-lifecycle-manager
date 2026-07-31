@@ -624,6 +624,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('operator-guide.md', docs_readme)
         self.assertIn('support-matrix.md', docs_readme)
         self.assertIn('contribute-and-maintain.md', docs_readme)
+        self.assertIn('project-origin-and-transparency.md', docs_readme)
         self.assertIn('misp-docker-lifecycle-manager.readthedocs.io/en/latest/', docs_readme)
         self.assertIn('Hosted release-tag pages begin with releases that include the MkDocs/Read the Docs foundation', docs_readme)
         self.assertIn('use the repository tag for their version-correct documentation', docs_readme)
@@ -644,6 +645,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Do not move or rewrite old release tags to make hosted pages build', readme)
         self.assertIn('Keep the hosted project root on `latest` until a post-foundation release tag is active, built, and verified as the RTD `stable` version', readme)
         self.assertIn('contribute or maintain the project', readme)
+        self.assertIn('docs/project-origin-and-transparency.md', readme)
         self.assertLess(len(readme.splitlines()), 130)
         self.assertLess(len(docs_readme.splitlines()), 80)
         task_nav = [
@@ -658,6 +660,7 @@ class StaticRepoTests(unittest.TestCase):
         positions = [config.index(label) for label in task_nav]
         self.assertEqual(positions, sorted(positions))
         self.assertIn('Contributor and maintainer path: contribute-and-maintain.md', config)
+        self.assertIn('Project origin and transparency: project-origin-and-transparency.md', config)
         self.assertNotIn('\n  - Operations:', config)
         self.assertNotIn('\n  - Reference:', config)
         self.assertIn('Split the documentation entry path', (ROOT / 'CHANGELOG.md').read_text())
@@ -741,6 +744,44 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('login-check.sh --install-dir /opt/misp-docker --machine-readable', troubleshooting)
         self.assertLess(troubleshooting.index('## First triage path'), troubleshooting.index('## Cannot log in'))
         self.assertLess(len(troubleshooting.splitlines()), 230)
+
+    def test_project_origin_and_transparency_policy_is_explicit(self):
+        transparency = (ROOT / 'docs' / 'project-origin-and-transparency.md').read_text()
+        readme = (ROOT / 'README.md').read_text()
+        docs_readme = (ROOT / 'docs' / 'README.md').read_text()
+        contributor_path = (ROOT / 'docs' / 'contribute-and-maintain.md').read_text()
+        asset_license = (ROOT / 'ASSET-LICENSE.md').read_text()
+
+        for text in (readme, docs_readme, transparency):
+            self.assertIn('independent community project', text)
+            self.assertIn('not part of, endorsed by, certified by, sponsored by, or supported by', text)
+            self.assertIn('MISP project, CIRCL, or the upstream MISP maintainers', text)
+
+        for phrase in [
+            'uses the word **MISP** descriptively',
+            'does not claim ownership of the MISP name',
+            'does not use the upstream MISP logo',
+            'does not vendor, fork, or rewrite MISP itself',
+            'AI-assisted engineering under maintainer review',
+            'hermes-archham <hermes@tuxmint.com>',
+            'archham is the project maintainer',
+            'AI assistance does not replace maintainership or validation',
+            'Compatibility claims in this repository are based on exact release tags',
+            'No dedicated public MISP trademark policy was found',
+        ]:
+            self.assertIn(phrase, transparency)
+
+        forbidden_claims = [
+            'official MISP software',
+            'a MISP project release',
+            'certified, endorsed, or supported by CIRCL',
+            'a support contract or service-level agreement',
+        ]
+        for phrase in forbidden_claims:
+            self.assertIn(phrase, transparency)
+
+        self.assertIn('Project origin and transparency](project-origin-and-transparency.md)', contributor_path)
+        self.assertIn('Relationship to MISP', asset_license)
 
     def test_hosted_documentation_uses_pinned_material_foundation(self):
         config = (ROOT / 'mkdocs.yml').read_text()

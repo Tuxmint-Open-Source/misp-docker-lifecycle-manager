@@ -18,6 +18,7 @@ Monitoring ingestion for Zabbix, Checkmk, Nagios/Icinga, and Prometheus remains 
 | I want to… | Read this |
 | --- | --- |
 | manage issues, labels, SOS triage, and upstream monitoring | [Maintainer workflow](maintainer-workflow.md) |
+| understand origin, naming, and AI-assisted development transparency | [Project origin and transparency](project-origin-and-transparency.md) |
 | inspect every lifecycle command and option | [Shell scripts reference](shell-scripts.md) |
 | understand manager, upstream, and component versions | [Versioning](versioning.md) and [upstream input policy](upstream-inputs.md) |
 | review the supported deployment architecture | [Architecture](architecture.md), [security](security.md), and [support matrix](support-matrix.md) |
