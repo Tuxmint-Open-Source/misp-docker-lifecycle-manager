@@ -763,7 +763,7 @@ class StaticRepoTests(unittest.TestCase):
             'does not use the upstream MISP logo',
             'does not vendor, fork, or rewrite MISP itself',
             'AI-assisted engineering under maintainer review',
-            'hermes-archham <hermes@tuxmint.com>',
+            '[hermes-archham](https://github.com/hermes-archham)',
             'archham is the project maintainer',
             'AI assistance does not replace maintainership or validation',
             'Compatibility claims in this repository are based on exact release tags',
