@@ -648,10 +648,27 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Split the documentation entry path', (ROOT / 'CHANGELOG.md').read_text())
 
         self.assertIn('first successful path', getting_started)
+        self.assertIn('## What this path does', getting_started)
+        self.assertIn('## Supported shape before you run commands', getting_started)
+        self.assertIn('## Install and verify', getting_started)
+        self.assertIn('## Before production use', getting_started)
+        self.assertLess(
+            getting_started.index('## Supported shape before you run commands'),
+            getting_started.index('git clone'),
+        )
+        self.assertLess(
+            getting_started.index('Do not expose a deployment publicly'),
+            getting_started.index('sudo ./lifecycle/install.sh'),
+        )
         self.assertIn(f"git checkout {channels['latest_published']}", getting_started)
         self.assertIn('doctor.sh', getting_started)
         self.assertIn('login-check.sh', getting_started)
         self.assertIn('backup.sh', getting_started)
+        self.assertIn('Production deployment guide](production-deployment.md)', getting_started)
+        self.assertIn('Backup, restore, and rollback](backup-restore-and-rollback.md)', getting_started)
+        self.assertIn('The lifecycle manager does not modify the host firewall', getting_started)
+        self.assertIn('do not switch to `direct-qa` for production exposure', getting_started)
+        self.assertLess(len(getting_started.splitlines()), 180)
 
         self.assertIn('red line through the repository', operator)
         self.assertIn('Understand the model', operator)

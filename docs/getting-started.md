@@ -1,26 +1,42 @@
 # Getting started
 
-This guide gives you a first successful path through MISP Docker Lifecycle Manager.
+This guide gives you one first successful path through MISP Docker Lifecycle Manager.
 
-It is intentionally shorter than the full [operator guide](operator-guide.md). Use it to understand the flow, then read the production and recovery docs before relying on a deployment.
+Use it to install, verify, and identify the next document to read. It is not a replacement for the full [operator guide](operator-guide.md), [production deployment guide](production-deployment.md), or [backup and recovery guide](backup-restore-and-rollback.md).
 
 > **Important**
 > `v1.4.0` is the latest published and validated-compatible release for the documented component set and single-server Docker lifecycle-manager scope. Validate your own deployment assumptions and keep backups before relying on a deployment operationally.
 
-## Before you begin
+## What this path does
+
+The first-install path:
+
+1. checks that your host and deployment shape are in scope;
+2. clones the manager and checks out the supported release tag;
+3. prepares a Rocky-compatible host when needed;
+4. installs MISP behind a reverse proxy;
+5. verifies readiness and login;
+6. records where to continue for production, updates, backups, recovery, and troubleshooting.
+
+It does **not** replace production planning. Do not expose a deployment publicly until you have reviewed the production and recovery links at the end.
+
+## Supported shape before you run commands
 
 Read the [support matrix](support-matrix.md) first if you are unsure whether this project fits your environment.
 
 This guide assumes:
 
 - one Linux host dedicated to a single-server Docker deployment;
+- a supported Rocky-compatible host, or an expert test host outside the support matrix;
 - Git is installed before cloning the manager (`sudo dnf install -y git` on a supported Rocky-compatible host);
 - Docker and Docker Compose are available or can be installed by the host-preparation helper;
-- you will run lifecycle commands with `sudo`;
+- lifecycle commands are run with `sudo`;
 - your public URL is a real hostname such as `https://misp.example.com`;
-- you understand that generated secrets and runtime `.env` files must not be committed.
+- generated secrets and runtime `.env` files are never committed.
 
-## 1. Clone the manager
+## Install and verify
+
+### 1. Clone the manager
 
 ```bash
 git clone https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager.git
@@ -33,7 +49,7 @@ Use the release tag you want to evaluate:
 git checkout v1.4.0
 ```
 
-## 2. Prepare a Rocky Linux host
+### 2. Prepare a Rocky Linux host
 
 ```bash
 sudo ./lifecycle/prepare-host-rocky.sh
@@ -45,7 +61,7 @@ The helper stops before package changes unless it detects a Rocky-compatible Lin
 
 If your host is already prepared, you can skip this step.
 
-## 3. Install MISP behind a reverse proxy
+### 3. Install MISP behind a reverse proxy
 
 The default deployment mode expects a reverse proxy in front of MISP.
 
@@ -69,11 +85,9 @@ http://127.0.0.1:8080
 https://127.0.0.1:8443
 ```
 
-This loopback bind is the secure default for a proxy on the same host. The lifecycle manager does not modify the host firewall. In `v1.4.0`, a proxy on another host requires the explicit bind and source-restricted firewall procedure in the production deployment guide; do not switch to `direct-qa` for production exposure.
+This loopback bind is the secure default for a proxy on the same host. The lifecycle manager does not modify the host firewall. In `v1.4.0`, a proxy on another host requires the explicit bind and source-restricted firewall procedure in the [production deployment guide](production-deployment.md); do not switch to `direct-qa` for production exposure.
 
-For production planning details, read [Production deployment guide](production-deployment.md).
-
-## 4. Verify the deployment
+### 4. Verify readiness and login
 
 Run the doctor check:
 
@@ -81,7 +95,7 @@ Run the doctor check:
 sudo ./lifecycle/doctor.sh --install-dir /opt/misp-docker
 ```
 
-Run the login check (TLS certificates are verified by default, and success requires a positive authenticated-session marker):
+Run the login check. TLS certificates are verified by default, and success requires a positive authenticated-session marker:
 
 ```bash
 sudo ./lifecycle/login-check.sh --install-dir /opt/misp-docker
@@ -103,7 +117,9 @@ sudo ./lifecycle/admin-credentials.sh \
   --show-password
 ```
 
-## 5. Check component versions
+## Before production use
+
+### Check component versions
 
 Check the upstream-declared MISP component tags:
 
@@ -119,7 +135,7 @@ Compare a local deployment against upstream:
 
 Compatibility is tracked as a pair: manager release/ref plus official MISP Docker component tags. See [Compatibility](compatibility.md).
 
-## 6. Take a backup before changing things
+### Take a backup before changing things
 
 ```bash
 sudo ./lifecycle/backup.sh --install-dir /opt/misp-docker
@@ -127,10 +143,10 @@ sudo ./lifecycle/backup.sh --install-dir /opt/misp-docker
 
 Backups include database dump, host data, generated deployment configuration, and checksums. Read [Backup, restore, and rollback](backup-restore-and-rollback.md) before depending on backups operationally.
 
-## 7. Know where to go next
+## What to read next
 
+- Plan production exposure and reverse-proxy/firewall ownership: [Production deployment guide](production-deployment.md).
 - Follow the full lifecycle story: [Operator guide](operator-guide.md).
-- Plan a real deployment: [Production deployment guide](production-deployment.md).
 - Update safely: [Upgrade path](upgrade-path.md).
 - Recover from mistakes: [Backup, restore, and rollback](backup-restore-and-rollback.md).
 - Debug failures: [Troubleshooting](troubleshooting.md).
