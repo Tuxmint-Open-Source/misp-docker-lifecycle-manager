@@ -12,6 +12,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 ### Changed
 
 - Replace overlapping documentation entry maps with an operator-focused task chooser, a secondary contributor/maintainer path, task-oriented navigation, and a shorter repository README.
+- Clarify the getting-started path so prerequisites, supported deployment shape, install verification, and production/recovery next steps are easier to scan without changing lifecycle commands.
 
 ## [1.4.0] - 2026-07-30
 
