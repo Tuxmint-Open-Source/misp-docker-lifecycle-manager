@@ -15,8 +15,8 @@ This is an independent community project. It is not part of, endorsed by, certif
 >
 > | Channel | Version | Meaning |
 > | --- | --- | --- |
-> | Latest published | `v1.4.1` | Newest normal SemVer release; documentation/hosted-docs patch, exact-tag compatibility validation pending |
-> | Latest validated | `v1.4.0` | Newest immutable release tag that passed the full compatibility matrix |
+> | Latest published | `v1.4.1` | Newest normal SemVer release; documentation/hosted-docs patch with exact-tag compatibility evidence |
+> | Latest validated | `v1.4.1` | Newest immutable release tag that passed the full compatibility matrix |
 >
 > Install and report the immutable SemVer tag. [`.release-channels.json`](.release-channels.json) is the machine-readable source; mutable `stable` and `latest` Git tags are intentionally not used.
 
@@ -45,13 +45,13 @@ The repository-local links below remain the versioned/offline source of truth fo
 
 ## Quick test path
 
-For the supported first-install workflow, read [`docs/getting-started.md`](docs/getting-started.md). Use the latest validated-compatible release for deployments until `v1.4.1` exact-tag validation completes. Git is required before cloning:
+For the supported first-install workflow, read [`docs/getting-started.md`](docs/getting-started.md). Use the latest validated-compatible release for deployments. Git is required before cloning:
 
 ```bash
 sudo dnf install -y git
 git clone https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager.git
 cd misp-docker-lifecycle-manager
-git checkout v1.4.0
+git checkout v1.4.1
 sudo ./lifecycle/prepare-host-rocky.sh
 sudo ./lifecycle/install.sh \
   --install-dir /opt/misp-docker \
@@ -78,7 +78,7 @@ For production, recovery, updates, and limitations, use the linked guides rather
 manager release/ref × official MISP Docker component set = status
 ```
 
-The latest published release is `v1.4.1`, a documentation/hosted-docs patch release with exact-tag compatibility validation pending. The current validated tuple remains manager `v1.4.0`, MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`. See [compatibility](docs/compatibility.md), the [current validation report](docs/validation/compatibility-v1.4.0-misp-core-v2.5.44.md), and the [evidence archive](docs/validation/README.md).
+The latest published and latest validated release is `v1.4.1`, a documentation/hosted-docs patch release that passed exact-tag and published-artifact validation for MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`. See [compatibility](docs/compatibility.md), the [current validation report](docs/validation/compatibility-v1.4.1-misp-core-v2.5.44.md), and the [evidence archive](docs/validation/README.md).
 
 ## Policy and project links
 
