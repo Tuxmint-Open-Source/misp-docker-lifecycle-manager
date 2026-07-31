@@ -1,5 +1,32 @@
 # Troubleshooting
 
+Use this guide when an install, update, login, monitoring check, or managed lifecycle command does not behave as expected.
+
+Start with the public-safe triage path below, then follow the category that matches the failure. If you need to report a bug, use a reviewed [anonymous SOS report](sos-report.md) instead of raw logs or private deployment details.
+
+## First triage path
+
+| Step | What to check | Command or handoff |
+| --- | --- | --- |
+| 1 | Managed deployment health | `./lifecycle/doctor.sh --install-dir /opt/misp-docker` |
+| 2 | Login/readiness evidence | `./lifecycle/login-check.sh --install-dir /opt/misp-docker` |
+| 3 | Service/runtime state | `sudo ./lifecycle/status.sh --install-dir /opt/misp-docker` |
+| 4 | Current component context | `./lifecycle/get-current-misp-versions.sh --install-dir /opt/misp-docker` |
+| 5 | Public-safe report if still unclear | [Anonymous SOS reports](sos-report.md) |
+
+Do not paste raw logs, `.env`, generated config, backups, private hostnames, private addresses, or real deployment details into public issues. If a report cannot be made public-safe, use the private path in [`SECURITY.md`](../SECURITY.md).
+
+## Choose the matching symptom
+
+| Symptom | Start here | Keep in mind |
+| --- | --- | --- |
+| Web UI login fails | [Cannot log in to the MISP Web UI](#cannot-log-in-to-the-misp-web-ui) | Passwords stay hidden by default; use `--show-password` only on a trusted terminal. |
+| Installer reports database-update failure | [Installer fails at `Running MISP database updates`, but login works later](#installer-fails-at-running-misp-database-updates-but-login-works-later) | Slow first start can look like a transient database failure. |
+| Compose output is noisy | [Docker Compose output is noisy](#docker-compose-output-is-noisy) | Optional upstream variables can be harmless when blank. |
+| Browser redirects to localhost | [Browser redirects to localhost](#browser-redirects-to-localhost) | `BASE_URL` must be reachable from the browser. |
+| Monitoring reports warning/critical/unknown | [Monitoring alerts](#monitoring-alerts) | Use the monitoring contract before filing integration reports. |
+| Backup, restore, or rollback fails | [Backup permission errors](#backup-permission-errors) | Use the recovery guide for procedures; this page only routes triage. |
+
 ## Cannot log in to the MISP Web UI
 
 First verify which administrator account the installer generated:
@@ -113,6 +140,8 @@ alphanumeric.
 
 The backup script uses `sudo tar` because MISP containers can create root-owned files in bind mounts.
 
+For backup, restore, and rollback procedures, use [Backup, restore, and rollback](backup-restore-and-rollback.md). Keep backups outside the deployment directory and avoid posting backup contents publicly.
+
 ## Monitoring alerts
 
 If a monitoring tool reports `WARNING`, `CRITICAL`, or `UNKNOWN`, start with the monitoring contract in [Monitoring](monitoring.md), then run:
@@ -125,10 +154,24 @@ sudo ./lifecycle/login-check.sh --install-dir /opt/misp-docker --machine-readabl
 
 Do not paste raw logs, `.env`, generated config, backups, or private deployment details into public issues. Use [anonymous SOS reports](sos-report.md) for public-safe diagnostics.
 
+## Escalate or report safely
+
+Use public issues only for public-safe reproduction details. Good public reports include:
+
+- manager release or commit;
+- the lifecycle command that failed;
+- the high-level failure category;
+- reviewed anonymous SOS output;
+- generic host OS and Docker/Compose versions when relevant.
+
+Use private security reporting instead of a public issue for secrets, exploitable behavior, sensitive logs, private topology, or anything that cannot be safely anonymized.
+
+Read more: [Anonymous SOS reports](sos-report.md), [`SECURITY.md`](../SECURITY.md), [Contributing](../CONTRIBUTING.md).
 
 ## What to read next
 
 - Return to the [documentation map](README.md) and choose the user/operator path.
 - Re-check the normal lifecycle in [Operator guide](operator-guide.md).
 - Review command details in [Shell scripts reference](shell-scripts.md).
+- Review recovery procedures in [Backup, restore, and rollback](backup-restore-and-rollback.md).
 - Review validation status in [Compatibility](compatibility.md).
