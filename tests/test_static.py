@@ -671,11 +671,33 @@ class StaticRepoTests(unittest.TestCase):
         self.assertLess(len(getting_started.splitlines()), 180)
 
         self.assertIn('red line through the repository', operator)
+        self.assertIn('## Day-2 task map', operator)
+        self.assertIn('| I need to… | Use this section | Deep dive |', operator)
+        for task in [
+            'Confirm what is running',
+            'Verify login/readiness',
+            'Update safely',
+            'Take a backup',
+            'Restore or roll back',
+            'Remove a managed install',
+            'Investigate failures',
+        ]:
+            self.assertIn(task, operator)
         self.assertIn('Understand the model', operator)
         self.assertIn('Decide whether this fits your use case', operator)
+        self.assertIn('Check status and versions', operator)
         self.assertIn('Update safely', operator)
+        self.assertIn('Back up before risky changes', operator)
         self.assertIn('Restore and recover', operator)
         self.assertIn('manager release/ref × official MISP Docker component set = status', operator)
+        self.assertIn('latest published and latest validated-compatible can differ', operator)
+        self.assertIn('status.sh --install-dir /opt/misp-docker', operator)
+        self.assertIn('update.sh --install-dir /opt/misp-docker', operator)
+        self.assertIn('backup.sh', operator)
+        self.assertIn('monitoring.md', operator)
+        self.assertIn('troubleshooting.md', operator)
+        self.assertLess(operator.index('## Day-2 task map'), operator.index('## 1. Understand the model'))
+        self.assertLess(len(operator.splitlines()), 240)
 
     def test_hosted_documentation_uses_pinned_material_foundation(self):
         config = (ROOT / 'mkdocs.yml').read_text()

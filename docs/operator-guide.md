@@ -2,6 +2,20 @@
 
 This guide is the red line through the repository. It explains the normal lifecycle of a MISP deployment managed by MISP Docker Lifecycle Manager and points to detailed docs when you need them.
 
+Use it after [Getting started](getting-started.md) when you need to operate an installed deployment day to day.
+
+## Day-2 task map
+
+| I need to… | Use this section | Deep dive |
+| --- | --- | --- |
+| Confirm what is running | [Check status and versions](#6-check-status-and-versions) | [Monitoring](monitoring.md), [Compatibility](compatibility.md) |
+| Verify login/readiness | [Verify readiness before using the UI](#5-verify-readiness-before-using-the-ui) | [Troubleshooting](troubleshooting.md), [Security](security.md) |
+| Update safely | [Update safely](#7-update-safely) | [Upgrade path](upgrade-path.md) |
+| Take a backup | [Back up before risky changes](#8-back-up-before-risky-changes) | [Backup, restore, and rollback](backup-restore-and-rollback.md) |
+| Restore or roll back | [Restore and recover](#9-restore-and-recover) | [Backup, restore, and rollback](backup-restore-and-rollback.md) |
+| Remove a managed install | [Reset or remove a managed deployment](#10-reset-or-remove-a-managed-deployment) | [Shell scripts reference](shell-scripts.md) |
+| Investigate failures | [Troubleshoot with a path](#12-troubleshoot-with-a-path) | [Troubleshooting](troubleshooting.md) |
+
 ## 1. Understand the model
 
 MISP Docker Lifecycle Manager does not replace MISP and does not fork `MISP/misp-docker`.
@@ -74,7 +88,7 @@ Read more: [Getting started](getting-started.md), [Production deployment guide](
 
 ## 5. Verify readiness before using the UI
 
-After install or update, verify the deployment before handing it to users:
+Run these checks after install, update, restore, or any change that can affect login:
 
 ```bash
 sudo ./lifecycle/doctor.sh --install-dir /opt/misp-docker
@@ -86,16 +100,16 @@ The login check is designed not to print the password. The credential helper hid
 
 Read more: [Troubleshooting](troubleshooting.md), [Security](security.md).
 
-## 6. Operate day to day
+## 6. Check status and versions
 
-Useful checks:
+Use status and version checks before updates, before troubleshooting handoff, and when comparing local runtime state with published compatibility evidence:
 
 ```bash
 sudo ./lifecycle/status.sh --install-dir /opt/misp-docker
 ./lifecycle/get-current-misp-versions.sh --install-dir /opt/misp-docker
 ```
 
-The status and version checks help you understand what is running locally and what official upstream currently declares. For integration with Zabbix, Checkmk, Nagios/Icinga, Prometheus-style text output, or automation, use the monitoring contract.
+The status command reports the managed deployment state. The version helper shows what is running locally and what official upstream currently declares. For integration with Zabbix, Checkmk, Nagios/Icinga, Prometheus-style text output, or automation, use the monitoring contract.
 
 Read more: [Monitoring](monitoring.md), [Upgrade path](upgrade-path.md), [Compatibility](compatibility.md).
 
@@ -120,6 +134,8 @@ After update, verify again with `doctor.sh` and `login-check.sh`.
 Read more: [Upgrade path](upgrade-path.md), [Backup, restore, and rollback](backup-restore-and-rollback.md).
 
 ## 8. Back up before risky changes
+
+Create a backup before updates, reset attempts, host maintenance, or configuration changes:
 
 ```bash
 sudo ./lifecycle/backup.sh \
@@ -177,13 +193,13 @@ Compatibility is not claimed generically. It is tracked as:
 manager release/ref × official MISP Docker component set = status
 ```
 
-Read the compatibility docs before assuming a release has been validated for a given MISP component set.
+Read the compatibility docs before assuming a release has been validated for a given MISP component set. Keep the release channel distinction in mind: latest published and latest validated-compatible can differ.
 
 Read more: [Compatibility](compatibility.md), [Validation matrix](validation/matrix.md), [Production readiness](production-readiness.md).
 
 ## 12. Troubleshoot with a path
 
-If something fails, start with:
+Start with the local state commands, then move to the troubleshooting guide with those results:
 
 ```bash
 sudo ./lifecycle/doctor.sh --install-dir /opt/misp-docker
