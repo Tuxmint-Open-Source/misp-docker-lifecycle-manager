@@ -5,7 +5,7 @@ This guide gives you one first successful path through MISP Docker Lifecycle Man
 Use it to install, verify, and identify the next document to read. It is not a replacement for the full [operator guide](operator-guide.md), [production deployment guide](production-deployment.md), or [backup and recovery guide](backup-restore-and-rollback.md).
 
 > **Important**
-> `v1.4.0` is the latest published and validated-compatible release for the documented component set and single-server Docker lifecycle-manager scope. Validate your own deployment assumptions and keep backups before relying on a deployment operationally.
+> `v1.4.1` is the latest published documentation/hosted-docs patch release, but `v1.4.0` remains the latest validated-compatible release for the documented component set and single-server Docker lifecycle-manager scope until `v1.4.1` exact-tag validation passes. Validate your own deployment assumptions and keep backups before relying on a deployment operationally.
 
 ## What this path does
 
