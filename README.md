@@ -13,12 +13,12 @@ A non-invasive lifecycle manager for official [`MISP/misp-docker`](https://githu
 >
 > | Channel | Version | Meaning |
 > | --- | --- | --- |
-> | Latest published | `v1.4.0` | Newest normal SemVer release |
+> | Latest published | `v1.4.1` | Newest normal SemVer release; documentation/hosted-docs patch, exact-tag compatibility validation pending |
 > | Latest validated | `v1.4.0` | Newest immutable release tag that passed the full compatibility matrix |
 >
 > Install and report the immutable SemVer tag. [`.release-channels.json`](.release-channels.json) is the machine-readable source; mutable `stable` and `latest` Git tags are intentionally not used.
 
-Current `VERSION` value on `main`: `1.4.0`.
+Current `VERSION` value on `main`: `1.4.1`.
 
 The manager installs, configures, validates, updates, backs up, restores, and safely removes a supported deployment while leaving `/opt/misp-docker` as a normal official upstream checkout. It does **not** fork or replace MISP, and it is not a Kubernetes, high-availability, or multi-node orchestration layer.
 
@@ -43,7 +43,7 @@ The repository-local links below remain the versioned/offline source of truth fo
 
 ## Quick test path
 
-For the supported first-install workflow, read [`docs/getting-started.md`](docs/getting-started.md). Git is required before cloning:
+For the supported first-install workflow, read [`docs/getting-started.md`](docs/getting-started.md). Use the latest validated-compatible release for deployments until `v1.4.1` exact-tag validation completes. Git is required before cloning:
 
 ```bash
 sudo dnf install -y git
@@ -76,7 +76,7 @@ For production, recovery, updates, and limitations, use the linked guides rather
 manager release/ref × official MISP Docker component set = status
 ```
 
-The current validated tuple is manager `v1.4.0`, MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`. See [compatibility](docs/compatibility.md), the [current validation report](docs/validation/compatibility-v1.4.0-misp-core-v2.5.44.md), and the [evidence archive](docs/validation/README.md).
+The latest published release is `v1.4.1`, a documentation/hosted-docs patch release with exact-tag compatibility validation pending. The current validated tuple remains manager `v1.4.0`, MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`. See [compatibility](docs/compatibility.md), the [current validation report](docs/validation/compatibility-v1.4.0-misp-core-v2.5.44.md), and the [evidence archive](docs/validation/README.md).
 
 ## Policy and project links
 

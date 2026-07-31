@@ -1,6 +1,6 @@
 # Support matrix
 
-This page defines the public support scope of the stable release line. `v1.4.0` is the current published and validated-compatible release for the documented component tuple.
+This page defines the public support scope of the stable release line. `v1.4.1` is the latest published documentation/hosted-docs patch release; `v1.4.0` remains the current validated-compatible release for the documented component tuple until `v1.4.1` exact-tag validation passes.
 
 Anything outside this matrix may still work, but it is not part of the validated support contract unless a later compatibility report says so explicitly.
 

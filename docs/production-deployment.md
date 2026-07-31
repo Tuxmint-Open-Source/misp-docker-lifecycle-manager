@@ -2,7 +2,7 @@
 
 This guide describes the supported production deployment workflow for `misp-docker-lifecycle-manager` within the documented stable release scope.
 
-`v1.4.0` is the latest published and validated-compatible release for the documented component tuple.
+`v1.4.1` is the latest published documentation/hosted-docs patch release. `v1.4.0` remains the latest validated-compatible release for the documented component tuple until `v1.4.1` exact-tag validation passes.
 
 ## Supported production shape
 

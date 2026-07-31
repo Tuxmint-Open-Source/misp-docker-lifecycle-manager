@@ -4,6 +4,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-07-31
+
 ### Added
 
 - Add a strict Material for MkDocs and Read the Docs foundation with a complete hash-verified dependency lock, a deterministic version-local build tree for canonical repository policy pages, clear current-versus-archived validation evidence navigation, and portable Mermaid and important-notice rendering.
@@ -17,6 +19,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Clarify troubleshooting with a first-triage path, symptom map, and public-safe escalation handoff without changing diagnostic commands.
 - Link the verified Read the Docs `latest` site from the documentation entry points and document that older tags remain repository-local when they predate the hosted-docs foundation.
 - Document the Read the Docs release-tag policy: hosted tag docs begin with the first post-foundation release tag, old release tags are not rewritten, and the hosted root stays on `latest` until a post-foundation tag is active, built, and verified as `stable`.
+- Publish `v1.4.1` as a documentation and hosted-docs patch release while keeping `v1.4.0` as the latest validated-compatible release until exact-tag validation for `v1.4.1` passes.
 
 ## [1.4.0] - 2026-07-30
 
@@ -245,7 +248,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - MISP schema readiness handling via `Admin runUpdates` and `bookmarks` table check.
 - Public documentation for architecture, upgrade path, troubleshooting, shell scripts, and versioning.
 
-[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.2.0...v1.3.0
