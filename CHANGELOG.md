@@ -8,6 +8,10 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 - Add project origin and transparency documentation covering non-affiliation with the upstream MISP project, descriptive MISP-name usage, AI-assisted development under maintainer review, and validation-based trust boundaries.
 
+### Changed
+
+- Update the grouped CodeQL Actions from `v4.37.3` to `v4.37.4` at a verified immutable SHA and document the reviewed Dependabot maintenance workflow.
+
 ## [1.4.1] - 2026-07-31
 
 ### Added

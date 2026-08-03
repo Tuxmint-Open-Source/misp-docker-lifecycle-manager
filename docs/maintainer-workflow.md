@@ -148,13 +148,18 @@ The repository uses low-noise automation:
 
 ### GitHub Actions maintenance
 
-When GitHub Actions annotations report deprecations, treat them as maintenance work even if checks still pass. For pinned actions:
+Dependabot runs weekly and groups coupled GitHub Actions such as CodeQL `init`/`analyze`, workflow bootstrap actions, and artifact upload/download actions. A successful Dependabot update job means update discovery is working. A generated PR can still fail the Repository gate when its new immutable SHA has not yet been synchronized with this repository's exact-SHA assertions; that is expected maintenance work, not an automation outage or product regression.
 
-1. Identify the replacement major version from the upstream action release notes.
-2. Resolve the replacement tag to an immutable commit SHA.
-3. Update the workflow `uses:` pin and keep a nearby comment with the human-readable major version.
-4. Keep static tests SHA-enforcing so Dependabot can still update pins safely.
-5. Re-run the workflow and confirm annotations no longer include the targeted deprecation warning.
+Do not auto-merge GitHub Actions updates. For each proposed update:
+
+1. Read the upstream release notes and inspect relevant input/runtime changes.
+2. Resolve the human-readable release tag independently to its immutable commit SHA.
+3. Keep all coupled workflow invocations on the same reviewed release/SHA.
+4. Update the workflow `uses:` pins, nearby human-readable major-version comments, exact-SHA assertions, and changelog together in a focused PR.
+5. Run the complete local Repository gates and exercise the affected hosted workflow on the exact PR head.
+6. Merge only after normal maintainer review; grouping reduces split PRs but does not replace repository-specific review.
+
+When GitHub Actions annotations report deprecations, treat them as maintenance work even if checks still pass. Confirm the replacement workflow run no longer includes the targeted warning.
 
 ShellCheck is downloaded directly from the official `koalaman/shellcheck` GitHub Release by `.github/scripts/run-shellcheck.sh`. Its version, platform artifact, and SHA-256 digest are explicit constants in that script. To update it:
 
