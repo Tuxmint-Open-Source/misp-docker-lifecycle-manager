@@ -10,7 +10,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ### Changed
 
-- Update the grouped CodeQL Actions from `v4.37.3` to `v4.37.4` at a verified immutable SHA and document the reviewed Dependabot maintenance workflow.
+- Update the grouped CodeQL Actions from `v4.37.3` through `v4.37.6` at verified immutable SHAs and document the reviewed Dependabot maintenance workflow.
 
 ## [1.4.1] - 2026-07-31
 
