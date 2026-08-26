@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-07-21T15:32:31Z",
+  "checked_at_utc": "2026-08-26T05:52:59Z",
   "component_tags": {
     "CORE_TAG": "v2.5.44",
     "GUARD_TAG": "v1.2",
@@ -927,11 +927,11 @@
   },
   "official_component_releases": {
     "CORE_TAG": {
-      "published_at": "2026-07-13T14:19:48Z",
-      "release_id": 353211262,
+      "published_at": "2026-08-25T13:53:44Z",
+      "release_id": 376445165,
       "repo": "MISP/MISP",
-      "tag": "v2.5.44",
-      "url": "https://github.com/MISP/MISP/releases/tag/v2.5.44"
+      "tag": "v2.5.45",
+      "url": "https://github.com/MISP/MISP/releases/tag/v2.5.45"
     },
     "GUARD_TAG": {
       "published_at": "2025-07-16T06:11:48Z",
