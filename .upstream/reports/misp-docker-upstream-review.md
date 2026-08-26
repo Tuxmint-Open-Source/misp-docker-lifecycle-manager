@@ -6,7 +6,13 @@ The scheduled upstream monitor detected lifecycle-sensitive changes in official 
 
 Detected classes: **A**
 
-Validation status: **review required / not validated**
+Validation status: **reviewed / not adopted by official MISP Docker / not validated**
+
+## Reviewed disposition
+
+MISP core `v2.5.45` is a substantial upstream release, including UI, LDAP, security, scheduler, API, and packaging changes. The official `MISP/misp-docker` defaults and all watched lifecycle inputs remain unchanged at this review point: core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`.
+
+No lifecycle-manager code, documentation, or compatibility claim changes are needed now. Do not validate or advertise the speculative core `v2.5.45` combination before official MISP Docker adopts it. Reassess and run the applicable exact manager-ref × component-set validation when adoption or another concrete supported-combination decision occurs.
 
 ## Lifecycle-manager context
 
@@ -62,21 +68,19 @@ A component release that is not yet adopted by official MISP Docker is a review 
 
 ## Review checklist
 
-- [ ] Inspect the upstream compare link; hashes and extracted facts summarize drift but do not replace review.
-- [ ] Check upstream component tag changes and release notes.
-- [ ] Check whether each new component release is adopted by official MISP Docker before choosing a validation combination.
-- [ ] Check Compose service names, image expressions, ports, volumes, dependencies, profiles, healthchecks, and interpolation variables.
-- [ ] Check new, removed, or changed required/default variables in `template.env` and the critical/minimum environment definitions.
-- [ ] Check entrypoint, configuration, migration, startup, and readiness behavior.
-- [ ] Check install, production, backup/restore, troubleshooting, and versioning guidance.
-- [ ] Decide whether manager code, docs, or validation changes are needed.
-- [ ] Run repository validation before merge.
-- [ ] Run compatibility validation for the affected manager release/ref and official MISP component set when runtime or component behavior is affected.
-- [ ] Update compatibility docs only after the documented compatibility scenarios pass.
+- [x] Inspected the upstream release and compare information; the release contains broad core changes.
+- [x] Checked upstream component release notes for core `v2.5.45`.
+- [x] Confirmed core `v2.5.45` is not adopted by official MISP Docker.
+- [x] Confirmed Compose services, images, interpolation contracts, and environment-key inventories are unchanged.
+- [x] Confirmed watched entrypoint, configuration, migration, startup, readiness, and operator-guidance inputs are unchanged.
+- [x] Decided that no manager code or documentation change is needed before official adoption.
+- [x] Ran repository validation before merge: 177 tests passed with one expected skip, plus Bash syntax, Python compilation, whitespace, and public-safety checks.
+- [x] Deferred compatibility validation because the new core release is not an official Docker-adopted component set.
+- [x] Kept compatibility documentation unchanged; current evidence remains scoped to manager `v1.4.1` with core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`.
 
 ## Compatibility note
 
-This upstream-review report is a drift-detection prompt, not compatibility proof by itself. A listed manager release/ref and component set becomes **validated compatible** only after the documented compatibility scenarios pass and public compatibility evidence is updated.
+This upstream-review report is a drift-detection prompt, not compatibility proof by itself. A listed manager release/ref and component set becomes **validated compatible** only after the documented compatibility scenarios pass and [public compatibility evidence](../../docs/compatibility.md) is updated.
 
 ## Validation command
 
