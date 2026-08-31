@@ -52,6 +52,7 @@ nav:
       - Operator guide: operator-guide.md
       - Upgrade path: upgrade-path.md
       - Monitoring: monitoring.md
+      - Nagios XI with NCPA: nagios-xi-ncpa.md
 
   - Back up and recover:
       - Backup, restore and rollback: backup-restore-and-rollback.md

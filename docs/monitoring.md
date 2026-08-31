@@ -267,7 +267,7 @@ In the Nagios XI NCPA wizard, configure:
 | Plugin Name | `check_misp_dlm` |
 | Plugin Arguments | leave empty |
 
-Set the NCPA plugin timeout and the Nagios check timeout above the healthcheck's global `--timeout`. Test the wrapper locally as the NCPA execution account before testing it through Nagios XI. See the [scoped Nagios XI/NCPA integration report](validation/nagios-xi-ncpa-v1.4.1.md) for the exact healthy-path evidence and remaining limitations.
+Follow the complete [Nagios XI with NCPA setup guide](nagios-xi-ncpa.md) for plugin placement, ownership, exact sudoers policy, NCPA settings, timeout ordering, agent-side and Nagios-side tests, wizard intervals, security checks, and troubleshooting. See the [scoped Nagios XI/NCPA integration report](validation/nagios-xi-ncpa-v1.4.1.md) for the exact healthy-path evidence and remaining limitations.
 
 ## systemd or cron example
 

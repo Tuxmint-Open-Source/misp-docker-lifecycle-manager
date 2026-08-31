@@ -61,6 +61,7 @@ Producer-side automated and disposable-deployment tests separately cover the hea
 
 ## Related documentation
 
+- [Nagios XI with NCPA setup guide](../nagios-xi-ncpa.md)
 - [Monitoring contract and integration examples](../monitoring.md)
 - [Producer-side monitoring healthcheck validation](monitoring-healthcheck-pr61.md)
 - [Community monitoring integration issue](https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/issues/62)

@@ -11,6 +11,7 @@ Choose the task that matches what you need now:
 | **Evaluate support** | [Support matrix](support-matrix.md) | [Compatibility](compatibility.md) |
 | **Install for the first time** | [Getting started](getting-started.md) | [Operator bundle](operator-bundle.md) for the checksummed release artifact |
 | **Operate or update MISP** | [Operator guide](operator-guide.md) | [Upgrade path](upgrade-path.md) and [monitoring](monitoring.md) |
+| **Connect Nagios XI through NCPA** | [Nagios XI with NCPA](nagios-xi-ncpa.md) | [Monitoring contract](monitoring.md) and [integration evidence](validation/nagios-xi-ncpa-v1.4.1.md) |
 | **Back up or recover** | [Backup, restore, and rollback](backup-restore-and-rollback.md) | Review recovery before an update or incident |
 | **Deploy securely** | [Production deployment](production-deployment.md) | [Security model](security.md) and [architecture](architecture.md) |
 | **Troubleshoot or report a problem** | [Troubleshooting](troubleshooting.md) | [Anonymous SOS reports](sos-report.md) or [`SECURITY.md`](../SECURITY.md) for sensitive issues |

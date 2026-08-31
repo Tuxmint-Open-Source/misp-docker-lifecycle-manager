@@ -7,7 +7,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 ### Added
 
 - Add project origin and transparency documentation covering non-affiliation with the upstream MISP project, descriptive MISP-name usage, AI-assisted development under maintainer review, and validation-based trust boundaries.
-- Document operator-confirmed healthy-path Nagios XI `2026R1.6.1` and NCPA `3.4.3-1` integration for manager `v1.4.1`, including the fixed-plugin wizard configuration and explicit non-OK/alerting limitations.
+- Document operator-confirmed healthy-path Nagios XI `2026R1.6.1` and NCPA `3.4.3-1` integration for manager `v1.4.1`, including a complete fixed-plugin, permissions, sudoers, timeout, wizard, verification, security, and troubleshooting guide plus explicit non-OK/alerting limitations.
 
 ### Changed
 
