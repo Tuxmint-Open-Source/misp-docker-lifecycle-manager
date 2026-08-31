@@ -30,6 +30,7 @@ Compatibility claims remain scoped to the exact manager release or ref and the e
 ## Supporting validation evidence
 
 - [Monitoring healthcheck producer evidence](monitoring-healthcheck-pr61.md) — output-contract evidence, not exact-tag compatibility proof for a later release.
+- [Nagios XI with NCPA healthy-path integration](nagios-xi-ncpa-v1.4.1.md) — scoped operator-confirmed execution, `OK` mapping, and performance-data evidence for the named versions; non-OK transitions and alerting remain untested.
 
 ## What to read next
 

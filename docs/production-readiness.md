@@ -44,7 +44,7 @@ Production readiness here applies only to the public support matrix and explicit
 
 `v1.1.0` packages work added after the `v1.0.0` tag. Its immutable tag passed the full release suite for core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`.
 
-The monitoring healthcheck is contract/parser tested and exercised against a managed MISP deployment in healthy, UNKNOWN, controlled-CRITICAL, and recovery states. Native ingestion by running Zabbix, Checkmk, Nagios/Icinga, and Prometheus systems remains unvalidated. See [Monitoring](monitoring.md) and the [community testing issue](https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/issues/62).
+The monitoring healthcheck is contract/parser tested and exercised against a managed MISP deployment in healthy, UNKNOWN, controlled-CRITICAL, and recovery states. A scoped operator test additionally confirmed healthy-path execution, `OK` mapping, and performance-data ingestion through Nagios XI `2026R1.6.1` and NCPA `3.4.3-1` with manager `v1.4.1`. Native non-OK transitions, recovery, notifications, and the other named monitoring platforms remain unvalidated. See [Monitoring](monitoring.md), the [Nagios XI/NCPA report](validation/nagios-xi-ncpa-v1.4.1.md), and the [community testing issue](https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/issues/62).
 
 The post-tag evidence covers install, reverse proxy, update, lifecycle, failure, restore, browser, rollback, monitoring, and structured SOS scenarios. See the detailed `v1.1.0` compatibility report.
 
