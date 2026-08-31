@@ -30,9 +30,11 @@ Current evidence:
 | Missing-deployment/UNKNOWN behavior | Automated |
 | Public-safety checks against sensitive deployment values | Automated by the validator |
 | Healthy, UNKNOWN, controlled-CRITICAL, and recovery behavior on a real managed MISP deployment | Passed on disposable validation infrastructure; see [monitoring healthcheck validation](validation/monitoring-healthcheck-pr61.md) |
-| End-to-end ingestion by Zabbix, Checkmk, Nagios/Icinga, or Prometheus | Not yet tested by this project |
+| Nagios XI execution through NCPA | Healthy-path execution, `OK` mapping, and performance-data ingestion operator-confirmed with Nagios XI `2026R1.6.1`, NCPA `3.4.3-1`, and manager `v1.4.1`; see the [scoped integration report](validation/nagios-xi-ncpa-v1.4.1.md) |
+| Complete native status-transition and alerting validation | Not yet tested by this project; native WARNING/CRITICAL/UNKNOWN, recovery, and notifications remain open |
+| End-to-end ingestion by Zabbix, Checkmk, Icinga, or Prometheus | Not yet tested by this project |
 
-Until real monitoring-system tests exist, describe these formats as **designed for** or **suitable for integration with** the named systems, not certified or vendor-validated.
+The Nagios XI/NCPA report is useful evidence for its exact versions and tested healthy path, but it is not certification or complete status-transition validation. Until equivalent native-platform evidence exists, describe the remaining formats as **designed for** or **suitable for integration with** the named systems, not certified or vendor-validated.
 
 ### Community testing wanted
 
@@ -252,6 +254,20 @@ sudo /path/to/misp-docker-lifecycle-manager/lifecycle/healthcheck.sh \
 ```
 
 The first output line should contain the status, summary, and optional performance data.
+
+### Nagios XI with NCPA
+
+For an active NCPA integration, place a fixed wrapper named `check_misp_dlm` in the NCPA `plugin_path`. The wrapper should invoke the command above with fixed arguments; do not accept caller-controlled install paths or healthcheck options. If elevated access is required, allow only that exact command through sudoers rather than adding the NCPA account to the Docker group.
+
+In the Nagios XI NCPA wizard, configure:
+
+| Field | Value |
+| --- | --- |
+| Service Description | `MISP DLM Health` |
+| Plugin Name | `check_misp_dlm` |
+| Plugin Arguments | leave empty |
+
+Follow the complete [Nagios XI with NCPA setup guide](nagios-xi-ncpa.md) for plugin placement, ownership, exact sudoers policy, NCPA settings, timeout ordering, agent-side and Nagios-side tests, wizard intervals, security checks, and troubleshooting. See the [scoped Nagios XI/NCPA integration report](validation/nagios-xi-ncpa-v1.4.1.md) for the exact healthy-path evidence and remaining limitations.
 
 ## systemd or cron example
 
