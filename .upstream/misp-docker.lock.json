@@ -1,7 +1,7 @@
 {
-  "checked_at_utc": "2026-08-26T05:52:59Z",
+  "checked_at_utc": "2026-09-03T09:55:15Z",
   "component_tags": {
-    "CORE_TAG": "v2.5.44",
+    "CORE_TAG": "v2.5.45",
     "GUARD_TAG": "v1.2",
     "MODULES_TAG": "v3.0.9"
   },
@@ -934,11 +934,11 @@
       "url": "https://github.com/MISP/MISP/releases/tag/v2.5.45"
     },
     "GUARD_TAG": {
-      "published_at": "2025-07-16T06:11:48Z",
-      "release_id": 232492324,
+      "published_at": "2026-09-01T12:47:47Z",
+      "release_id": 380490217,
       "repo": "MISP/misp-guard",
-      "tag": "v1.2",
-      "url": "https://github.com/MISP/misp-guard/releases/tag/v1.2"
+      "tag": "v1.3",
+      "url": "https://github.com/MISP/misp-guard/releases/tag/v1.3"
     },
     "MODULES_TAG": {
       "published_at": "2026-07-13T11:30:44Z",
@@ -1196,7 +1196,7 @@
       "X_FRAME_OPTIONS"
     ]
   },
-  "upstream_commit": "223b675c4480730832f928e113b6f2e5260b450d",
+  "upstream_commit": "9bf1372d76d82e08fc4ca121cb47a3913e7cbf53",
   "watched_files": {
     "core/files/configure_misp.sh": {
       "exists": true,
@@ -1220,7 +1220,7 @@
     },
     "template.env": {
       "exists": true,
-      "sha256": "75d3bb36f91db519ea3bfc4c4ac3e361bea1f58295cca17521a5de3bc4cb5e0f"
+      "sha256": "085efbe99dd2d8cfa716f7fc95e938e5b26d85c6daa1486afa7dd1919ee6ed4a"
     }
   },
   "watched_trees": {
