@@ -6,7 +6,13 @@ The scheduled upstream monitor detected lifecycle-sensitive changes in official 
 
 Detected classes: **A+C**
 
-Validation status: **review required / not validated**
+Validation status: **reviewed / compatibility validation passed / public evidence pending**
+
+## Reviewed disposition
+
+Official MISP Docker now adopts core `v2.5.45` with modules `v3.0.9` and guard `v1.2`. Across the three upstream commits, the watched single-server Docker input change is the `CORE_TAG` default moving from `v2.5.44` to `v2.5.45`. The other changes update an image-build dependency and Kubernetes packaging; they do not change the Compose, environment-key inventory, initialization, migration, readiness, settings-enforcement, or watched operator-guidance contracts consumed by this manager.
+
+The complete published-artifact compatibility matrix passed for manager `v1.4.1` with core `v2.5.45`, modules `v3.0.9`, and guard `v1.2`, including all ten baseline scenarios and the release-specific remote-proxy gate. No manager code change is required for this upstream adoption. Public compatibility claims remain unchanged until a focused evidence PR publishes the sanitized report. Guard `v1.3` remains an early review signal because official MISP Docker has not adopted it.
 
 ## Lifecycle-manager context
 
@@ -64,21 +70,20 @@ A component release that is not yet adopted by official MISP Docker is a review 
 
 ## Review checklist
 
-- [ ] Inspect the upstream compare link; hashes and extracted facts summarize drift but do not replace review.
-- [ ] Check upstream component tag changes and release notes.
-- [ ] Check whether each new component release is adopted by official MISP Docker before choosing a validation combination.
-- [ ] Check Compose service names, image expressions, ports, volumes, dependencies, profiles, healthchecks, and interpolation variables.
-- [ ] Check new, removed, or changed required/default variables in `template.env` and the critical/minimum environment definitions.
-- [ ] Check entrypoint, configuration, migration, startup, and readiness behavior.
-- [ ] Check install, production, backup/restore, troubleshooting, and versioning guidance.
-- [ ] Decide whether manager code, docs, or validation changes are needed.
-- [ ] Run repository validation before merge.
-- [ ] Run compatibility validation for the affected manager release/ref and official MISP component set when runtime or component behavior is affected.
-- [ ] Update compatibility docs only after the documented compatibility scenarios pass.
+- [x] Inspected all three upstream commits; the watched single-server Docker change is the `CORE_TAG` default update.
+- [x] Checked the core `v2.5.45` and guard `v1.3` release notes.
+- [x] Confirmed core `v2.5.45` is adopted by official MISP Docker and guard `v1.3` is not.
+- [x] Confirmed Compose services, image expressions, interpolation contracts, and environment-key inventories are unchanged.
+- [x] Confirmed watched initialization, migration, readiness, settings-enforcement, and operator-guidance inputs are unchanged.
+- [x] Confirmed the additional upstream changes are limited to an image-build dependency and Kubernetes packaging outside the manager's consumed contract.
+- [x] Decided that the upstream diff requires no manager code change.
+- [x] Ran repository validation before merge: 177 tests passed with one expected skip, plus Bash syntax, Python compilation, YAML parsing, whitespace, and public-safety checks.
+- [x] Ran the complete published-artifact compatibility matrix for manager `v1.4.1` with core `v2.5.45`, modules `v3.0.9`, and guard `v1.2`; all ten baseline scenarios and the release-specific remote-proxy gate passed.
+- [ ] Publish the sanitized compatibility report and update public compatibility docs in a focused evidence PR.
 
 ## Compatibility note
 
-This upstream-review report is a drift-detection prompt, not compatibility proof by itself. A listed manager release/ref and component set becomes **validated compatible** only after the documented compatibility scenarios pass and public compatibility evidence is updated.
+This upstream-review report is a drift-detection prompt, not compatibility proof by itself. A listed manager release/ref and component set becomes **validated compatible** only after the documented compatibility scenarios pass and [public compatibility evidence](../../docs/compatibility.md) is updated.
 
 ## Validation command
 
