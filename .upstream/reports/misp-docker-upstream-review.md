@@ -4,38 +4,40 @@
 
 The scheduled upstream monitor detected lifecycle-sensitive changes in official `MISP/misp-docker` inputs or a new official MISP component release. Upstream commit movement without a watched-file, extracted-fact, or component-release change does not create a review.
 
-Detected classes: **A**
+Detected classes: **A+C**
 
-Validation status: **reviewed / not adopted by official MISP Docker / not validated**
+Validation status: **reviewed / compatibility validation passed / public evidence pending**
 
 ## Reviewed disposition
 
-MISP core `v2.5.45` is a substantial upstream release, including UI, LDAP, security, scheduler, API, and packaging changes. The official `MISP/misp-docker` defaults and all watched lifecycle inputs remain unchanged at this review point: core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`.
+Official MISP Docker now adopts core `v2.5.45` with modules `v3.0.9` and guard `v1.2`. Across the three upstream commits, the watched single-server Docker input change is the `CORE_TAG` default moving from `v2.5.44` to `v2.5.45`. The other changes update an image-build dependency and Kubernetes packaging; they do not change the Compose, environment-key inventory, initialization, migration, readiness, settings-enforcement, or watched operator-guidance contracts consumed by this manager.
 
-No lifecycle-manager code, documentation, or compatibility claim changes are needed now. Do not validate or advertise the speculative core `v2.5.45` combination before official MISP Docker adopts it. Reassess and run the applicable exact manager-ref × component-set validation when adoption or another concrete supported-combination decision occurs.
+The complete published-artifact compatibility matrix passed for manager `v1.4.1` with core `v2.5.45`, modules `v3.0.9`, and guard `v1.2`, including all ten baseline scenarios and the release-specific remote-proxy gate. No manager code change is required for this upstream adoption. Public compatibility claims remain unchanged until a focused evidence PR publishes the sanitized report. Guard `v1.3` remains an early review signal because official MISP Docker has not adopted it.
 
 ## Lifecycle-manager context
 
 - `VERSION` value: `1.4.1`
-- Source commit at detection time: `578cd1fb0fd5aa404cc0ae7964b06f7aeb373be6`
+- Source commit at detection time: `aed924814dd5749c248c4702641035c20d42291e`
 
 ## Upstream
 
 - Repository: `https://github.com/MISP/misp-docker.git`
 - Ref: `master`
 - Previous reviewed commit: `223b675c4480730832f928e113b6f2e5260b450d`
-- Current commit: `223b675c4480730832f928e113b6f2e5260b450d`
-- Compare: https://github.com/MISP/misp-docker/compare/223b675c4480730832f928e113b6f2e5260b450d...223b675c4480730832f928e113b6f2e5260b450d
+- Current commit: `9bf1372d76d82e08fc4ca121cb47a3913e7cbf53`
+- Compare: https://github.com/MISP/misp-docker/compare/223b675c4480730832f928e113b6f2e5260b450d...9bf1372d76d82e08fc4ca121cb47a3913e7cbf53
 
 ## Detected changes
 
+- **Class A** — Official component tag defaults changed.
 - **Class A** — Official component release tags changed.
+- **Class C** — Watched file changed: `template.env`
 
 ## Component tags
 
 | Component | Previous | Current |
 |---|---:|---:|
-| `CORE_TAG` | `v2.5.44` | `v2.5.44` |
+| `CORE_TAG` | `v2.5.44` | `v2.5.45` |
 | `MODULES_TAG` | `v3.0.9` | `v3.0.9` |
 | `GUARD_TAG` | `v1.2` | `v1.2` |
 
@@ -43,9 +45,9 @@ No lifecycle-manager code, documentation, or compatibility claim changes are nee
 
 | Component | Official Docker default | Latest official release | Adopted by Docker default? |
 |---|---:|---:|---|
-| `CORE_TAG` | `v2.5.44` | `v2.5.45` | no — review before validation |
+| `CORE_TAG` | `v2.5.45` | `v2.5.45` | yes |
 | `MODULES_TAG` | `v3.0.9` | `v3.0.9` | yes |
-| `GUARD_TAG` | `v1.2` | `v1.2` | yes |
+| `GUARD_TAG` | `v1.2` | `v1.3` | no — review before validation |
 
 A component release that is not yet adopted by official MISP Docker is a review signal, not an instruction to validate or support a speculative combination.
 
@@ -68,15 +70,16 @@ A component release that is not yet adopted by official MISP Docker is a review 
 
 ## Review checklist
 
-- [x] Inspected the upstream release and compare information; the release contains broad core changes.
-- [x] Checked upstream component release notes for core `v2.5.45`.
-- [x] Confirmed core `v2.5.45` is not adopted by official MISP Docker.
-- [x] Confirmed Compose services, images, interpolation contracts, and environment-key inventories are unchanged.
-- [x] Confirmed watched entrypoint, configuration, migration, startup, readiness, and operator-guidance inputs are unchanged.
-- [x] Decided that no manager code or documentation change is needed before official adoption.
-- [x] Ran repository validation before merge: 177 tests passed with one expected skip, plus Bash syntax, Python compilation, whitespace, and public-safety checks.
-- [x] Deferred compatibility validation because the new core release is not an official Docker-adopted component set.
-- [x] Kept compatibility documentation unchanged; current evidence remains scoped to manager `v1.4.1` with core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`.
+- [x] Inspected all three upstream commits; the watched single-server Docker change is the `CORE_TAG` default update.
+- [x] Checked the core `v2.5.45` and guard `v1.3` release notes.
+- [x] Confirmed core `v2.5.45` is adopted by official MISP Docker and guard `v1.3` is not.
+- [x] Confirmed Compose services, image expressions, interpolation contracts, and environment-key inventories are unchanged.
+- [x] Confirmed watched initialization, migration, readiness, settings-enforcement, and operator-guidance inputs are unchanged.
+- [x] Confirmed the additional upstream changes are limited to an image-build dependency and Kubernetes packaging outside the manager's consumed contract.
+- [x] Decided that the upstream diff requires no manager code change.
+- [x] Ran repository validation before merge: 177 tests passed with one expected skip, plus Bash syntax, Python compilation, YAML parsing, whitespace, and public-safety checks.
+- [x] Ran the complete published-artifact compatibility matrix for manager `v1.4.1` with core `v2.5.45`, modules `v3.0.9`, and guard `v1.2`; all ten baseline scenarios and the release-specific remote-proxy gate passed.
+- [ ] Publish the sanitized compatibility report and update public compatibility docs in a focused evidence PR.
 
 ## Compatibility note
 
