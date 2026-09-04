@@ -29,7 +29,7 @@ Monitoring ingestion for Zabbix, Checkmk, Nagios/Icinga, and Prometheus remains 
 | --- | --- |
 | cut and verify a release | [Release process](release/release-process.md) |
 | review artifact integrity controls | [Release integrity and provenance](release/integrity-and-provenance.md) |
-| inspect the current validated component tuple | [Compatibility](compatibility.md), [current validation](validation/compatibility-v1.4.1-misp-core-v2.5.44.md), and [validation matrix](validation/matrix.md) |
+| inspect the current validated component tuple | [Compatibility](compatibility.md), [current validation](validation/compatibility-v1.4.1-misp-core-v2.5.45.md), and [validation matrix](validation/matrix.md) |
 | inspect retained historical evidence | [Validation evidence archive](validation/README.md) |
 | review current release posture | [Production readiness](production-readiness.md) |
 

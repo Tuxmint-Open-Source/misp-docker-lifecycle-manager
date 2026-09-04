@@ -12,6 +12,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 ### Changed
 
 - Update the grouped CodeQL Actions from `v4.37.3` through `v4.37.9` at verified immutable SHAs and document the reviewed Dependabot maintenance workflow.
+- Mark immutable `v1.4.1` and its published operator-bundle artifact as validated compatible with the official MISP Docker core `v2.5.45`, modules `v3.0.9`, and guard `v1.2` tuple after the complete lifecycle matrix and release-specific remote-proxy gate passed.
 
 ## [1.4.1] - 2026-07-31
 

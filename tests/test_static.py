@@ -545,7 +545,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Use the update helper from a known validated manager release', deployment)
         self.assertIn('`v1.4.1` is the latest published and latest validated-compatible release', deployment)
         self.assertIn('The immutable `v1.4.1` tag and published operator-bundle artifact passed', deployment)
-        self.assertIn('--core-tag v2.5.44', deployment)
+        self.assertIn('--core-tag v2.5.45', deployment)
         self.assertIn('--modules-tag v3.0.9', deployment)
         self.assertIn('--guard-tag v1.2', deployment)
         self.assertNotIn('--core-tag v2.5.43', deployment)
@@ -636,7 +636,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('The current validated tuple is manager `v1.4.1`', docs_readme)
         self.assertIn('maintainer-workflow.md', contributor_path)
         self.assertIn('release/release-process.md', contributor_path)
-        self.assertIn('validation/compatibility-v1.4.1-misp-core-v2.5.44.md', contributor_path)
+        self.assertIn('validation/compatibility-v1.4.1-misp-core-v2.5.45.md', contributor_path)
         self.assertNotIn('validation/compatibility-v1.4.0-misp-core-v2.5.44.md', contributor_path)
         self.assertIn('compatibility.md', docs_readme)
 
@@ -826,7 +826,7 @@ class StaticRepoTests(unittest.TestCase):
         archive = (ROOT / 'docs' / 'validation' / 'README.md').read_text()
         bundle = (ROOT / 'docs' / 'operator-bundle.md').read_text()
         validation_dir = ROOT / 'docs' / 'validation'
-        current_report = 'compatibility-v1.4.1-misp-core-v2.5.44.md'
+        current_report = 'compatibility-v1.4.1-misp-core-v2.5.45.md'
 
         self.assertIn('- Operator bundle: operator-bundle.md', config)
         self.assertIn(
@@ -838,6 +838,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('validation/README.md', docs_index)
         self.assertIn(f'validation/{current_report}', bundle)
         self.assertIn('latest validated-compatible release', archive)
+        self.assertIn('`v1.4.1` with MISP core `v2.5.45`', archive)
         self.assertIn('`v1.4.1` with MISP core `v2.5.44`', archive)
 
         reports = {
@@ -1581,7 +1582,8 @@ class StaticRepoTests(unittest.TestCase):
         v1_3_report = (ROOT / 'docs' / 'validation' / 'compatibility-v1.3.0-misp-core-v2.5.44.md').read_text()
         v1_3_1_report = (ROOT / 'docs' / 'validation' / 'compatibility-v1.3.1-misp-core-v2.5.44.md').read_text()
         v1_4_report = (ROOT / 'docs' / 'validation' / 'compatibility-v1.4.0-misp-core-v2.5.44.md').read_text()
-        v1_4_1_report = (ROOT / 'docs' / 'validation' / 'compatibility-v1.4.1-misp-core-v2.5.44.md').read_text()
+        v1_4_1_previous_report = (ROOT / 'docs' / 'validation' / 'compatibility-v1.4.1-misp-core-v2.5.44.md').read_text()
+        v1_4_1_report = (ROOT / 'docs' / 'validation' / 'compatibility-v1.4.1-misp-core-v2.5.45.md').read_text()
         channels = json.loads((ROOT / '.release-channels.json').read_text())
         changelog = (ROOT / 'CHANGELOG.md').read_text()
         security = (ROOT / 'SECURITY.md').read_text()
@@ -1598,8 +1600,9 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('git checkout v1.4.1', readme)
         self.assertNotIn('git checkout v1.3.1', readme)
         self.assertIn('latest published and latest validated release is `v1.4.1`', readme)
-        self.assertIn('passed exact-tag and published-artifact validation for MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`', readme)
+        self.assertIn('passed exact-tag and published-artifact validation for the current official MISP Docker tuple: core `v2.5.45`, modules `v3.0.9`, and guard `v1.2`', readme)
         self.assertIn('docs/validation/README.md', readme)
+        self.assertIn('| `v1.4.1` release tag | `v2.5.45` | `v3.0.9` | `v1.2` | ✅ Validated compatible | 2026-09-03 |', compatibility)
         self.assertIn('| `v1.4.1` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | 2026-07-31 |', compatibility)
         self.assertIn('| `v1.4.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | 2026-07-30 |', compatibility)
         self.assertIn('published operator-bundle artifact passed the complete exact-tag/package-artifact lifecycle matrix', compatibility)
@@ -1619,6 +1622,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('`v3.0.9`', compatibility)
         self.assertIn('`v1.0.0-rc.3` release candidate tag', compatibility)
         self.assertIn('✅ Validated compatible', compatibility)
+        self.assertIn('| `v1.4.1` release tag | `v2.5.45` | `v3.0.9` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ |', matrix)
         self.assertIn('| `v1.4.1` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ |', matrix)
         self.assertIn('| `v1.4.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ |', matrix)
         self.assertIn('compatibility-v1.4.0-misp-core-v2.5.44.md', matrix)
@@ -1642,7 +1646,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('`v1.3.0` packages work added after the `v1.2.0` tag', readiness)
         self.assertIn('published operator-bundle artifact passed the complete lifecycle validation matrix', readiness)
         self.assertIn('`v1.1.0` release-validation state', readiness)
-        self.assertIn('core `v2.5.44`, modules `v3.0.9`, guard `v1.2`', readiness)
+        self.assertIn('core `v2.5.45`, modules `v3.0.9`, guard `v1.2`', readiness)
         self.assertIn('| `v1.4.1` | Current published and latest validated-compatible release', security)
         self.assertIn('| `v1.4.0` | Previous stable release with retained compatibility evidence', security)
         self.assertIn('| `v1.3.1` | Previous stable release with retained compatibility evidence', security)
@@ -1671,6 +1675,9 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Manager commit | `a94dd7dbf1bb3d13a2342c9c95f36f6695eae4fc`', v1_4_report)
         self.assertIn('Overall result | ✅ Validated compatible', v1_4_1_report)
         self.assertIn('published `v1.4.1` operator-bundle artifact', v1_4_1_report)
+        self.assertIn('MISP core tag | `v2.5.45`', v1_4_1_report)
+        self.assertIn('Scenario count | 11', v1_4_1_report)
+        self.assertIn('published `v1.4.1` operator-bundle artifact', v1_4_1_previous_report)
         self.assertIn('Overall result | ✅ Validated compatible', v1_4_report)
         self.assertIn('published `v1.4.0` operator-bundle artifact', v1_4_report)
         self.assertIn('Explicit remote reverse proxy | ✅ Passed', v1_4_report)

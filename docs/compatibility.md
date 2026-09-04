@@ -16,6 +16,7 @@ A pair is called **validated compatible** only after the documented validation s
 
 | Manager release/ref | MISP core | MISP modules | MISP guard | Status | Validated | Report |
 | --- | ---: | ---: | ---: | --- | --- | --- |
+| `v1.4.1` release tag | `v2.5.45` | `v3.0.9` | `v1.2` | ✅ Validated compatible | 2026-09-03 | [`compatibility-v1.4.1-misp-core-v2.5.45.md`](validation/compatibility-v1.4.1-misp-core-v2.5.45.md) |
 | `v1.4.1` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | 2026-07-31 | [`compatibility-v1.4.1-misp-core-v2.5.44.md`](validation/compatibility-v1.4.1-misp-core-v2.5.44.md) |
 | `v1.4.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | 2026-07-30 | [`compatibility-v1.4.0-misp-core-v2.5.44.md`](validation/compatibility-v1.4.0-misp-core-v2.5.44.md) |
 | `v1.3.1` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | 2026-07-23 | [`compatibility-v1.3.1-misp-core-v2.5.44.md`](validation/compatibility-v1.3.1-misp-core-v2.5.44.md) |
@@ -32,7 +33,7 @@ A pair is called **validated compatible** only after the documented validation s
 | `v0.3.1` release | `v2.5.42` | `v3.0.8` | `v1.2` | ⚪ Superseded historical validation | 2026-07-08 | [`real-world-v0.3.1.md`](validation/real-world-v0.3.1.md) |
 
 > **Important**
-> `v1.4.1` is the latest published and latest validated-compatible release. The immutable `v1.4.1` tag and published operator-bundle artifact passed the complete exact-tag/package-artifact lifecycle matrix plus an explicit remote reverse-proxy bind gate. `v1.4.0`, `v1.3.1`, `v1.3.0`, and `v1.2.0` remain retained historical validated evidence. PR-branch evidence remains capability evidence only and is not a substitute for exact-tag validation.
+> `v1.4.1` is the latest published and latest validated-compatible release. The immutable `v1.4.1` tag and published operator-bundle artifact passed the complete exact-tag/package-artifact lifecycle matrix plus an explicit remote reverse-proxy bind gate for the current official MISP Docker tuple: core `v2.5.45`, modules `v3.0.9`, and guard `v1.2`. The earlier core `v2.5.44` tuple and prior releases remain retained historical validated evidence. PR-branch evidence remains capability evidence only and is not a substitute for exact-tag validation.
 >
 > The `v1.0.0` release tag remains historical validated evidence. Future manager releases or upstream component sets require separate validation before compatibility is claimed.
 >

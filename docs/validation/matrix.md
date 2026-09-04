@@ -8,6 +8,7 @@ It is not a guarantee that every environment or component combination works. It 
 
 | Manager release/ref | MISP core | MISP modules | MISP guard | Compatibility status | Fresh install | Reverse proxy | Update path | Lifecycle smoke | Guardrails | Report |
 | --- | ---: | ---: | ---: | --- | --- | --- | --- | --- | --- | --- |
+| `v1.4.1` release tag | `v2.5.45` | `v3.0.9` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v1.4.1-misp-core-v2.5.45.md`](compatibility-v1.4.1-misp-core-v2.5.45.md) |
 | `v1.4.1` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v1.4.1-misp-core-v2.5.44.md`](compatibility-v1.4.1-misp-core-v2.5.44.md) |
 | `v1.4.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v1.4.0-misp-core-v2.5.44.md`](compatibility-v1.4.0-misp-core-v2.5.44.md) |
 | `v1.3.1` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v1.3.1-misp-core-v2.5.44.md`](compatibility-v1.3.1-misp-core-v2.5.44.md) |
@@ -44,6 +45,7 @@ It is not a guarantee that every environment or component combination works. It 
 
 The latest validated-compatible report is linked directly in primary navigation. Previous stable, release-candidate, pre-1.0, and supporting reports remain available through the [validation evidence archive](README.md).
 
+- [`compatibility-v1.4.1-misp-core-v2.5.45.md`](compatibility-v1.4.1-misp-core-v2.5.45.md)
 - [`compatibility-v1.4.1-misp-core-v2.5.44.md`](compatibility-v1.4.1-misp-core-v2.5.44.md)
 - [`compatibility-v1.4.0-misp-core-v2.5.44.md`](compatibility-v1.4.0-misp-core-v2.5.44.md)
 - [`compatibility-v1.3.1-misp-core-v2.5.44.md`](compatibility-v1.3.1-misp-core-v2.5.44.md)
