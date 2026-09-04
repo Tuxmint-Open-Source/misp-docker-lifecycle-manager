@@ -50,4 +50,4 @@ The full source checkout remains the contributor and development path. For suppo
 - Return to the [documentation map](README.md) and choose the user/operator path.
 - Review release artifact controls in [Release integrity and provenance policy](release/integrity-and-provenance.md).
 - Follow the normal lifecycle in [Operator guide](operator-guide.md).
-- Review the [current `v1.4.1` compatibility evidence](validation/compatibility-v1.4.1-misp-core-v2.5.44.md).
+- Review the [current `v1.4.1` compatibility evidence](validation/compatibility-v1.4.1-misp-core-v2.5.45.md).

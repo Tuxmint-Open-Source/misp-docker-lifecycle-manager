@@ -9,7 +9,7 @@ Production readiness here applies only to the public support matrix and explicit
 | Area | Status |
 | --- | --- |
 | Latest published manager release | `v1.4.1` |
-| Latest validated manager/component tuple | manager `v1.4.1`, core `v2.5.44`, modules `v3.0.9`, guard `v1.2` |
+| Latest validated manager/component tuple | manager `v1.4.1`, core `v2.5.45`, modules `v3.0.9`, guard `v1.2` |
 | Compatibility status | ✅ `v1.4.1` validated compatible |
 | Public compatibility evidence | ✅ [`compatibility.md`](compatibility.md) and [`validation/matrix.md`](validation/matrix.md) |
 | Public support scope | ✅ [`support-matrix.md`](support-matrix.md) |
@@ -22,7 +22,7 @@ Production readiness here applies only to the public support matrix and explicit
 
 ## `v1.4.1` release-validation state
 
-`v1.4.1` is a documentation/hosted-docs patch release. Its immutable tag and published operator bundle passed the complete lifecycle matrix for the documented component tuple. The release-specific remote-proxy parity gate also passed explicit remote binding, Docker-aware source allow/deny filtering, verified backend TLS, browser login, update preservation, and cleanup.
+`v1.4.1` is a documentation/hosted-docs patch release. Its immutable tag and published operator bundle passed the complete lifecycle matrix for the current official MISP Docker tuple: core `v2.5.45`, modules `v3.0.9`, and guard `v1.2`. The release-specific remote-proxy parity gate also passed artifact/tag payload equivalence, explicit remote binding, Docker-aware source allow/deny filtering, verified backend TLS, browser login, update preservation, and cleanup. The earlier core `v2.5.44` result remains retained evidence for the same manager release.
 
 ## `v1.4.0` release-validation state
 

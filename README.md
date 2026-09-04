@@ -78,7 +78,7 @@ For production, recovery, updates, and limitations, use the linked guides rather
 manager release/ref × official MISP Docker component set = status
 ```
 
-The latest published and latest validated release is `v1.4.1`, a documentation/hosted-docs patch release that passed exact-tag and published-artifact validation for MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`. See [compatibility](docs/compatibility.md), the [current validation report](docs/validation/compatibility-v1.4.1-misp-core-v2.5.44.md), and the [evidence archive](docs/validation/README.md).
+The latest published and latest validated release is `v1.4.1`, a documentation/hosted-docs patch release that passed exact-tag and published-artifact validation for the current official MISP Docker tuple: core `v2.5.45`, modules `v3.0.9`, and guard `v1.2`. See [compatibility](docs/compatibility.md), the [current validation report](docs/validation/compatibility-v1.4.1-misp-core-v2.5.45.md), and the [evidence archive](docs/validation/README.md).
 
 ## Policy and project links
 

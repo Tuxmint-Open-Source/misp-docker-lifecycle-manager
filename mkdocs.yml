@@ -39,7 +39,7 @@ nav:
   - Evaluate support:
       - Support matrix: support-matrix.md
       - Compatibility: compatibility.md
-      - Current validation evidence: validation/compatibility-v1.4.1-misp-core-v2.5.44.md
+      - Current validation evidence: validation/compatibility-v1.4.1-misp-core-v2.5.45.md
       - Validation matrix: validation/matrix.md
       - Evidence archive: validation/README.md
       - Production readiness: production-readiness.md

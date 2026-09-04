@@ -122,7 +122,7 @@ For explicit component versions:
 ```bash
 sudo ./lifecycle/update.sh \
   --install-dir /opt/misp-docker \
-  --core-tag v2.5.44 \
+  --core-tag v2.5.45 \
   --modules-tag v3.0.9 \
   --guard-tag v1.2
 ```
@@ -149,7 +149,7 @@ No-lock-in behavior passed exact-tag and published-artifact validation for `v1.4
 
 ## Compatibility scope
 
-The immutable `v1.4.1` tag and published operator-bundle artifact passed restore, browser-login, restore-based rollback, monitoring, lifecycle, and explicit remote-proxy bind validation for core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`.
+The immutable `v1.4.1` tag and published operator-bundle artifact passed restore, browser-login, restore-based rollback, monitoring, lifecycle, and explicit remote-proxy bind validation for the current official MISP Docker tuple: core `v2.5.45`, modules `v3.0.9`, and guard `v1.2`.
 
 ## What to read next
 
