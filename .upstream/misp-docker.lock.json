@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-09-03T09:55:15Z",
+  "checked_at_utc": "2026-09-09T09:51:19Z",
   "component_tags": {
     "CORE_TAG": "v2.5.45",
     "GUARD_TAG": "v1.2",
@@ -941,11 +941,11 @@
       "url": "https://github.com/MISP/misp-guard/releases/tag/v1.3"
     },
     "MODULES_TAG": {
-      "published_at": "2026-07-13T11:30:44Z",
-      "release_id": 353109506,
+      "published_at": "2026-09-08T12:09:38Z",
+      "release_id": 384698040,
       "repo": "MISP/misp-modules",
-      "tag": "v3.0.9",
-      "url": "https://github.com/MISP/misp-modules/releases/tag/v3.0.9"
+      "tag": "v3.0.10",
+      "url": "https://github.com/MISP/misp-modules/releases/tag/v3.0.10"
     }
   },
   "readme_operator_section_sha256": {
