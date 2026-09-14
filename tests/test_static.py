@@ -1332,8 +1332,8 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('queries: security-extended', codeql)
         self.assertIn('security-events: write', codeql)
         self.assertIn('actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1', codeql)
-        self.assertIn('github/codeql-action/init@cdf488f595d80d6e07e03d4674febd5ab45fa938', codeql)
-        self.assertIn('github/codeql-action/analyze@cdf488f595d80d6e07e03d4674febd5ab45fa938', codeql)
+        self.assertIn('github/codeql-action/init@b96794f015dfd88f77b49b1c93e0fa7110f94c63', codeql)
+        self.assertIn('github/codeql-action/analyze@b96794f015dfd88f77b49b1c93e0fa7110f94c63', codeql)
         self.assertIn('github/codeql-action@v4', codeql)
         self.assertNotIn('@v3', codeql)
 
