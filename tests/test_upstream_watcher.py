@@ -216,6 +216,19 @@ volumes:
             for change in changes
         ))
 
+    def test_separated_nginx_tree_change_is_class_b(self):
+        old = self.make_state()
+        old["watched_trees"]["nginx/files"] = {
+            "02-real-ip.sh": {"exists": True, "sha256": "old"}
+        }
+        new = copy.deepcopy(old)
+        new["watched_trees"]["nginx/files"]["02-real-ip.sh"]["sha256"] = "new"
+        changes = WATCH.diff_state(old, new)
+        self.assertTrue(any(
+            change["class"] == "B" and "nginx/files/02-real-ip.sh" in change["detail"]
+            for change in changes
+        ))
+
     def test_env_inventory_never_records_values(self):
         inventory = WATCH.parse_env_key_inventory("ACTIVE=public\n# SECRET_NAME=do-not-record\n")
         self.assertEqual(inventory, {

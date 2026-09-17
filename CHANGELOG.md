@@ -11,6 +11,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ### Changed
 
+- Track the separated upstream NGINX configuration tree so front-end, TLS, and real-IP behavior changes trigger review.
 - Update the grouped CodeQL Actions from `v4.37.3` through `v4.38.0` at verified immutable SHAs and document the reviewed Dependabot maintenance workflow.
 - Mark immutable `v1.4.1` and its published operator-bundle artifact as validated compatible with the official MISP Docker core `v2.5.45`, modules `v3.0.9`, and guard `v1.2` tuple after the complete lifecycle matrix and release-specific remote-proxy gate passed.
 
