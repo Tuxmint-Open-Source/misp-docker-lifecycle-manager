@@ -13,7 +13,7 @@ Usage:
 What this script checks:
   - Required .env values and Docker Compose config
   - BASE_URL DNS lookup from the host
-  - Container-local MISP heartbeat
+  - Internal MISP frontend heartbeat
   - Schema readiness required by first interactive login
   - Docker Compose service status
 
@@ -52,6 +52,6 @@ else
   warn "DNS lookup failed for $HOST"
 fi
 
-wait_for_misp_core "$INSTALL_DIR" 600
+wait_for_misp_frontend "$INSTALL_DIR" 600
 "$SCRIPT_DIR/healthcheck.sh" --install-dir "$INSTALL_DIR" --format text --timeout 60
 log "Doctor checks completed."

@@ -92,7 +92,7 @@ class StaticRepoTests(unittest.TestCase):
 
     def test_install_runs_db_updates_before_doctor(self):
         text = (ROOT / 'lifecycle' / 'install.sh').read_text()
-        self.assertLess(text.index('wait_for_misp_core'), text.index('run_misp_db_updates'))
+        self.assertLess(text.index('wait_for_misp_frontend'), text.index('run_misp_db_updates'))
         self.assertLess(text.index('run_misp_db_updates'), text.index('wait_for_misp_live_marker'))
         self.assertLess(text.index('wait_for_misp_live_marker'), text.index('doctor.sh'))
         self.assertIn('Credentials helper: sudo ./lifecycle/admin-credentials.sh --install-dir $INSTALL_DIR', text)
@@ -1601,8 +1601,11 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('git checkout v1.4.1', readme)
         self.assertNotIn('git checkout v1.3.1', readme)
         self.assertIn('latest published and latest validated release is `v1.4.1`', readme)
-        self.assertIn('passed exact-tag and published-artifact validation for the current official MISP Docker tuple: core `v2.5.45`, modules `v3.0.9`, and guard `v1.2`', readme)
+        self.assertIn('It passed exact-tag and published-artifact validation with core `v2.5.45`, modules `v3.0.9`, and guard `v1.2`', readme)
+        self.assertIn('core `v2.5.48`, modules `v3.0.10`, and a separated `misp-nginx` service contract', readme)
+        self.assertIn('**not yet supported or validated**', readme)
         self.assertIn('docs/validation/README.md', readme)
+        self.assertIn('| `main` adaptation workstream | `v2.5.48` | `v3.0.10` | `v1.2` | 🟡 Pending implementation and validation |', compatibility)
         self.assertIn('| `v1.4.1` release tag | `v2.5.45` | `v3.0.9` | `v1.2` | ✅ Validated compatible | 2026-09-03 |', compatibility)
         self.assertIn('| `v1.4.1` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | 2026-07-31 |', compatibility)
         self.assertIn('| `v1.4.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | 2026-07-30 |', compatibility)

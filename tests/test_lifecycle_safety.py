@@ -20,15 +20,23 @@ def run_bash(script: str, *args: str, env: dict[str, str] | None = None):
     )
 
 
-def init_upstream(path: Path) -> None:
+def init_upstream(path: Path, frontend_contract: str = "core") -> None:
     path.mkdir()
     subprocess.run(["git", "init", "-q", "-b", "master", str(path)], check=True)
     subprocess.run(["git", "-C", str(path), "config", "user.name", "Test"], check=True)
     subprocess.run(["git", "-C", str(path), "config", "user.email", "test@example.com"], check=True)
-    (path / "template.env").write_text(
-        "CORE_TAG=v2.5.44\nMODULES_TAG=v3.0.9\nGUARD_TAG=v1.2\n"
+    port_keys = (
+        "NGINX_HTTP_PORT=80\nNGINX_HTTPS_PORT=443\n"
+        if frontend_contract == "nginx"
+        else "CORE_HTTP_PORT=80\nCORE_HTTPS_PORT=443\n"
     )
-    (path / "docker-compose.yml").write_text("services:\n  misp-core:\n    image: example.invalid/misp:fixture\n")
+    (path / "template.env").write_text(
+        "CORE_TAG=v2.5.44\nMODULES_TAG=v3.0.9\nGUARD_TAG=v1.2\n" + port_keys
+    )
+    services = "  misp-core:\n    image: example.invalid/misp:fixture\n"
+    if frontend_contract == "nginx":
+        services += "  misp-nginx:\n    image: example.invalid/nginx:fixture\n"
+    (path / "docker-compose.yml").write_text("services:\n" + services)
     subprocess.run(["git", "-C", str(path), "add", "."], check=True)
     subprocess.run(["git", "-C", str(path), "commit", "-qm", "fixture"], check=True)
 
@@ -368,6 +376,114 @@ class LifecycleSafetyTests(unittest.TestCase):
             state = json.loads((install / ".installer-state.json").read_text())
             self.assertEqual(state["exposure"], "direct-qa")
             self.assertEqual(state["proxy_bind_address"], "")
+
+    def test_separated_nginx_contract_generates_new_port_family(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            upstream = root / "upstream"
+            install = root / "install"
+            fake_bin = root / "bin"
+            init_upstream(upstream, frontend_contract="nginx")
+            fake_bin.mkdir()
+            docker = fake_bin / "docker"
+            docker.write_text("#!/bin/sh\nexit 0\n")
+            docker.chmod(0o755)
+            env = os.environ.copy()
+            env["PATH"] = str(fake_bin) + os.pathsep + env["PATH"]
+            result = subprocess.run(
+                [
+                    str(ROOT / "lifecycle" / "install.sh"),
+                    "--upstream-repo", str(upstream),
+                    "--upstream-ref", "master",
+                    "--install-dir", str(install),
+                    "--base-url", "http://misp.example.com",
+                    "--admin-email", "admin@example.com",
+                    "--admin-org", "Example Org",
+                    "--timezone", "UTC",
+                    "--no-start",
+                ],
+                cwd=ROOT,
+                env=env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            env_text = (install / ".env").read_text()
+            self.assertIn("NGINX_HTTP_PORT=127.0.0.1:8080", env_text)
+            self.assertIn("NGINX_HTTPS_PORT=127.0.0.1:8443", env_text)
+            self.assertNotRegex(env_text, r"(?m)^CORE_HTTP_PORT=")
+            self.assertNotRegex(env_text, r"(?m)^CORE_HTTPS_PORT=")
+            override = (install / "docker-compose.override.yml").read_text()
+            self.assertIn("services: {}", override)
+            self.assertNotIn("misp-core:", override)
+            contract = run_bash(
+                'source lifecycle/lib.sh; deployment_bind_from_env "$1" reverse-proxy',
+                str(install / ".env"),
+            )
+            self.assertEqual(contract.returncode, 0, contract.stderr)
+            self.assertEqual(contract.stdout.strip(), "127.0.0.1")
+
+    def test_frontend_contract_rejects_ambiguous_or_incomplete_templates(self):
+        with tempfile.TemporaryDirectory() as td:
+            template = Path(td) / "template.env"
+            for text in (
+                "CORE_HTTP_PORT=80\nNGINX_HTTP_PORT=80\nNGINX_HTTPS_PORT=443\n",
+                "NGINX_HTTP_PORT=80\n",
+            ):
+                with self.subTest(text=text):
+                    template.write_text(text)
+                    result = run_bash(
+                        'source lifecycle/lib.sh; frontend_contract_from_template "$1"',
+                        str(template),
+                    )
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn("exactly one complete", result.stderr)
+
+    def test_deployment_bind_rejects_mixed_port_families(self):
+        with tempfile.TemporaryDirectory() as td:
+            env_file = Path(td) / ".env"
+            env_file.write_text(
+                "CORE_HTTP_PORT=127.0.0.1:8080\n"
+                "CORE_HTTPS_PORT=127.0.0.1:8443\n"
+                "NGINX_HTTP_PORT=127.0.0.1:8080\n"
+                "NGINX_HTTPS_PORT=127.0.0.1:8443\n"
+            )
+            result = run_bash(
+                'source lifecycle/lib.sh; deployment_bind_from_env "$1" reverse-proxy',
+                str(env_file),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("exactly one complete", result.stderr)
+
+    def test_render_compose_refuses_frontend_contract_mismatch_without_rewrite(self):
+        with tempfile.TemporaryDirectory() as td:
+            install = Path(td)
+            (install / "template.env").write_text(
+                "CORE_HTTP_PORT=80\nCORE_HTTPS_PORT=443\n"
+            )
+            (install / ".env").write_text(
+                "NGINX_HTTP_PORT=127.0.0.1:8080\n"
+                "NGINX_HTTPS_PORT=127.0.0.1:8443\n"
+            )
+            override = install / "docker-compose.override.yml"
+            override.write_text("sentinel: preserve\n")
+            result = subprocess.run(
+                [
+                    str(ROOT / "lifecycle" / "render-compose.sh"),
+                    "--install-dir", str(install),
+                    "--exposure", "reverse-proxy",
+                ],
+                cwd=ROOT,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("migration assistance is required", result.stderr)
+            self.assertEqual(override.read_text(), "sentinel: preserve\n")
 
     def test_proxy_bind_rejects_invalid_values_and_direct_qa_use(self):
         for value in ("example.com", "::", "224.0.0.1", "255.255.255.255", "127.0.0.1:8443"):

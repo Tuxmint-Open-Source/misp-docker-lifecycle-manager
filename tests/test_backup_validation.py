@@ -97,6 +97,35 @@ class BackupValidationTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("CORE_HTTP_PORT=80 and CORE_HTTPS_PORT=443", result.stderr)
 
+    def test_accepts_separated_nginx_port_contract(self):
+        with tempfile.TemporaryDirectory() as td:
+            backup = make_backup(
+                Path(td),
+                env_text=(
+                    b"BASE_URL=https://misp.example.com\n"
+                    b"NGINX_HTTP_PORT=80\n"
+                    b"NGINX_HTTPS_PORT=443\n"
+                ),
+            )
+            result = self.run_validator(backup)
+            self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_rejects_mixed_frontend_port_contracts(self):
+        with tempfile.TemporaryDirectory() as td:
+            backup = make_backup(
+                Path(td),
+                env_text=(
+                    b"BASE_URL=https://misp.example.com\n"
+                    b"CORE_HTTP_PORT=80\n"
+                    b"CORE_HTTPS_PORT=443\n"
+                    b"NGINX_HTTP_PORT=80\n"
+                    b"NGINX_HTTPS_PORT=443\n"
+                ),
+            )
+            result = self.run_validator(backup)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("exactly one complete", result.stderr)
+
     def test_stages_private_regular_copies_before_validation(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

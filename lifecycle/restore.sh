@@ -261,7 +261,7 @@ compose_cmd "$INSTALL_DIR" exec -T db sh -lc '
 log "Starting restored stack."
 operation_started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 compose_cmd "$INSTALL_DIR" up -d
-wait_for_misp_core "$INSTALL_DIR" 600
+wait_for_misp_frontend "$INSTALL_DIR" 600
 run_misp_db_updates "$INSTALL_DIR"
 check_misp_schema_ready "$INSTALL_DIR"
 wait_for_misp_live_marker "$INSTALL_DIR" 900 "$operation_started_at"
