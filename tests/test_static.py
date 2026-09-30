@@ -332,6 +332,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('core/files/etc/misp-docker', monitor)
         self.assertIn('core/files/etc/supervisor', monitor)
         self.assertIn('core/files/etc/nginx', monitor)
+        self.assertIn('nginx/files', monitor)
         self.assertIn('guard/files', monitor)
         self.assertIn('WATCHED_TREE_CLASSES', monitor)
         self.assertIn('README_SECTIONS', monitor)

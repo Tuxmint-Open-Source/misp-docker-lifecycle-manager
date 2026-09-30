@@ -1331,6 +1331,12 @@
         "exists": true,
         "sha256": "e618d1d8daf028a49ad451ecb503c62c64dfe801231082c7e20d913c969e09d1"
       }
+    },
+    "nginx/files": {
+      ".": {
+        "exists": false,
+        "sha256": ""
+      }
     }
   }
 }

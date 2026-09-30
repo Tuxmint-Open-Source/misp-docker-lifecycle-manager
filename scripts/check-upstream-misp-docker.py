@@ -45,6 +45,7 @@ WATCHED_TREE_CLASSES = {
     "core/files/etc/misp-docker": "B",
     "core/files/etc/supervisor": "B",
     "core/files/etc/nginx": "B",
+    "nginx/files": "B",
     "guard/files": "B",
 }
 WATCHED_FILES = list(WATCHED_FILE_CLASSES)
