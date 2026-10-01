@@ -178,6 +178,13 @@ PY
   [[ "$existing_origin" == "$UPSTREAM_REPO" ]] || fatal "Existing restore target origin does not match the selected upstream repository."
 fi
 
+# Verify the restored .env matches the selected upstream front-end contract before
+# any destructive target operation. Legacy-to-separated migration support is a
+# separate reviewed workflow, not an implicit restore side effect.
+contract_checkout="$tmp/upstream-contract"
+"$SCRIPT_DIR/fetch-upstream.sh" --upstream-repo "$UPSTREAM_REPO" --upstream-ref "$UPSTREAM_REF" --install-dir "$contract_checkout"
+validate_frontend_contract_alignment "$contract_checkout/template.env" "$tmp/.env"
+
 if [[ -f "$INSTALL_DIR/.env" && ( -f "$INSTALL_DIR/docker-compose.yml" || -f "$INSTALL_DIR/compose.yml" ) ]]; then
   log "Stopping/removing existing deployment resources for restore."
   compose_cmd "$INSTALL_DIR" down --volumes --remove-orphans
@@ -202,7 +209,13 @@ for line in Path(env_path).read_text(errors='strict').splitlines():
 if not base_url:
     base_url = env.get('BASE_URL', '')
 if not exposure:
-    https_port = env.get('CORE_HTTPS_PORT', '')
+    https_keys = ('CORE_HTTPS_PORT', 'NGINX_HTTPS_PORT')
+    present = [key for key in https_keys if env.get(key, '')]
+    if len(present) != 1:
+        raise SystemExit(
+            'restored configuration must contain exactly one HTTPS published-port key'
+        )
+    https_port = env[present[0]]
     exposure = 'reverse-proxy' if ':' in https_port else 'direct-qa'
 if exposure not in {'reverse-proxy', 'direct-qa'} or not base_url:
     raise SystemExit('restored configuration lacks valid exposure/base URL metadata')

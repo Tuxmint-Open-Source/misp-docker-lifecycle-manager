@@ -623,9 +623,15 @@ PY
 }
 
 check_misp_heartbeat() {
-  local install_dir="$1" output body status
+  local install_dir="$1" output body status probe_file
   local -a probe
-  mapfile -t probe < <(frontend_heartbeat_probe "$install_dir")
+  probe_file="$(mktemp)" || return 1
+  if ! frontend_heartbeat_probe "$install_dir" > "$probe_file"; then
+    rm -f "$probe_file"
+    return 1
+  fi
+  mapfile -t probe < "$probe_file"
+  rm -f "$probe_file"
   [[ "${#probe[@]}" -eq 2 ]] || return 1
   output="$(compose_cmd "$install_dir" exec -T "${probe[0]}" curl -ksS --fail --max-time 30 --write-out $'\n%{http_code}' "${probe[1]}")" || return 1
   body="${output%$'\n'*}"

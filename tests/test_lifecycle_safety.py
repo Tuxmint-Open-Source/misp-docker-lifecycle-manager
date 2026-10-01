@@ -231,7 +231,11 @@ class LifecycleSafetyTests(unittest.TestCase):
             fake_bin = root / "bin"
             install.mkdir()
             fake_bin.mkdir()
-            (install / ".env").write_text("TEST=1\n")
+            (install / ".env").write_text(
+                "BASE_URL=https://misp.example.com\n"
+                "CORE_HTTP_PORT=80\n"
+                "CORE_HTTPS_PORT=443\n"
+            )
             (install / "docker-compose.yml").write_text("services: {}\n")
             docker = fake_bin / "docker"
             docker.write_text("#!/bin/sh\nprintf '{\"message\":\"error\"}\\n500\\n'\n")
@@ -571,6 +575,83 @@ class LifecycleSafetyTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("does not match .env", result.stderr)
             self.assertNotIn("Backup written", result.stdout)
+
+    def test_restore_refuses_contract_mismatch_before_target_mutation(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            upstream = root / "upstream"
+            init_upstream(upstream, frontend_contract="nginx")
+            backup = root / "backup"
+            backup.mkdir()
+            existing = root / "install"
+            existing.mkdir()
+            sentinel = existing / "existing-data"
+            sentinel.write_text("preserve\n")
+            (existing / ".env").write_text(
+                "BASE_URL=http://misp.example.com\n"
+                "NGINX_HTTP_PORT=127.0.0.1:8080\n"
+                "NGINX_HTTPS_PORT=127.0.0.1:8443\n"
+            )
+            subprocess.run(["git", "init", "-q", str(existing)], check=True)
+            subprocess.run(["git", "-C", str(existing), "remote", "add", "origin", str(upstream)], check=True)
+            (existing / ".installer-state.json").write_text(json.dumps({
+                "installer": "misp-docker-lifecycle-manager",
+                "install_dir": str(existing),
+                "upstream_repo": str(upstream),
+                "upstream_ref": "master",
+                "exposure": "reverse-proxy",
+                "base_url": "http://misp.example.com",
+                "proxy_bind_address": "127.0.0.1",
+            }))
+            (backup / "misp.sql").write_text("-- dump\n")
+            import hashlib, io, tarfile
+            with tarfile.open(backup / "misp-config.tar.gz", "w:gz") as archive:
+                for name, data in {
+                    ".env": (
+                        b"BASE_URL=https://misp.example.com\n"
+                        b"CORE_HTTP_PORT=127.0.0.1:8080\n"
+                        b"CORE_HTTPS_PORT=127.0.0.1:8443\n"
+                    ),
+                    "docker-compose.override.yml": b"services: {}\n",
+                    ".installer-state.json": json.dumps({
+                        "installer": "misp-docker-lifecycle-manager",
+                        "upstream_repo": str(upstream),
+                        "upstream_ref": "master",
+                        "exposure": "reverse-proxy",
+                        "base_url": "https://misp.example.com",
+                        "proxy_bind_address": "127.0.0.1",
+                    }).encode(),
+                }.items():
+                    member = tarfile.TarInfo(name)
+                    member.size = len(data)
+                    archive.addfile(member, io.BytesIO(data))
+            with tarfile.open(backup / "misp-host-data.tar.gz", "w:gz") as archive:
+                member = tarfile.TarInfo("configs/config.php")
+                data = b"fixture\n"
+                member.size = len(data)
+                archive.addfile(member, io.BytesIO(data))
+            lines = []
+            for name in ["misp.sql", "misp-host-data.tar.gz", "misp-config.tar.gz"]:
+                lines.append(f"{hashlib.sha256((backup / name).read_bytes()).hexdigest()}  {name}")
+            (backup / "SHA256SUMS").write_text("\n".join(lines) + "\n")
+            result = subprocess.run(
+                [
+                    str(ROOT / "lifecycle" / "restore.sh"),
+                    "--backup-dir", str(backup),
+                    "--install-dir", str(existing),
+                    "--upstream-repo", str(upstream),
+                    "--upstream-ref", "master",
+                    "--yes", "--force",
+                ],
+                cwd=ROOT,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("migration assistance is required", result.stderr)
+            self.assertTrue(sentinel.exists())
 
     def test_operation_lock_rejects_concurrent_mutation(self):
         with tempfile.TemporaryDirectory() as td:
