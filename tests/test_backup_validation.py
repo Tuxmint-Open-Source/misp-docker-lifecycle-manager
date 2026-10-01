@@ -97,6 +97,35 @@ class BackupValidationTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("CORE_HTTP_PORT=80 and CORE_HTTPS_PORT=443", result.stderr)
 
+    def test_accepts_separated_nginx_port_contract(self):
+        with tempfile.TemporaryDirectory() as td:
+            backup = make_backup(
+                Path(td),
+                env_text=(
+                    b"BASE_URL=https://misp.example.com\n"
+                    b"NGINX_HTTP_PORT=80\n"
+                    b"NGINX_HTTPS_PORT=443\n"
+                ),
+            )
+            result = self.run_validator(backup)
+            self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_rejects_mixed_frontend_port_contracts(self):
+        with tempfile.TemporaryDirectory() as td:
+            backup = make_backup(
+                Path(td),
+                env_text=(
+                    b"BASE_URL=https://misp.example.com\n"
+                    b"CORE_HTTP_PORT=80\n"
+                    b"CORE_HTTPS_PORT=443\n"
+                    b"NGINX_HTTP_PORT=80\n"
+                    b"NGINX_HTTPS_PORT=443\n"
+                ),
+            )
+            result = self.run_validator(backup)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("exactly one complete", result.stderr)
+
     def test_stages_private_regular_copies_before_validation(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -471,13 +500,24 @@ class BackupValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             target = root / "existing-target"
+            upstream = root / "upstream"
+            upstream.mkdir()
+            subprocess.run(["git", "init", "-q", "-b", "master", str(upstream)], check=True)
+            subprocess.run(["git", "-C", str(upstream), "config", "user.name", "Test"], check=True)
+            subprocess.run(["git", "-C", str(upstream), "config", "user.email", "test@example.com"], check=True)
+            (upstream / "template.env").write_text(
+                "CORE_HTTP_PORT=80\nCORE_HTTPS_PORT=443\n"
+            )
+            (upstream / "docker-compose.yml").write_text("services: {}\n")
+            subprocess.run(["git", "-C", str(upstream), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(upstream), "commit", "-qm", "fixture"], check=True)
             backup = make_backup(root, state_overrides={
                 "install_dir": str(target),
-                "upstream_repo": "https://github.com/MISP/misp-docker.git",
+                "upstream_repo": str(upstream),
                 "upstream_ref": "master",
             })
             subprocess.run(["git", "init", "-q", str(target)], check=True)
-            subprocess.run(["git", "-C", str(target), "remote", "add", "origin", "https://github.com/MISP/misp-docker.git"], check=True)
+            subprocess.run(["git", "-C", str(target), "remote", "add", "origin", str(upstream)], check=True)
             (target / ".env").write_text("TEST=1\n")
             (target / "docker-compose.yml").write_text("services: {}\n")
             (target / ".installer-state.json").write_text(json.dumps({
@@ -496,6 +536,8 @@ class BackupValidationTests(unittest.TestCase):
                 str(ROOT / "lifecycle" / "restore.sh"),
                 "--backup-dir", str(backup),
                 "--install-dir", str(target),
+                "--upstream-repo", str(upstream),
+                "--upstream-ref", "master",
                 "--yes", "--force",
             ], cwd=ROOT, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
             self.assertNotEqual(result.returncode, 0)

@@ -195,13 +195,30 @@ def validate_proxy_bind_address(value: str) -> None:
         raise ValidationError("proxy bind address is not a supported IPv4 host bind")
 
 
+def frontend_port_keys(env: dict[str, str]) -> tuple[str, str]:
+    families = (
+        ("CORE_HTTP_PORT", "CORE_HTTPS_PORT"),
+        ("NGINX_HTTP_PORT", "NGINX_HTTPS_PORT"),
+    )
+    present = [
+        family for family in families
+        if env.get(family[0], "") or env.get(family[1], "")
+    ]
+    if len(present) != 1:
+        raise ValidationError(
+            ".env must contain exactly one complete CORE_* or NGINX_* published-port family"
+        )
+    return present[0]
+
+
 def deployment_bind_from_env(env: dict[str, str], exposure: str) -> str:
-    http_port = env.get("CORE_HTTP_PORT", "")
-    https_port = env.get("CORE_HTTPS_PORT", "")
+    http_key, https_key = frontend_port_keys(env)
+    http_port = env.get(http_key, "")
+    https_port = env.get(https_key, "")
     if exposure == "direct-qa":
         if http_port != "80" or https_port != "443":
             raise ValidationError(
-                "direct-qa .env must publish CORE_HTTP_PORT=80 and CORE_HTTPS_PORT=443"
+                f"direct-qa .env must publish {http_key}=80 and {https_key}=443"
             )
         return ""
     if exposure != "reverse-proxy":
@@ -217,11 +234,11 @@ def deployment_bind_from_env(env: dict[str, str], exposure: str) -> str:
         validate_proxy_bind_address(address)
         return str(ipaddress.ip_address(address))
 
-    http_bind = parse(http_port, 8080, "CORE_HTTP_PORT")
-    https_bind = parse(https_port, 8443, "CORE_HTTPS_PORT")
+    http_bind = parse(http_port, 8080, http_key)
+    https_bind = parse(https_port, 8443, https_key)
     if http_bind != https_bind:
         raise ValidationError(
-            "CORE_HTTP_PORT and CORE_HTTPS_PORT must use the same bind address"
+            f"{http_key} and {https_key} must use the same bind address"
         )
     return http_bind
 
@@ -335,17 +352,21 @@ def validate_config_archive(path: Path) -> None:
         state_base_url = state.get("base_url", "")
         state_exposure = state.get("exposure", "")
         state_proxy_bind_address = state.get("proxy_bind_address", "")
-        env_https_port = env.get("CORE_HTTPS_PORT", "")
         if not all(isinstance(value, str) for value in (state_base_url, state_exposure, state_proxy_bind_address)):
             raise ValidationError(".installer-state.json deployment fields must be strings")
         state_base_url = cast(str, state_base_url)
         state_exposure = cast(str, state_exposure)
         state_proxy_bind_address = cast(str, state_proxy_bind_address)
+        if not env_base_url:
+            raise ValidationError(".env lacks BASE_URL")
+        # Validate URL structure before port-family inference so malformed
+        # backups fail for the primary defect even when other fields are absent.
+        validate_public_base_url(env_base_url, state_exposure or "reverse-proxy")
+        _, https_key = frontend_port_keys(env)
+        env_https_port = env.get(https_key, "")
         exposure = state_exposure or (
             "reverse-proxy" if ":" in env_https_port else "direct-qa"
         )
-        if not env_base_url:
-            raise ValidationError(".env lacks BASE_URL")
         validate_public_base_url(env_base_url, exposure)
         if state_base_url:
             validate_public_base_url(state_base_url, exposure)

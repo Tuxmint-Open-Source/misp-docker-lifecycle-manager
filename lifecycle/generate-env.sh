@@ -10,6 +10,7 @@ while [[ $# -gt 0 ]]; do
 done
 acquire_operation_lock "$INSTALL_DIR"
 [[ -f "$INSTALL_DIR/template.env" ]] || fatal "Official upstream template.env missing in $INSTALL_DIR"
+FRONTEND_CONTRACT="$(frontend_contract_from_template "$INSTALL_DIR/template.env")"
 [[ "$EXPOSURE" =~ ^(reverse-proxy|direct-qa)$ ]] || fatal "--exposure must be reverse-proxy or direct-qa"
 validate_public_base_url "$BASE_URL" "$EXPOSURE"
 if [[ "$EXPOSURE" == reverse-proxy ]]; then
@@ -37,7 +38,8 @@ export ENCRYPTION_KEY_VALUE="$(random_b64 32)"
 export SALT_VALUE="$(random_hex 32)"
 export UUID_VALUE="$(new_uuid)"
 export ADMIN_ORG_UUID_VALUE="$(new_uuid)"
-if [[ "$EXPOSURE" == direct-qa ]]; then export CORE_HTTP_PORT_VALUE="80" CORE_HTTPS_PORT_VALUE="443"; else export CORE_HTTP_PORT_VALUE="$PROXY_BIND_ADDRESS:8080" CORE_HTTPS_PORT_VALUE="$PROXY_BIND_ADDRESS:8443"; fi
+if [[ "$EXPOSURE" == direct-qa ]]; then export HTTP_PORT_VALUE="80" HTTPS_PORT_VALUE="443"; else export HTTP_PORT_VALUE="$PROXY_BIND_ADDRESS:8080" HTTPS_PORT_VALUE="$PROXY_BIND_ADDRESS:8443"; fi
+export FRONTEND_CONTRACT
 python3 - "$INSTALL_DIR/.env" <<'PY'
 from pathlib import Path
 import os, sys
@@ -48,7 +50,11 @@ updates={
  'ENCRYPTION_KEY': os.environ['ENCRYPTION_KEY_VALUE'], 'SALT': os.environ['SALT_VALUE'], 'UUID': os.environ['UUID_VALUE'], 'MYSQL_HOST': 'db', 'MYSQL_PORT': '3306', 'MYSQL_DATABASE': 'misp', 'MYSQL_USER': 'misp',
  'MYSQL_PASSWORD': os.environ['MYSQL_PASSWORD_VALUE'], 'MYSQL_ROOT_PASSWORD': os.environ['MYSQL_ROOT_PASSWORD_VALUE'], 'REDIS_HOST': 'redis', 'REDIS_PORT': '6379', 'REDIS_PASSWORD': os.environ['REDIS_PASSWORD_VALUE'],
  'ENABLE_REDIS_EMPTY_PASSWORD': 'false', 'DISABLE_PRINTING_PLAINTEXT_CREDENTIALS': 'true', 'DEBUG': '0', 'ENABLE_DB_SETTINGS': 'false', 'ENABLE_BACKGROUND_UPDATES': 'false',
- 'CORE_HTTP_PORT': os.environ['CORE_HTTP_PORT_VALUE'], 'CORE_HTTPS_PORT': os.environ['CORE_HTTPS_PORT_VALUE'], 'PHP_SESSION_DEFAULTS': 'php', 'PHP_SESSION_COOKIE_SECURE': 'true', 'PHP_SESSION_COOKIE_SAMESITE': 'Lax', 'PHP_SESSION_COOKIE_DOMAIN': ''}
+ 'PHP_SESSION_DEFAULTS': 'php', 'PHP_SESSION_COOKIE_SECURE': 'true', 'PHP_SESSION_COOKIE_SAMESITE': 'Lax', 'PHP_SESSION_COOKIE_DOMAIN': ''}
+if os.environ['FRONTEND_CONTRACT'] == 'nginx':
+    updates.update({'NGINX_HTTP_PORT': os.environ['HTTP_PORT_VALUE'], 'NGINX_HTTPS_PORT': os.environ['HTTPS_PORT_VALUE']})
+else:
+    updates.update({'CORE_HTTP_PORT': os.environ['HTTP_PORT_VALUE'], 'CORE_HTTPS_PORT': os.environ['HTTPS_PORT_VALUE']})
 seen=set(); out=[]
 for line in p.read_text().splitlines():
     if line and not line.startswith('#') and '=' in line:

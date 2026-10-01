@@ -209,6 +209,86 @@ print(address)
 PY
 }
 
+frontend_contract_from_template() {
+  # Detect the official upstream front-end contract from template.env without
+  # relying on a mutable component version threshold. Commented keys still
+  # define the supported public configuration surface.
+  local template_file="$1"
+  python3 - "$template_file" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+if not path.is_file():
+    raise SystemExit(f'official upstream template.env missing: {path}')
+keys = set()
+pattern = re.compile(r'^\s*#?\s*([A-Za-z_][A-Za-z0-9_]*)\s*=')
+for line in path.read_text(errors='strict').splitlines():
+    match = pattern.match(line)
+    if match:
+        keys.add(match.group(1))
+
+legacy_keys = {'CORE_HTTP_PORT', 'CORE_HTTPS_PORT'}
+separated_keys = {'NGINX_HTTP_PORT', 'NGINX_HTTPS_PORT'}
+legacy_any = bool(legacy_keys & keys)
+separated_any = bool(separated_keys & keys)
+legacy = legacy_keys <= keys
+separated = separated_keys <= keys
+if not ((legacy and not separated_any) or (separated and not legacy_any)):
+    raise SystemExit(
+        'unable to identify one supported upstream front-end contract from template.env; '
+        'expected exactly one complete CORE_* or NGINX_* port-key family'
+    )
+print('core' if legacy else 'nginx')
+PY
+}
+
+frontend_contract_from_env() {
+  local env_file="$1"
+  python3 - "$env_file" <<'PY'
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+if not path.is_file():
+    raise SystemExit(f'deployment .env missing: {path}')
+env = {}
+for line in path.read_text(errors='strict').splitlines():
+    stripped = line.strip()
+    if stripped and not stripped.startswith('#') and '=' in stripped:
+        key, value = stripped.split('=', 1)
+        env[key.strip()] = value.strip().strip('"').strip("'")
+
+families = [
+    ('core', 'CORE_HTTP_PORT', 'CORE_HTTPS_PORT'),
+    ('nginx', 'NGINX_HTTP_PORT', 'NGINX_HTTPS_PORT'),
+]
+present = [
+    (name, http_key, https_key)
+    for name, http_key, https_key in families
+    if env.get(http_key, '') or env.get(https_key, '')
+]
+if len(present) != 1:
+    raise SystemExit(
+        '.env must contain exactly one complete CORE_* or NGINX_* published-port family'
+    )
+name, http_key, https_key = present[0]
+if not env.get(http_key, '') or not env.get(https_key, ''):
+    raise SystemExit(f'.env contains an incomplete {name} published-port family')
+print(name)
+PY
+}
+
+validate_frontend_contract_alignment() {
+  local template_file="$1" env_file="$2" upstream_contract env_contract
+  upstream_contract="$(frontend_contract_from_template "$template_file")"
+  env_contract="$(frontend_contract_from_env "$env_file")"
+  if [[ "$upstream_contract" != "$env_contract" ]]; then
+    fatal "Upstream front-end contract is $upstream_contract but .env uses $env_contract. Refusing to rewrite Compose configuration; migration assistance is required."
+  fi
+}
+
 deployment_bind_from_env() {
   # Print the validated reverse-proxy bind, or an empty line for direct-QA.
   # Both published ports must describe the same exposure; implicit Docker
@@ -228,11 +308,27 @@ for line in Path(env_path).read_text(errors='strict').splitlines():
         key, value = stripped.split('=', 1)
         env[key.strip()] = value.strip().strip('"').strip("'")
 
-http_port = env.get('CORE_HTTP_PORT', '')
-https_port = env.get('CORE_HTTPS_PORT', '')
+families = [
+    ('CORE_HTTP_PORT', 'CORE_HTTPS_PORT'),
+    ('NGINX_HTTP_PORT', 'NGINX_HTTPS_PORT'),
+]
+present = [
+    (http_key, https_key)
+    for http_key, https_key in families
+    if env.get(http_key, '') or env.get(https_key, '')
+]
+if len(present) != 1:
+    raise SystemExit(
+        '.env must contain exactly one complete CORE_* or NGINX_* published-port family'
+    )
+http_key, https_key = present[0]
+http_port = env.get(http_key, '')
+https_port = env.get(https_key, '')
 if exposure == 'direct-qa':
     if http_port != '80' or https_port != '443':
-        raise SystemExit('direct-qa .env must publish CORE_HTTP_PORT=80 and CORE_HTTPS_PORT=443')
+        raise SystemExit(
+            f'direct-qa .env must publish {http_key}=80 and {https_key}=443'
+        )
     print('')
     raise SystemExit(0)
 if exposure != 'reverse-proxy':
@@ -250,10 +346,10 @@ def parse(value, expected_port, key):
         raise SystemExit(f'{key} contains an unsupported bind address')
     return str(address)
 
-http_bind = parse(http_port, 8080, 'CORE_HTTP_PORT')
-https_bind = parse(https_port, 8443, 'CORE_HTTPS_PORT')
+http_bind = parse(http_port, 8080, http_key)
+https_bind = parse(https_port, 8443, https_key)
 if http_bind != https_bind:
-    raise SystemExit('CORE_HTTP_PORT and CORE_HTTPS_PORT must use the same bind address')
+    raise SystemExit(f'{http_key} and {https_key} must use the same bind address')
 print(http_bind)
 PY
 }
@@ -488,9 +584,56 @@ for key in ['CORE_TAG', 'MODULES_TAG', 'GUARD_TAG', 'CORE_RUNNING_TAG', 'MODULES
 PY
 }
 
+frontend_heartbeat_probe() {
+  # Print the Compose service used to execute curl and the internal heartbeat URL.
+  # Application/DB operations remain in misp-core; only the HTTP/TLS boundary
+  # moves to misp-nginx in the separated upstream contract.
+  local install_dir="$1" contract base_url scheme cert_file key_file
+  contract="$(frontend_contract_from_env "$install_dir/.env")"
+  if [[ "$contract" == core ]]; then
+    printf '%s\n%s\n' 'misp-core' 'https://localhost/users/heartbeat'
+    return 0
+  fi
+  base_url="$(python3 - "$install_dir/.env" <<'PY'
+import sys
+from pathlib import Path
+for line in Path(sys.argv[1]).read_text(errors='strict').splitlines():
+    if line.startswith('BASE_URL='):
+        print(line.split('=', 1)[1].strip().strip('"').strip("'"))
+        break
+PY
+)"
+  scheme="${base_url%%:*}"
+  cert_file="$install_dir/ssl/cert.pem"
+  key_file="$install_dir/ssl/key.pem"
+  if [[ -e "$cert_file" || -e "$key_file" ]]; then
+    [[ -f "$cert_file" && -f "$key_file" ]] || fatal "Separated NGINX requires both ssl/cert.pem and ssl/key.pem when either TLS file exists."
+  fi
+  case "$scheme" in
+    https)
+      [[ -f "$cert_file" && -f "$key_file" ]] || fatal "HTTPS BASE_URL requires ssl/cert.pem and ssl/key.pem for the separated NGINX service."
+      printf '%s\n%s\n' 'misp-core' 'https://misp-nginx:8443/users/heartbeat'
+      ;;
+    http)
+      [[ ! -e "$cert_file" && ! -e "$key_file" ]] || fatal "HTTP BASE_URL must not be combined with TLS certificate files for the separated NGINX service."
+      printf '%s\n%s\n' 'misp-core' 'http://misp-nginx:8080/users/heartbeat'
+      ;;
+    *) fatal "BASE_URL must use http or https for frontend readiness" ;;
+  esac
+}
+
 check_misp_heartbeat() {
-  local install_dir="$1" output body status
-  output="$(compose_cmd "$install_dir" exec -T misp-core curl -ksS --fail --max-time 30 --write-out $'\n%{http_code}' https://localhost/users/heartbeat)" || return 1
+  local install_dir="$1" output body status probe_file
+  local -a probe
+  probe_file="$(mktemp)" || return 1
+  if ! frontend_heartbeat_probe "$install_dir" > "$probe_file"; then
+    rm -f "$probe_file"
+    return 1
+  fi
+  mapfile -t probe < "$probe_file"
+  rm -f "$probe_file"
+  [[ "${#probe[@]}" -eq 2 ]] || return 1
+  output="$(compose_cmd "$install_dir" exec -T "${probe[0]}" curl -ksS --fail --max-time 30 --write-out $'\n%{http_code}' "${probe[1]}")" || return 1
   body="${output%$'\n'*}"
   status="${output##*$'\n'}"
   [[ "$status" == 200 ]] || return 1
@@ -507,15 +650,14 @@ raise SystemExit(0 if isinstance(message, str) and 0 < len(message) <= 512 else 
 PY
 }
 
-wait_for_misp_core() {
-  # MISP's public BASE_URL can point through DNS/reverse proxies. Readiness here
-  # intentionally uses container-local HTTPS so DNS and proxy outages do not
-  # make container health ambiguous.
+wait_for_misp_frontend() {
+  # Probe the internal official frontend path so public DNS/proxy outages do not
+  # make application readiness ambiguous.
   local install_dir="$1" timeout="${2:-600}" elapsed=0 interval=5
-  log "Waiting for MISP core HTTPS heartbeat (timeout ${timeout}s)"
+  log "Waiting for the MISP frontend heartbeat (timeout ${timeout}s)"
   until check_misp_heartbeat "$install_dir" >/dev/null 2>&1; do
     if (( elapsed >= timeout )); then
-      fatal "MISP core did not become ready within ${timeout}s"
+      fatal "MISP frontend did not become ready within ${timeout}s"
     fi
     sleep "$interval"
     elapsed=$((elapsed + interval))
