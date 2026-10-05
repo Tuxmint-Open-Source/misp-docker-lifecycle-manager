@@ -39,7 +39,7 @@ class StaticRepoTests(unittest.TestCase):
             self.assertIn('set -euo pipefail', text, p)
 
     def test_main_scripts_have_help_and_version(self):
-        for name in ['install.sh', 'update.sh', 'backup.sh', 'restore.sh', 'doctor.sh', 'status.sh', 'healthcheck.sh', 'admin-credentials.sh', 'login-check.sh', 'sos-report.sh', 'get-current-misp-versions.sh', 'reset-installation.sh']:
+        for name in ['install.sh', 'update.sh', 'backup.sh', 'restore.sh', 'doctor.sh', 'status.sh', 'healthcheck.sh', 'admin-credentials.sh', 'login-check.sh', 'sos-report.sh', 'plan-nginx-migration.sh', 'get-current-misp-versions.sh', 'reset-installation.sh']:
             script = ROOT / 'lifecycle' / name
             help_text = subprocess.check_output([str(script), '--help'], text=True, cwd=ROOT)
             self.assertIn('Usage:', help_text, name)

@@ -33,11 +33,9 @@ def git_bytes(*args: str) -> bytes:
     return subprocess.check_output(["git", "-C", str(ROOT), *args])
 
 
-def source_files(commit: str) -> list[str]:
-    entries = [
-        line.strip()
-        for line in git_text("show", f"{commit}:{MANIFEST_PATH}").splitlines()
-    ]
+def source_files(commit: str, use_worktree: bool = False) -> list[str]:
+    source = (ROOT / MANIFEST_PATH).read_text() if use_worktree else git_text("show", f"{commit}:{MANIFEST_PATH}")
+    entries = [line.strip() for line in source.splitlines()]
     entries = [line for line in entries if line and not line.startswith("#")]
     if entries != sorted(set(entries)):
         raise ValueError("operator bundle file list must be unique and sorted")
@@ -63,7 +61,11 @@ def resolve_source(ref: str, allow_non_tag: bool) -> tuple[str, str]:
     return commit, version
 
 
-def blob(commit: str, path: str) -> bytes:
+def blob(commit: str, path: str, use_worktree: bool = False) -> bytes:
+    if use_worktree:
+        candidate = ROOT / path
+        if candidate.is_file():
+            return candidate.read_bytes()
     try:
         return git_bytes("show", f"{commit}:{path}")
     except subprocess.CalledProcessError as exc:
@@ -72,8 +74,9 @@ def blob(commit: str, path: str) -> bytes:
 
 def build(ref: str, output_dir: Path, allow_non_tag: bool = False) -> tuple[Path, Path]:
     commit, version = resolve_source(ref, allow_non_tag)
-    paths = source_files(commit)
-    payloads = {path: blob(commit, path) for path in paths}
+    use_worktree = allow_non_tag and ref == "HEAD"
+    paths = source_files(commit, use_worktree)
+    payloads = {path: blob(commit, path, use_worktree) for path in paths}
     manifest = {
         "schema_version": 1,
         "product": "misp-docker-lifecycle-manager",
