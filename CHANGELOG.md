@@ -6,6 +6,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ### Added
 
+- Add `migrate-nginx.sh` as a dry-run-first conversion helper for recognized standard legacy integrated-core deployments; apply mode requires a validated `backup.sh` backup before atomically replacing generated `.env`, Compose override, and lifecycle state, with rollback guidance emitted after success.
 - Add `plan-nginx-migration.sh` to produce a non-mutating, public-safe readiness plan for future separated-NGINX migration assistance while keeping compatibility pending until exact validation.
 - Add project origin and transparency documentation covering non-affiliation with the upstream MISP project, descriptive MISP-name usage, AI-assisted development under maintainer review, and validation-based trust boundaries.
 - Document operator-confirmed healthy-path Nagios XI `2026R1.6.1` and NCPA `3.4.3-1` integration for manager `v1.4.1`, including a complete fixed-plugin, permissions, sudoers, timeout, wizard, verification, security, and troubleshooting guide plus explicit non-OK/alerting limitations.

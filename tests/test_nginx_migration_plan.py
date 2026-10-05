@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -64,6 +65,69 @@ def make_install(
     return install
 
 
+
+def make_fake_bin(root: Path, *, backup_exit: int = 0, docker_log_name: str = "docker.log") -> Path:
+    fake_bin = root / "bin"
+    fake_bin.mkdir()
+    docker_log = root / docker_log_name
+    docker = fake_bin / "docker"
+    docker.write_text(
+        """#!/bin/sh
+printf '%s\n' "$*" >> "$DOCKER_LOG"
+case "$*" in
+  *" ps --status running --services") printf 'db\nredis\n';;
+  *" exec -T db "*) printf '%s\n' '-- fixture dump';;
+  *" config") printf 'compose config ok\n';;
+esac
+"""
+    )
+    docker.chmod(0o755)
+    sudo = fake_bin / "sudo"
+    sudo.write_text("#!/bin/sh\nexec \"$@\"\n")
+    sudo.chmod(0o755)
+    if backup_exit:
+        backup_marker = root / "backup-called"
+        backup = fake_bin / "backup.sh"
+        backup.write_text(f"#!/bin/sh\ntouch {backup_marker}\nexit {backup_exit}\n")
+        backup.chmod(0o755)
+    return fake_bin
+
+
+def add_standard_generated_values(install: Path) -> None:
+    current = (install / ".env").read_text()
+    additions = """ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=generated-secret
+ADMIN_KEY=1234567890abcdef1234567890abcdef12345678
+MYSQL_PASSWORD=generated-mysql
+MYSQL_ROOT_PASSWORD=generated-root
+REDIS_PASSWORD=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+ENCRYPTION_KEY=generated-encryption
+SALT=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+UUID=11111111-2222-3333-4444-555555555555
+CORE_TAG=v2.5.45
+MODULES_TAG=v3.0.9
+GUARD_TAG=v1.2
+CORE_RUNNING_TAG=v2.5.45
+MODULES_RUNNING_TAG=v3.0.9
+GUARD_RUNNING_TAG=v1.2
+"""
+    (install / ".env").write_text(current + additions)
+    ssl = install / "ssl"
+    ssl.mkdir(exist_ok=True)
+    (ssl / "cert.pem").write_text("fixture-cert\n")
+    (ssl / "key.pem").write_text("fixture-key\n")
+    (install / "template.env").write_text(
+        "CORE_TAG=v2.5.45\nMODULES_TAG=v3.0.9\nGUARD_TAG=v1.2\n"
+        "NGINX_HTTP_PORT=80\nNGINX_HTTPS_PORT=443\n"
+    )
+    (install / "docker-compose.yml").write_text(
+        "services:\n  misp-core:\n    image: example.invalid/misp:fixture\n"
+        "  misp-nginx:\n    image: example.invalid/nginx:fixture\n"
+    )
+    for name in ("configs", "logs", "files", "gnupg", "custom", "guard"):
+        (install / name).mkdir(exist_ok=True)
+    (install / "configs" / "config.php").write_text("fixture\n")
+
 def run_plan(install: Path, output_format: str = "json") -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [str(COMMAND), "--install-dir", str(install), "--format", output_format],
@@ -76,6 +140,131 @@ def run_plan(install: Path, output_format: str = "json") -> subprocess.Completed
 
 
 class NginxMigrationPlanTests(unittest.TestCase):
+
+    def test_migration_dry_run_is_default_and_does_not_backup_or_mutate(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            install = make_install(root, [
+                "BASE_URL=https://misp.example.com",
+                "CORE_HTTP_PORT=127.0.0.1:8080",
+                "CORE_HTTPS_PORT=127.0.0.1:8443",
+            ])
+            add_standard_generated_values(install)
+            before = tree_digest(install)
+            fake_bin = make_fake_bin(root)
+            env = {**os.environ, "PATH": str(fake_bin) + os.pathsep + os.environ["PATH"], "DOCKER_LOG": str(root / "docker.log")}
+            result = subprocess.run(
+                [str(ROOT / "lifecycle" / "migrate-nginx.sh"), "--install-dir", str(install)],
+                cwd=ROOT, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(before, tree_digest(install))
+            self.assertIn("Dry-run only", result.stderr)
+            self.assertFalse((root / "docker.log").exists())
+
+    def test_migration_blocker_prevents_backup_and_mutation(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            install = make_install(root, [
+                "BASE_URL=https://misp.example.com",
+                "CORE_HTTP_PORT=127.0.0.1:8080",
+                "CORE_HTTPS_PORT=127.0.0.1:8443",
+                "DISABLE_SSL_REDIRECT=manual-decision-required",
+            ])
+            add_standard_generated_values(install)
+            before = tree_digest(install)
+            fake_bin = make_fake_bin(root)
+            env = {**os.environ, "PATH": str(fake_bin) + os.pathsep + os.environ["PATH"], "DOCKER_LOG": str(root / "docker.log")}
+            result = subprocess.run(
+                [str(ROOT / "lifecycle" / "migrate-nginx.sh"), "--install-dir", str(install), "--apply"],
+                cwd=ROOT, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(before, tree_digest(install))
+            self.assertIn("planner reported blockers", result.stderr)
+            self.assertFalse((root / "docker.log").exists())
+
+    def test_migration_backup_failure_stops_before_mutation(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            install = make_install(root, [
+                "BASE_URL=https://misp.example.com",
+                "CORE_HTTP_PORT=127.0.0.1:8080",
+                "CORE_HTTPS_PORT=127.0.0.1:8443",
+            ])
+            add_standard_generated_values(install)
+            before = tree_digest(install)
+            fake_bin = make_fake_bin(root, backup_exit=42)
+            env = {**os.environ, "PATH": str(fake_bin) + os.pathsep + os.environ["PATH"], "DOCKER_LOG": str(root / "docker.log")}
+            backup_root = root / "bad-backups"
+            backup_root.mkdir(mode=0o777)
+            backup_root.chmod(0o777)
+            result = subprocess.run(
+                [
+                    str(ROOT / "lifecycle" / "migrate-nginx.sh"), "--install-dir", str(install),
+                    "--backup-root", str(backup_root), "--apply",
+                ],
+                cwd=ROOT, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(before, tree_digest(install))
+            self.assertIn("backup.sh failed; no migration files were changed", result.stderr)
+            self.assertFalse(any(backup_root.iterdir()))
+
+    def test_standard_legacy_conversion_succeeds_after_validated_backup_and_emits_rollback(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            install = make_install(root, [
+                "BASE_URL=https://misp.example.com",
+                "CORE_HTTP_PORT=127.0.0.1:8080",
+                "CORE_HTTPS_PORT=127.0.0.1:8443",
+                "CONTENT_SECURITY_POLICY=frame-ancestors 'self'",
+                "HSTS_MAX_AGE=31536000",
+                "X_FRAME_OPTIONS=SAMEORIGIN",
+                "FASTCGI_STATUS_LISTEN=127.0.0.1:9003",
+            ])
+            add_standard_generated_values(install)
+            before = tree_digest(install)
+            fake_bin = make_fake_bin(root)
+            backup_root = root / "backups"
+            backup_root.mkdir(mode=0o700)
+            env = {**os.environ, "PATH": str(fake_bin) + os.pathsep + os.environ["PATH"], "DOCKER_LOG": str(root / "docker.log")}
+            result = subprocess.run(
+                [
+                    str(ROOT / "lifecycle" / "migrate-nginx.sh"), "--install-dir", str(install),
+                    "--backup-root", str(backup_root), "--apply",
+                ],
+                cwd=ROOT, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertNotEqual(before, tree_digest(install))
+            env_text = (install / ".env").read_text()
+            self.assertIn("BASE_URL=https://misp.example.com", env_text)
+            self.assertIn("NGINX_HTTP_PORT=127.0.0.1:8080", env_text)
+            self.assertIn("NGINX_HTTPS_PORT=127.0.0.1:8443", env_text)
+            self.assertIn("NGINX_CONTENT_SECURITY_POLICY=frame-ancestors 'self'", env_text)
+            self.assertIn("NGINX_HSTS_MAX_AGE=31536000", env_text)
+            self.assertIn("NGINX_X_FRAME_OPTIONS=SAMEORIGIN", env_text)
+            self.assertIn("FASTCGI_LISTEN_STATUS=127.0.0.1:9003", env_text)
+            self.assertIn("CORE_RUNNING_TAG=v2.5.45", env_text)
+            self.assertIn("generated-secret", env_text)
+            self.assertNotRegex(env_text, r"(?m)^CORE_HTTP_PORT=")
+            self.assertNotRegex(env_text, r"(?m)^CORE_HTTPS_PORT=")
+            self.assertEqual((install / "docker-compose.override.yml").read_text(), NGINX_OVERRIDE)
+            state = json.loads((install / ".installer-state.json").read_text())
+            self.assertEqual(state["base_url"], "https://misp.example.com")
+            self.assertEqual(state["exposure"], "reverse-proxy")
+            self.assertEqual(state["proxy_bind_address"], "127.0.0.1")
+            backups = [path for path in backup_root.iterdir() if path.is_dir()]
+            self.assertEqual(len(backups), 1)
+            self.assertTrue((backups[0] / "SHA256SUMS").exists())
+            self.assertIn("NGINX migration complete", result.stdout)
+            self.assertIn("Rollback: sudo ./lifecycle/restore.sh --backup-dir", result.stdout)
+            self.assertIn(str(backups[0]), result.stdout)
+            docker_calls = (root / "docker.log").read_text().splitlines()
+            backup_call = next(i for i, call in enumerate(docker_calls) if "exec -T db" in call)
+            self.assertTrue(backup_call >= 0)
+
     def test_complete_legacy_plan_is_stable_public_safe_and_non_mutating(self):
         with tempfile.TemporaryDirectory() as td:
             sentinel = "never-print-this-sentinel"

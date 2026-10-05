@@ -100,6 +100,19 @@ Must create:
 
 Backups must be suitable for verification with checksum tooling.
 
+### `migrate-nginx.sh`
+
+Must:
+
+- dry-run by default and require explicit `--apply` before changing files
+- fail closed on any `plan-nginx-migration.sh` blocker
+- run `backup.sh` and re-validate the completed backup before changing generated config
+- convert only recognized standard legacy integrated-core layouts to the separated NGINX generated config
+- atomically replace `.env`, `docker-compose.override.yml`, and `.installer-state.json`
+- preserve `BASE_URL`, proxy/direct bind intent, component tags, and generated secrets
+- rename supported legacy front-end variables while treating `DISABLE_SSL_REDIRECT` as a manual blocker
+- emit restore-based rollback guidance after success
+
 ### `update.sh`
 
 Must:

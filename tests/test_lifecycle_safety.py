@@ -840,7 +840,7 @@ esac
     def test_mutating_entry_points_acquire_operation_lock(self):
         scripts = (
             "backup.sh", "bootstrap-tls.sh", "down.sh", "fetch-upstream.sh",
-            "generate-env.sh", "install.sh", "pull.sh", "render-compose.sh",
+            "generate-env.sh", "install.sh", "migrate-nginx.sh", "pull.sh", "render-compose.sh",
             "reset-installation.sh", "restore.sh", "up.sh", "update.sh",
         )
         for name in scripts:

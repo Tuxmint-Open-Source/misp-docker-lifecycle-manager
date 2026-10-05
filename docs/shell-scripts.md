@@ -26,6 +26,7 @@ These operator-facing scripts support both `--help` and `--version`:
 | `sos-report.sh` | Generate a public-safe anonymous SOS report for bug reports. | Reproducible support diagnostics without raw logs/secrets. |
 | `healthcheck.sh` | Run bounded monitoring-friendly health checks with stable exit codes and output formats. | Zabbix, Checkmk, Nagios/Icinga, Prometheus-style text output, and automation. |
 | `plan-nginx-migration.sh` | Inspect a deployment and produce a non-mutating, public-safe CORE-to-NGINX migration readiness plan. | Separated NGINX layout review; compatibility remains pending until exact validation. |
+| `migrate-nginx.sh` | Convert only a recognized standard legacy integrated-core deployment to the separated NGINX generated config after a validated backup. | Dry-run review first; explicit `--apply` required. |
 | `get-current-misp-versions.sh` | Show upstream MISP Docker component versions and optionally compare local `.env`. | Version/compatibility review. |
 | `reset-installation.sh` | Dry-run or remove a managed deployment scope. | Failed install cleanup or deliberate removal. |
 
@@ -199,7 +200,7 @@ sudo ./lifecycle/healthcheck.sh --install-dir /opt/misp-docker --format json --t
 
 See [Monitoring](monitoring.md) for formats, exit codes, JSON schema, and integration examples.
 
-## NGINX migration planning
+## NGINX migration planning and conversion
 
 Inspect a managed deployment without changing files:
 
@@ -208,6 +209,23 @@ sudo ./lifecycle/plan-nginx-migration.sh --install-dir /opt/misp-docker
 ```
 
 Use `--format json` for stable machine-readable output. The plan classifies the current front-end layout, lists blockers that require manual review, and omits raw environment values and local paths so it can be shared safely. It is advisory only: compatibility remains pending until an exact manager release/ref and official MISP Docker component tuple pass validation.
+
+The conversion helper is also a dry run by default and delegates to the planner:
+
+```bash
+sudo ./lifecycle/migrate-nginx.sh --install-dir /opt/misp-docker
+```
+
+Apply mode is intentionally narrow. It only converts a recognized standard legacy integrated-core layout after `plan-nginx-migration.sh` reports no blockers, the checked-out upstream `template.env` exposes the separated NGINX `NGINX_HTTP_PORT`/`NGINX_HTTPS_PORT` contract, and `backup.sh` has completed and re-validated a backup. Then it atomically replaces generated `.env`, `docker-compose.override.yml`, and `.installer-state.json`, preserving `BASE_URL`, the standard proxy/direct port intent, component tags, and generated secrets while renaming supported legacy keys such as `CORE_HTTP_PORT`/`CORE_HTTPS_PORT`, `CONTENT_SECURITY_POLICY`, `HSTS_MAX_AGE`, `X_FRAME_OPTIONS`, and `FASTCGI_STATUS_LISTEN`.
+
+```bash
+sudo ./lifecycle/migrate-nginx.sh \
+  --install-dir /opt/misp-docker \
+  --backup-root /var/backups/misp \
+  --apply
+```
+
+If the conversion succeeds, the command prints the backup directory and a rollback command using `restore.sh`. Any planner blocker, backup failure, custom override, nonstandard port mapping, renamed-variable conflict, or legacy `DISABLE_SSL_REDIRECT` value stops before generated files are changed.
 
 ## Version checks
 

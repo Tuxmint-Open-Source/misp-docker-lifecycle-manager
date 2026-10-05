@@ -133,3 +133,4 @@ sudo chown -R "$owner_uid:$owner_gid" "$out"
 complete=true
 trap - EXIT
 log "Backup written and validated: $out"
+printf '%s\n' "$out"
