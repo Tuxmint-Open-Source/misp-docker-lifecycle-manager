@@ -25,6 +25,7 @@ These operator-facing scripts support both `--help` and `--version`:
 | `login-check.sh` | Perform a CSRF-aware Web UI login check without printing the password. | Readiness and login validation. |
 | `sos-report.sh` | Generate a public-safe anonymous SOS report for bug reports. | Reproducible support diagnostics without raw logs/secrets. |
 | `healthcheck.sh` | Run bounded monitoring-friendly health checks with stable exit codes and output formats. | Zabbix, Checkmk, Nagios/Icinga, Prometheus-style text output, and automation. |
+| `plan-nginx-migration.sh` | Inspect a deployment and produce a non-mutating, public-safe CORE-to-NGINX migration readiness plan. | Separated NGINX layout review; compatibility remains pending until exact validation. |
 | `get-current-misp-versions.sh` | Show upstream MISP Docker component versions and optionally compare local `.env`. | Version/compatibility review. |
 | `reset-installation.sh` | Dry-run or remove a managed deployment scope. | Failed install cleanup or deliberate removal. |
 
@@ -197,6 +198,16 @@ sudo ./lifecycle/healthcheck.sh --install-dir /opt/misp-docker --format json --t
 ```
 
 See [Monitoring](monitoring.md) for formats, exit codes, JSON schema, and integration examples.
+
+## NGINX migration planning
+
+Inspect a managed deployment without changing files:
+
+```bash
+sudo ./lifecycle/plan-nginx-migration.sh --install-dir /opt/misp-docker
+```
+
+Use `--format json` for stable machine-readable output. The plan classifies the current front-end layout, lists blockers that require manual review, and omits raw environment values and local paths so it can be shared safely. It is advisory only: compatibility remains pending until an exact manager release/ref and official MISP Docker component tuple pass validation.
 
 ## Version checks
 
