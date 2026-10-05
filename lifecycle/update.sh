@@ -137,7 +137,7 @@ sync_misp_image_tags "$INSTALL_DIR" "$IMAGE_TRACK" "$CORE_TAG_OVERRIDE" "$MODULE
 compose_cmd "$INSTALL_DIR" pull
 previous_core_id="$(compose_cmd "$INSTALL_DIR" ps -q misp-core)"
 operation_started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-compose_cmd "$INSTALL_DIR" up -d
+start_misp_stack "$INSTALL_DIR"
 current_core_id="$(compose_cmd "$INSTALL_DIR" ps -q misp-core)"
 wait_for_misp_frontend "$INSTALL_DIR" 600
 run_misp_db_updates "$INSTALL_DIR"
