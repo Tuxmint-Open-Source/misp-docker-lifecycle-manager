@@ -497,6 +497,52 @@ compose_cmd() {
   (cd "$install_dir" && env "${env_args[@]}" docker compose --env-file .env "${file_args[@]}" "$@")
 }
 
+start_misp_stack() {
+  # The separated upstream layout gates misp-nginx on the misp-core healthcheck.
+  # On a slow first start Compose can return while core initialization continues
+  # and before PHP-FPM begins listening. Retry only that recognized transition;
+  # legacy layouts and failures that did not leave a running core fail unchanged.
+  local install_dir="$1" timeout="${2:-600}" interval="${3:-5}"
+  local initial_status contract core_id running_core_id elapsed=0
+  [[ "$timeout" =~ ^[0-9]+$ && "$interval" =~ ^[1-9][0-9]*$ ]] || {
+    warn "Invalid separated-NGINX startup readiness timeout or interval"
+    return 2
+  }
+
+  if compose_cmd "$install_dir" up -d; then
+    return 0
+  else
+    initial_status=$?
+  fi
+
+  if ! contract="$(frontend_contract_from_env "$install_dir/.env")" || [[ "$contract" != nginx ]]; then
+    return "$initial_status"
+  fi
+  if ! core_id="$(compose_cmd "$install_dir" ps -q misp-core)" || [[ -z "$core_id" ]]; then
+    return "$initial_status"
+  fi
+  if ! running_core_id="$(compose_cmd "$install_dir" ps --status running -q misp-core)" || [[ "$running_core_id" != "$core_id" ]]; then
+    return "$initial_status"
+  fi
+
+  warn "Initial Compose start stopped at the separated NGINX dependency while misp-core remained running; waiting up to ${timeout}s for the core FPM listener before one retry."
+  while ! compose_cmd "$install_dir" exec -T misp-core bash -c 'echo > /dev/tcp/127.0.0.1/9002' >/dev/null 2>&1; do
+    if (( elapsed >= timeout )); then
+      warn "misp-core did not expose its FPM listener within ${timeout}s; preserving the initial Compose failure."
+      return "$initial_status"
+    fi
+    sleep "$interval"
+    elapsed=$((elapsed + interval))
+    if ! running_core_id="$(compose_cmd "$install_dir" ps --status running -q misp-core)" || [[ "$running_core_id" != "$core_id" ]]; then
+      warn "misp-core stopped while waiting for its FPM listener; preserving the initial Compose failure."
+      return "$initial_status"
+    fi
+  done
+
+  log "misp-core FPM listener is ready; retrying Compose once so the separated NGINX service can start."
+  compose_cmd "$install_dir" up -d
+}
+
 sync_misp_image_tags() {
   # Official misp-docker does not use Git repository tags as the runtime image
   # version. Its template.env declares component versions (CORE_TAG,

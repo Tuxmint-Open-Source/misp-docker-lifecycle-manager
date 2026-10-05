@@ -30,4 +30,14 @@ if ! openssl req -x509 -newkey rsa:4096 -sha256 -days 30 -nodes \
   fatal "Failed to create bootstrap TLS certificate"
 fi
 rm -f "$OPENSSL_LOG"
-chmod 600 "$INSTALL_DIR/ssl/key.pem"; log "Created temporary self-signed TLS certificate for $FQDN. Replace for production."
+if [[ "$(frontend_contract_from_template "$INSTALL_DIR/template.env")" == nginx ]]; then
+  # Official separated misp-nginx runs unprivileged. Keep the private key owned
+  # by the operator/root while granting only the container's nginx group read
+  # access through the bind mount.
+  chown "${SUDO_UID:-$(id -u)}:101" "$INSTALL_DIR/ssl/key.pem"
+  chmod 640 "$INSTALL_DIR/ssl/key.pem"
+else
+  chmod 600 "$INSTALL_DIR/ssl/key.pem"
+fi
+chmod 644 "$INSTALL_DIR/ssl/cert.pem"
+log "Created temporary self-signed TLS certificate for $FQDN. Replace for production."

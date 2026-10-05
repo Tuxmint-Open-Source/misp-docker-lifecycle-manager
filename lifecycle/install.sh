@@ -124,7 +124,7 @@ if [[ "$START" == true ]]; then
   check_docker_storage_capacity
   compose_cmd "$INSTALL_DIR" pull
   operation_started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-  compose_cmd "$INSTALL_DIR" up -d
+  start_misp_stack "$INSTALL_DIR"
   wait_for_misp_frontend "$INSTALL_DIR" 600
   run_misp_db_updates "$INSTALL_DIR"
   check_misp_schema_ready "$INSTALL_DIR"

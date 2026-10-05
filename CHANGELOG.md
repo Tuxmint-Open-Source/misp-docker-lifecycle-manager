@@ -13,6 +13,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ### Changed
 
+- Make bootstrap TLS key permissions compatible with the official unprivileged separated `misp-nginx` container while retaining operator ownership and group-only read access; integrated-core deployments retain owner-only key permissions.
+- Recover the separated-NGINX first-start dependency transition without weakening upstream health checks: when the initial full-stack Compose start returns while a still-running `misp-core` is initializing, wait boundedly for its official FPM readiness boundary and retry Compose once so `misp-nginx` can start; legacy and terminal failures still propagate unchanged.
 - Detect the official integrated-core versus separated-NGINX front-end contract, generate only its matching published-port variables, retain upstream health checks for the separated layout, and fail closed on ambiguous, mixed, or upstream/`.env`-mismatched contracts before rewriting Compose configuration or accepting backups.
 - Track the separated upstream NGINX configuration tree so front-end, TLS, and real-IP behavior changes trigger review.
 - Update the grouped CodeQL Actions from `v4.37.3` through `v4.38.2` at verified immutable SHAs and document the reviewed Dependabot maintenance workflow.

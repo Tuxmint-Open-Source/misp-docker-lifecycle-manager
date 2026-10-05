@@ -100,6 +100,23 @@ Newer manager versions wait for the upstream log line `MISP is now live. Users
 can now log in.` before reporting that interactive login is ready. This is a
 better readiness signal than the login form being visible.
 
+In the separated-NGINX layout, the frontend depends on the core service becoming
+healthy. A slow first initialization can briefly make the initial Compose start
+return before the core FPM listener is available. The manager handles only this
+recognized transition by waiting a bounded time for the same FPM listener used
+by the official core healthcheck, then retrying the full Compose start once so
+the frontend can start. It does not replace or weaken the upstream healthcheck;
+missing, stopped, legacy-layout, timeout, and second-start failures remain fatal.
+
+Compatibility for the current separated-NGINX component tuple remains pending
+until the complete disposable runtime matrix passes.
+
+The official separated frontend runs as an unprivileged user. Bootstrap TLS
+therefore keeps the private key operator-owned but grants read access only to
+the frontend container's nginx group. Existing manually supplied certificates
+must provide an equivalent least-privilege read path; do not make private keys
+world-readable to work around a startup failure.
+
 ## Docker Compose output is noisy
 
 The official upstream Compose file references many optional variables for SMTP,

@@ -43,6 +43,122 @@ def init_upstream(path: Path, frontend_contract: str = "core") -> None:
 
 class LifecycleSafetyTests(unittest.TestCase):
 
+    def run_stack_start_scenario(
+        self, contract: str, scenario: str, timeout: int = 2
+    ) -> tuple[subprocess.CompletedProcess[str], list[str]]:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            install = root / "install"
+            install.mkdir()
+            port_family = (
+                "NGINX_HTTP_PORT=80\nNGINX_HTTPS_PORT=443\n"
+                if contract == "nginx"
+                else "CORE_HTTP_PORT=80\nCORE_HTTPS_PORT=443\n"
+            )
+            (install / ".env").write_text(port_family)
+            call_log = root / "compose.log"
+            up_count = root / "up-count"
+            probe_count = root / "probe-count"
+            script = r'''
+source lifecycle/lib.sh
+set +e
+sleep() { :; }
+compose_cmd() {
+  shift
+  printf '%s\n' "$*" >> "$CALL_LOG"
+  case "$*" in
+    "up -d")
+      count=0
+      [[ ! -f "$UP_COUNT" ]] || count="$(<"$UP_COUNT")"
+      count=$((count + 1))
+      printf '%s\n' "$count" > "$UP_COUNT"
+      if [[ "$count" == 1 ]]; then return 7; fi
+      [[ "$SCENARIO" != second-failure ]] || return 9
+      return 0
+      ;;
+    "ps -q misp-core")
+      [[ "$SCENARIO" != missing ]] && printf 'core-id\n'
+      ;;
+    "ps --status running -q misp-core")
+      [[ "$SCENARIO" != missing && "$SCENARIO" != stopped ]] && printf 'core-id\n'
+      ;;
+    "exec -T misp-core bash -c echo > /dev/tcp/127.0.0.1/9002")
+      count=0
+      [[ ! -f "$PROBE_COUNT" ]] || count="$(<"$PROBE_COUNT")"
+      count=$((count + 1))
+      printf '%s\n' "$count" > "$PROBE_COUNT"
+      [[ "$SCENARIO" != timeout && "$count" -ge 2 ]]
+      ;;
+  esac
+}
+start_misp_stack "$1" "$2" 1
+exit $?
+'''
+            env = {
+                **os.environ,
+                "CALL_LOG": str(call_log),
+                "UP_COUNT": str(up_count),
+                "PROBE_COUNT": str(probe_count),
+                "SCENARIO": scenario,
+            }
+            result = run_bash(script, str(install), str(timeout), env=env)
+            calls = call_log.read_text().splitlines() if call_log.exists() else []
+            return result, calls
+
+    def test_stack_start_legacy_failure_propagates_without_retry(self):
+        result, calls = self.run_stack_start_scenario("core", "transient")
+        self.assertEqual(result.returncode, 7, result.stderr)
+        self.assertEqual(calls, ["up -d"])
+
+    def test_stack_start_requires_an_existing_running_separated_core(self):
+        for scenario in ("missing", "stopped"):
+            with self.subTest(scenario=scenario):
+                result, calls = self.run_stack_start_scenario("nginx", scenario)
+                self.assertEqual(result.returncode, 7, result.stderr)
+                self.assertEqual(calls.count("up -d"), 1)
+                self.assertFalse(any(call.startswith("exec -T misp-core") for call in calls))
+
+    def test_stack_start_retries_separated_frontend_after_core_fpm_readiness(self):
+        result, calls = self.run_stack_start_scenario("nginx", "transient")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(calls.count("up -d"), 2)
+        probe_indexes = [
+            index for index, call in enumerate(calls)
+            if call.startswith("exec -T misp-core bash")
+        ]
+        self.assertEqual(len(probe_indexes), 2)
+        self.assertLess(probe_indexes[-1], len(calls) - 1)
+        self.assertEqual(calls[-1], "up -d")
+
+    def test_stack_start_fails_when_core_fpm_readiness_times_out(self):
+        result, calls = self.run_stack_start_scenario("nginx", "timeout")
+        self.assertEqual(result.returncode, 7, result.stderr)
+        self.assertEqual(calls.count("up -d"), 1)
+        self.assertIn("did not expose its FPM listener", result.stderr)
+
+    def test_stack_start_propagates_second_compose_failure(self):
+        result, calls = self.run_stack_start_scenario("nginx", "second-failure")
+        self.assertEqual(result.returncode, 9, result.stderr)
+        self.assertEqual(calls.count("up -d"), 2)
+
+    def test_managed_full_stack_starts_precede_existing_readiness_checks(self):
+        for name in ("install.sh", "update.sh", "restore.sh"):
+            with self.subTest(script=name):
+                text = (ROOT / "lifecycle" / name).read_text()
+                start = text.index('start_misp_stack "$INSTALL_DIR"')
+                frontend = text.index('wait_for_misp_frontend "$INSTALL_DIR"', start)
+                schema = text.index('check_misp_schema_ready "$INSTALL_DIR"', start)
+                self.assertLess(start, frontend)
+                self.assertLess(start, schema)
+
+    def test_bootstrap_tls_uses_contract_specific_key_permissions(self):
+        text = (ROOT / "lifecycle" / "bootstrap-tls.sh").read_text()
+        self.assertIn('frontend_contract_from_template "$INSTALL_DIR/template.env"', text)
+        self.assertIn('chown "${SUDO_UID:-$(id -u)}:101" "$INSTALL_DIR/ssl/key.pem"', text)
+        self.assertIn('chmod 640 "$INSTALL_DIR/ssl/key.pem"', text)
+        self.assertIn('chmod 600 "$INSTALL_DIR/ssl/key.pem"', text)
+        self.assertIn('chmod 644 "$INSTALL_DIR/ssl/cert.pem"', text)
+
     def test_install_checks_docker_storage_before_pull(self):
         install = (ROOT / "lifecycle" / "install.sh").read_text()
         check = 'check_docker_storage_capacity'
