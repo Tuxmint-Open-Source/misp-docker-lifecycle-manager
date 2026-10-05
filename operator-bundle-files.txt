@@ -16,6 +16,7 @@ installer/install.sh
 installer/lib.sh
 installer/login-check.sh
 installer/logs.sh
+installer/migrate-nginx.sh
 installer/plan-nginx-migration.sh
 installer/prepare-host-rocky.sh
 installer/pull.sh
@@ -40,6 +41,7 @@ lifecycle/install.sh
 lifecycle/lib.sh
 lifecycle/login-check.sh
 lifecycle/logs.sh
+lifecycle/migrate-nginx.sh
 lifecycle/plan-nginx-migration.sh
 lifecycle/prepare-host-rocky.sh
 lifecycle/pull.sh
