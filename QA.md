@@ -72,7 +72,7 @@ A successful install path should:
 4. validate Docker Compose config
 5. fetch official upstream `MISP/misp-docker`
 6. start the stack
-7. wait for container-local MISP heartbeat
+7. wait for internal MISP frontend heartbeat
 8. run MISP database updates
 9. verify schema readiness required by first interactive login
 10. run `doctor.sh`
@@ -86,7 +86,7 @@ Must check:
 - required `.env` values
 - Docker Compose config
 - `BASE_URL` DNS lookup from the host
-- container-local MISP heartbeat
+- internal MISP frontend heartbeat
 - schema readiness
 - Docker Compose service status
 

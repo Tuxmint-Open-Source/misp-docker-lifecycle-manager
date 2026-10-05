@@ -216,12 +216,29 @@ def check_compose_services() -> None:
     else:
         add_check('compose-services', 'critical', f'{running}/{expected} expected services running; {len(missing)} missing', metrics_update)
 
+def frontend_probe() -> tuple[str, str] | None:
+    helper = (
+        f"source {shlex.quote(str(script_dir / 'lib.sh'))}; "
+        f"frontend_heartbeat_probe {shlex.quote(str(install_dir))}"
+    )
+    result = run_cmd(['bash', '-lc', helper])
+    values = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    if result.returncode != 0 or len(values) != 2:
+        return None
+    return values[0], values[1]
+
+
 def check_misp_heartbeat() -> None:
+    probe = frontend_probe()
+    if probe is None:
+        add_check('misp-heartbeat', 'unknown', 'Frontend heartbeat contract could not be determined')
+        return
+    exec_service, heartbeat_url = probe
     remaining = max(1, int(deadline - time.monotonic()))
     result = run_cmd(compose_args(
-        'exec', '-T', 'misp-core', 'curl', '-ksS', '--fail', '--max-time', str(remaining),
+        'exec', '-T', exec_service, 'curl', '-ksS', '--fail', '--max-time', str(remaining),
         '--write-out', '\n%{http_code}',
-        'https://localhost/users/heartbeat'
+        heartbeat_url
     ), cwd=install_dir)
     if result.returncode != 0:
         add_check('misp-heartbeat', 'critical', 'MISP heartbeat endpoint returned an HTTP or transport failure')

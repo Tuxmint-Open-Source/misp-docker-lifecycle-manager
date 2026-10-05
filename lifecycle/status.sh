@@ -29,6 +29,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 compose_cmd "$INSTALL_DIR" ps
-printf '\nHeartbeat via container-local HTTPS:\n'
-compose_cmd "$INSTALL_DIR" exec -T misp-core curl -ks https://localhost/users/heartbeat || true
+printf '\nHeartbeat via internal frontend:\n'
+if check_misp_heartbeat "$INSTALL_DIR"; then
+  printf 'OK\n'
+else
+  printf 'Unavailable\n'
+fi
 printf '\n'

@@ -116,7 +116,7 @@ Verify Redis-backed PHP sessions. `REDIS_PASSWORD` must be URL-safe because PHP 
 
 ## Healthcheck fails but public URL works
 
-Healthchecks use container-local `https://localhost/users/heartbeat`, not public DNS or reverse proxy paths.
+Healthchecks use the internal Compose frontend heartbeat path, not public DNS or reverse proxy paths. On older integrated-core layouts this is core-local HTTPS; on the separated-NGINX layout it reaches the `misp-nginx` service from inside the Compose network.
 
 ## Browser redirects to localhost
 
