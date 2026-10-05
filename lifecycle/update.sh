@@ -139,7 +139,7 @@ previous_core_id="$(compose_cmd "$INSTALL_DIR" ps -q misp-core)"
 operation_started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 compose_cmd "$INSTALL_DIR" up -d
 current_core_id="$(compose_cmd "$INSTALL_DIR" ps -q misp-core)"
-wait_for_misp_core "$INSTALL_DIR" 600
+wait_for_misp_frontend "$INSTALL_DIR" 600
 run_misp_db_updates "$INSTALL_DIR"
 check_misp_schema_ready "$INSTALL_DIR"
 if [[ -n "$previous_core_id" && "$previous_core_id" == "$current_core_id" ]]; then

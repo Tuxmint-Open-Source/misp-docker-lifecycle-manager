@@ -19,4 +19,5 @@ if not re.fullmatch(r'[A-Za-z0-9]{40}', kv['ADMIN_KEY']): raise SystemExit('ADMI
 if not re.fullmatch(r'[0-9a-f]{64}', kv['REDIS_PASSWORD']): raise SystemExit('REDIS_PASSWORD must be URL-safe 64-char hex; Redis sessions/CSRF can break otherwise')
 print('env validation OK')
 PY
+frontend_heartbeat_probe "$INSTALL_DIR" >/dev/null
 compose_cmd "$INSTALL_DIR" config >/dev/null; log "Compose config OK."

@@ -56,6 +56,15 @@ The upstream watcher records public facts that can affect lifecycle behavior:
 
 The watcher must not create a compatibility claim. When it detects drift, maintainers decide whether to update assumptions, change docs or code, or run compatibility validation for a deliberately supported exact component set.
 
+### Front-end contract detection
+
+Manager code must not infer the official Docker front-end layout from a component version alone. The lifecycle configuration path detects exactly one complete published-port family from the checked-out official `template.env`:
+
+- legacy integrated front end: `CORE_HTTP_PORT` and `CORE_HTTPS_PORT`;
+- separated NGINX front end: `NGINX_HTTP_PORT` and `NGINX_HTTPS_PORT`.
+
+An incomplete or mixed family is ambiguous and must fail closed before generated configuration is accepted. If an existing `.env` family does not match the checked-out upstream template, the manager refuses to rewrite its Compose override and directs the operator to the migration workstream. Detection and configuration support are implementation prerequisites only; they do not establish runtime compatibility for the separated architecture.
+
 ## Machine-readable metadata
 
 Current metadata:

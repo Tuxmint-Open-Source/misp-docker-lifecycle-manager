@@ -20,16 +20,15 @@ if [[ "$1" == "version" ]]; then
   exit 0
 fi
 if [[ "$args" == *" config --services"* ]]; then
-  printf 'db\nredis\nmisp-core\nmisp-modules\n'
+  printf 'db\nredis\nmisp-core\nmisp-nginx\nmisp-modules\n'
   exit 0
 fi
 if [[ "$args" == *" ps --all --format json"* ]]; then
   printf '%s\n' '{"Service":"db","State":"running"}'
   printf '%s\n' '{"Service":"redis","State":"running"}'
   printf '%s\n' '{"Service":"misp-core","State":"running"}'
-  if [[ "$mode" != "missing-service" ]]; then
-    printf '%s\n' '{"Service":"misp-modules","State":"running"}'
-  fi
+  [[ "$mode" == "missing-service" ]] || printf '%s\n' '{"Service":"misp-nginx","State":"running"}'
+  printf '%s\n' '{"Service":"misp-modules","State":"running"}'
   exit 0
 fi
 if [[ "$args" == *" config"* ]]; then
@@ -37,6 +36,8 @@ if [[ "$args" == *" config"* ]]; then
   exit 0
 fi
 if [[ "$args" == *"users/heartbeat"* ]]; then
+  [[ "$args" == *" exec -T misp-core curl "* ]] || exit 91
+  [[ "$args" == *"http://misp-nginx:8080/users/heartbeat"* ]] || exit 92
   [[ "$mode" != "slow" ]] || sleep 0.7
   case "$mode" in
     heartbeat-http-error) exit 22 ;;
@@ -60,7 +61,11 @@ class HealthcheckCorrectnessTests(unittest.TestCase):
         self.bin_dir = self.root / "bin"
         self.install_dir.mkdir()
         self.bin_dir.mkdir()
-        (self.install_dir / ".env").write_text("PLACEHOLDER=1\n")
+        (self.install_dir / ".env").write_text(
+            "BASE_URL=http://misp.example.com\n"
+            "NGINX_HTTP_PORT=127.0.0.1:8080\n"
+            "NGINX_HTTPS_PORT=127.0.0.1:8443\n"
+        )
         (self.install_dir / "docker-compose.yml").write_text("services: {}\n")
         docker = self.bin_dir / "docker"
         docker.write_text(FAKE_DOCKER)
@@ -92,16 +97,16 @@ class HealthcheckCorrectnessTests(unittest.TestCase):
         check = next(item for item in data["checks"] if item["id"] == "compose-services")
         self.assertEqual(check["status"], "critical")
         self.assertIn("1 missing", check["summary"])
-        self.assertEqual(data["metrics"]["services_expected"], 4)
-        self.assertEqual(data["metrics"]["services_running"], 3)
+        self.assertEqual(data["metrics"]["services_expected"], 5)
+        self.assertEqual(data["metrics"]["services_running"], 4)
 
     def test_all_expected_services_running_is_ok(self):
         proc, data = self.run_healthcheck("compose-services")
         self.assertEqual(proc.returncode, 0, proc.stderr)
         check = next(item for item in data["checks"] if item["id"] == "compose-services")
         self.assertEqual(check["status"], "ok")
-        self.assertEqual(data["metrics"]["services_expected"], 4)
-        self.assertEqual(data["metrics"]["services_running"], 4)
+        self.assertEqual(data["metrics"]["services_expected"], 5)
+        self.assertEqual(data["metrics"]["services_running"], 5)
 
     def test_heartbeat_requires_successful_http_and_json_string_contract(self):
         healthy_proc, healthy = self.run_healthcheck("misp-heartbeat")
