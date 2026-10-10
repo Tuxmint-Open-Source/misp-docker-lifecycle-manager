@@ -4,71 +4,56 @@
 
 The scheduled upstream monitor detected lifecycle-sensitive changes in official `MISP/misp-docker` inputs or a new official MISP component release. Upstream commit movement without a watched-file, extracted-fact, or component-release change does not create a review.
 
-Detected classes: **A+B+C**
+Detected classes: **A+B**
 
 Validation status: **review required / not validated**
 
 ## Lifecycle-manager context
 
 - `VERSION` value: `1.4.1`
-- Source commit at detection time: `8b1e7acfc78ae09581915edfcd7dc2822b35d752`
+- Source commit at detection time: `37e4ddceeca04a55b82f2447b7a403938263cf90`
 
 ## Upstream
 
 - Repository: `https://github.com/MISP/misp-docker.git`
 - Ref: `master`
-- Previous reviewed commit: `9bf1372d76d82e08fc4ca121cb47a3913e7cbf53`
-- Current commit: `96e164e86d3ef1dd36797fc074b9e7e5544b3087`
-- Compare: https://github.com/MISP/misp-docker/compare/9bf1372d76d82e08fc4ca121cb47a3913e7cbf53...96e164e86d3ef1dd36797fc074b9e7e5544b3087
+- Previous reviewed commit: `96e164e86d3ef1dd36797fc074b9e7e5544b3087`
+- Current commit: `ffe0e7c0811e6e92f17bc1d47c30a55f63b2caab`
+- Compare: https://github.com/MISP/misp-docker/compare/96e164e86d3ef1dd36797fc074b9e7e5544b3087...ffe0e7c0811e6e92f17bc1d47c30a55f63b2caab
 
 ## Detected changes
 
-- **Class A** — Official component tag defaults changed.
 - **Class A** — Official component release tags changed.
-- **Class C** — Watched file changed: `template.env`
-- **Class B** — Watched file changed: `docker-compose.yml`
-- **Class B** — Watched file changed: `core/files/entrypoint.sh`
-- **Class B** — Watched file changed: `core/files/entrypoint_nginx.sh`
 - **Class B** — Watched file changed: `core/files/configure_misp.sh`
-- **Class B** — Watched file changed: `core/files/utilities.sh`
-- **Class B** — Watched configuration tree changed: `core/files/etc/misp-docker/initialisation.envars.json`, `core/files/etc/misp-docker/minimum_config.defaults.json`
-- **Class B** — Watched configuration tree changed: `core/files/etc/supervisor/conf.d/10-supervisor.conf`
-- **Class B** — Watched configuration tree changed: `core/files/etc/nginx/.`, `core/files/etc/nginx/includes/misp`, `core/files/etc/nginx/sites-available/misp443`, `core/files/etc/nginx/sites-available/misp80`, `core/files/etc/nginx/sites-available/php-fpm-status`
-- **Class B** — Watched configuration tree changed: `nginx/files/.`, `nginx/files/00-misp.envsh`, `nginx/files/01-listen.sh`, `nginx/files/02-real-ip.sh`, `nginx/files/03-conditional-headers.sh`, `nginx/files/04-ssl.sh`, `nginx/files/misp.conf`, `nginx/files/status.conf`
-- **Class B** — Compose service definitions changed: `misp-core`, `misp-nginx`
-- **Class B** — Compose interpolation-key inventory changed.
-- **Class B** — Compose interpolation required/default operator contract changed.
-- **Class C** — `template.env` active/commented key inventory changed.
-- **Class C** — Operator guidance changed: `Authentication`, `Getting Started`, `Production`, `Versioning`
 
 ## Component tags
 
 | Component | Previous | Current |
 |---|---:|---:|
-| `CORE_TAG` | `v2.5.45` | `v2.5.48` |
-| `MODULES_TAG` | `v3.0.9` | `v3.0.10` |
+| `CORE_TAG` | `v2.5.48` | `v2.5.48` |
+| `MODULES_TAG` | `v3.0.10` | `v3.0.10` |
 | `GUARD_TAG` | `v1.2` | `v1.2` |
 
 ## Latest official component releases
 
 | Component | Official Docker default | Latest official release | Adopted by Docker default? |
 |---|---:|---:|---|
-| `CORE_TAG` | `v2.5.48` | `v2.5.48` | yes |
-| `MODULES_TAG` | `v3.0.10` | `v3.0.10` | yes |
+| `CORE_TAG` | `v2.5.48` | `v2.5.50` | no — review before validation |
+| `MODULES_TAG` | `v3.0.10` | `v3.0.11` | no — review before validation |
 | `GUARD_TAG` | `v1.2` | `v1.3` | no — review before validation |
 
 A component release that is not yet adopted by official MISP Docker is a review signal, not an instruction to validate or support a speculative combination.
 
 ## Structured deltas
 
-- Compose services added: `misp-nginx`
+- Compose services added: none
 - Compose services removed: none
-- Compose interpolation keys added: `AUTH_ENFORCED`, `FASTCGI_LISTEN`, `FASTCGI_LISTEN_STATUS`, `NGINX_CONTENT_SECURITY_POLICY`, `NGINX_HSTS_MAX_AGE`, `NGINX_HTTPS_PORT`, `NGINX_HTTP_PORT`, `NGINX_X_FRAME_OPTIONS`, `PHP_LISTEN_FPM`
-- Compose interpolation keys removed: `CONTENT_SECURITY_POLICY`, `CORE_HTTPS_PORT`, `CORE_HTTP_PORT`, `DISABLE_SSL_REDIRECT`, `FASTCGI_STATUS_LISTEN`, `HSTS_MAX_AGE`, `X_FRAME_OPTIONS`
+- Compose interpolation keys added: none
+- Compose interpolation keys removed: none
 - Active template.env keys added: none
 - Active template.env keys removed: none
-- Commented template.env keys added: `AUTH_ENFORCED`, `FASTCGI_LISTEN_STATUS`, `NGINX_CONTENT_SECURITY_POLICY`, `NGINX_HSTS_MAX_AGE`, `NGINX_HTTPS_PORT`, `NGINX_HTTP_PORT`, `NGINX_X_FRAME_OPTIONS`
-- Commented template.env keys removed: `CONTENT_SECURITY_POLICY`, `CORE_HTTPS_PORT`, `CORE_HTTP_PORT`, `DISABLE_SSL_REDIRECT`, `FASTCGI_STATUS_LISTEN`, `HSTS_MAX_AGE`, `X_FRAME_OPTIONS`
+- Commented template.env keys added: none
+- Commented template.env keys removed: none
 
 ## Classification
 
@@ -92,7 +77,7 @@ A component release that is not yet adopted by official MISP Docker is a review 
 
 ## Compatibility note
 
-This upstream-review report is a drift-detection prompt, not compatibility proof by itself. A listed manager release/ref and component set becomes **validated compatible** only after the documented compatibility scenarios pass and [public compatibility evidence](../../docs/compatibility.md) is updated.
+This upstream-review report is a drift-detection prompt, not compatibility proof by itself. A listed manager release/ref and component set becomes **validated compatible** only after the documented compatibility scenarios pass and public compatibility evidence is updated.
 
 ## Validation command
 
