@@ -1,9 +1,9 @@
 {
-  "checked_at_utc": "2026-10-04T11:09:38Z",
+  "checked_at_utc": "2026-10-17T09:28:03Z",
   "component_tags": {
-    "CORE_TAG": "v2.5.48",
+    "CORE_TAG": "v2.5.50",
     "GUARD_TAG": "v1.2",
-    "MODULES_TAG": "v3.0.10"
+    "MODULES_TAG": "v3.0.12"
   },
   "compose": {
     "images": {
@@ -16,6 +16,9 @@
       "redis": "${REGISTRY_MIRROR_URL:-}valkey/valkey:7.2"
     },
     "interpolation_contract": {
+      "AAD_AUTH_PROPERTY_NAME": [
+        ":-"
+      ],
       "AAD_CHECK_GROUPS": [
         "plain"
       ],
@@ -239,6 +242,9 @@
       "GUARD_COMMIT": [
         "plain"
       ],
+      "GUARD_PASSWORD": [
+        "plain"
+      ],
       "GUARD_PORT": [
         ":-"
       ],
@@ -247,6 +253,9 @@
       ],
       "GUARD_TAG": [
         ":?"
+      ],
+      "GUARD_USER": [
+        "plain"
       ],
       "INNODB_BUFFER_POOL_SIZE": [
         ":-"
@@ -692,6 +701,7 @@
       ]
     },
     "interpolation_keys": [
+      "AAD_AUTH_PROPERTY_NAME",
       "AAD_CHECK_GROUPS",
       "AAD_CLIENT_ID",
       "AAD_CLIENT_SECRET",
@@ -766,9 +776,11 @@
       "GPG_PASSPHRASE",
       "GUARD_ARGS",
       "GUARD_COMMIT",
+      "GUARD_PASSWORD",
       "GUARD_PORT",
       "GUARD_RUNNING_TAG",
       "GUARD_TAG",
+      "GUARD_USER",
       "INNODB_BUFFER_POOL_SIZE",
       "INNODB_CHANGE_BUFFERING",
       "INNODB_IO_CAPACITY",
@@ -920,8 +932,8 @@
     "service_block_hashes": {
       "db": "d14272c6215d33bb3e0e17b06a968b89125c42d94256ee9b9bc0dd58e04b438b",
       "mail": "265c8c8d7f7d5b9bbbc4466d909f761a3c5a8636df31271d4f958c537fb2f601",
-      "misp-core": "7016350bbaaa2bb65e08bcef456e377b7ffba78d3ec650caaf5ab240458d2bdd",
-      "misp-guard": "92189b733b22939a411e410f51764ad74e6d1843e79edaed71fd72bf1892ccae",
+      "misp-core": "35b521dccdf7016538fe09c2d55f5200ad25d884aa6178e6db5661ffb7bf918b",
+      "misp-guard": "6bfc7e09e6a2d54eaf0ad7529baa5f3b47f45c831b0398cf3f631d675809e4b1",
       "misp-modules": "44e86fe66ad7d52f79480e18ba70e74c823c97113166300d097b7e09bc059266",
       "misp-nginx": "d155d4d27c345669875cc0890f6240debd1126b708aeea99aefd58b6650103af",
       "redis": "f4cd4bd21f266c47e37478eccc27be13d13b921d2fdb20887eade5abd2428e66"
@@ -938,11 +950,11 @@
   },
   "official_component_releases": {
     "CORE_TAG": {
-      "published_at": "2026-09-29T08:11:29Z",
-      "release_id": 398938500,
+      "published_at": "2026-10-10T09:48:00Z",
+      "release_id": 408852220,
       "repo": "MISP/MISP",
-      "tag": "v2.5.48",
-      "url": "https://github.com/MISP/MISP/releases/tag/v2.5.48"
+      "tag": "v2.5.50",
+      "url": "https://github.com/MISP/MISP/releases/tag/v2.5.50"
     },
     "GUARD_TAG": {
       "published_at": "2026-09-01T12:47:47Z",
@@ -952,11 +964,11 @@
       "url": "https://github.com/MISP/misp-guard/releases/tag/v1.3"
     },
     "MODULES_TAG": {
-      "published_at": "2026-09-08T12:09:38Z",
-      "release_id": 384698040,
+      "published_at": "2026-10-14T12:57:59Z",
+      "release_id": 412719616,
       "repo": "MISP/misp-modules",
-      "tag": "v3.0.10",
-      "url": "https://github.com/MISP/misp-modules/releases/tag/v3.0.10"
+      "tag": "v3.0.12",
+      "url": "https://github.com/MISP/misp-modules/releases/tag/v3.0.12"
     }
   },
   "readme_operator_section_sha256": {
@@ -966,7 +978,7 @@
     "Getting Started": "39651bf6ea77f6b9ad1b2af588a3524479f443e18f57c1ce38fe82e265c2e239",
     "Installing custom root CA certificates": "6b086f910020ab57dfbdc3afcd0577971ca316005f93afa73653076a513e21ce",
     "MISP-Guard (optional)": "d0272ca81eef99141bcb91ee55a4ef013bf86fd16c90eec6413c648c7551d745",
-    "Production": "c475bf228c76a0e8c6de8d8cd28d62bad543fdbfdcfaca2416b01468b79a38a7",
+    "Production": "a2eeac9347281016ffffbf285f427961348a4605a59b31c5a28f4406d33b747a",
     "SELinux": "10cf4cd7891b30647b889864b07e66e03ec9664de6af68de5592ebfa1a8b6a54",
     "Troubleshooting": "be3387f05272de63c7b4818d49cf51cbab9b6f98542ddf1e168432cffb641472",
     "Versioning": "9567718338642e761df4d66a524786a8e5c044de0b83e105aecb33c12dc651ad"
@@ -1011,6 +1023,7 @@
       "UUID"
     ],
     "commented_keys": [
+      "AAD_AUTH_PROPERTY_NAME",
       "AAD_CHECK_GROUPS",
       "AAD_CLIENT_ID",
       "AAD_CLIENT_SECRET",
@@ -1072,8 +1085,10 @@
       "FETCH_FEED_INTERVAL",
       "GUARD_ARGS",
       "GUARD_COMMIT",
+      "GUARD_PASSWORD",
       "GUARD_PORT",
       "GUARD_RUNNING_TAG",
+      "GUARD_USER",
       "INNODB_BUFFER_POOL_SIZE",
       "INNODB_CHANGE_BUFFERING",
       "INNODB_IO_CAPACITY",
@@ -1207,11 +1222,11 @@
       "TZ"
     ]
   },
-  "upstream_commit": "96e164e86d3ef1dd36797fc074b9e7e5544b3087",
+  "upstream_commit": "600eaec279c485cf9a7c10d2de4bc4e8b77e8c92",
   "watched_files": {
     "core/files/configure_misp.sh": {
       "exists": true,
-      "sha256": "b1672caa439f4642f016242949b6706f4ad411f9bfb7ecdc443bd84e193113fb"
+      "sha256": "6546c29d4c493bb25ce86bdee05fb2b96bd73fb4e4e95a5c7754029e0b57f700"
     },
     "core/files/entrypoint.sh": {
       "exists": true,
@@ -1223,15 +1238,15 @@
     },
     "core/files/utilities.sh": {
       "exists": true,
-      "sha256": "6090e4b70bddbc07d15d5436e516649f8f7c90b4b84f4f3fbf28b9b98d5984d2"
+      "sha256": "d5ec906183dde17ff32b51ca674a0d2e68ed4bf88134a80512eed0f4299f4145"
     },
     "docker-compose.yml": {
       "exists": true,
-      "sha256": "0a2be9113ca5d92b706cc1901981019f6a9e780b7b197293ba38ec6ed0481025"
+      "sha256": "d4472878fda5e04d5822eb39b41a39144784fbb3d5ec8e285b8d51800c22ca4b"
     },
     "template.env": {
       "exists": true,
-      "sha256": "4b4db3a485bfc8e0f0382fd26426c9565a4d94ef266d003125048b7b1934ba44"
+      "sha256": "0d2a8aed366e183e516d6cff1ea7d2052246fdcdf52a0ba34e421987dc01a108"
     }
   },
   "watched_trees": {
@@ -1282,7 +1297,7 @@
       },
       "proxy.envars.json": {
         "exists": true,
-        "sha256": "a6b5b25076c8bc1ff9b2cfd88cee8d51adca4291551d6822e466b988f014fecb"
+        "sha256": "5bc244b73e74d53dbcc6be9a418dc8fe9ac0c27cd44aa40f7be51a676f9441e5"
       },
       "s3.defaults.json": {
         "exists": true,
@@ -1328,7 +1343,7 @@
     "guard/files": {
       "entrypoint.sh": {
         "exists": true,
-        "sha256": "e618d1d8daf028a49ad451ecb503c62c64dfe801231082c7e20d913c969e09d1"
+        "sha256": "49a10ed1bcbb0309e6837852feac6d44edeac0862f0622f13de818efb154bed0"
       }
     },
     "nginx/files": {
